@@ -12,6 +12,11 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-30
+2015-08-24 Mikhail S. Dubrovin
+- in GlobalGraphics.py replace "== None" by : "is None"
+- in GlobalUtils - add misc. methods, improve doc. 
+	
 Tag: V00-00-29
 2015-08-20 Mikhail S. Dubrovin
 - add NDArrSpectrum.py (PSAS-178)

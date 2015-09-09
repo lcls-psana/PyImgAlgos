@@ -132,8 +132,8 @@ def getImageAs2DHist(iX,iY,W=None) :
     """
     xsize = np.ceil(iX).max()+1 
     ysize = np.ceil(iY).max()+1
-    if W==None : weights = None
-    else       : weights = W.flatten()
+    if W is None : weights = None
+    else         : weights = W.flatten()
     H,Xedges,Yedges = np.histogram2d(iX.flatten(), iY.flatten(), bins=(xsize,ysize), range=((-0.5,xsize-0.5),(-0.5,ysize-0.5)), normed=False, weights=weights) 
     return H
 
@@ -144,8 +144,8 @@ def getImageFromIndexArrays(iX,iY,W=None) :
     """
     xsize = iX.max()+1 
     ysize = iY.max()+1
-    if W==None : weight = np.ones_like(iX)
-    else       : weight = W
+    if W is None : weight = np.ones_like(iX)
+    else         : weight = W
     img = np.zeros((xsize,ysize), dtype=np.float32)
     img[iX,iY] = weight # Fill image array with data 
     return img
