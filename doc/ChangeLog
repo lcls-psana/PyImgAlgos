@@ -12,6 +12,9 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+2015-10-06 Mikhail S. Dubrovin
+- test svn
+	
 Tag: V00-00-32
 2015-10-05 Mikhail S. Dubrovin
 - add TDFileContainer.py, TDEvent.py, TDPeak.py for text data file processing
