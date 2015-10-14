@@ -1,6 +1,35 @@
 #!/usr/bin/env python
 #------------------------------
-"""Evaluate radial histogram for angle-integrated 2-d image
+
+""":py:class:`AngularIntegrator` - Evaluate radial histogram for angle-integrated 2-d image
+
+Usage::
+
+    # IMPORT
+    from pypsalg.AngularIntegrator import AngularIntegratorM
+
+    # Define test parameters
+    import numpy as np
+    img = np.ones((1200,1300), dtype=np.float32)  # generate test image as numpy array of ones of size (rows,cols) = (1200,1300)
+    mask = np.ones_like(img)                      # generate test mask for all good pixels
+    
+    rows, cols = img.shape                        # define shape parameters rows, cols - number of image rows, columns, respectively
+    rmin, rmax, nbins =100, 400, 50               # define radial histogram parameters - radial limits and number of equidistant bins
+
+    # Initialization of object and its parameters
+    ai = AngularIntegratorM()
+    ai.setParameters(rows, cols, xc=cols/2, yc=rows/2, rmin=rmin, rmax=rmax, nbins=nbins, mask=mask, phimin=-180, phimax=180)
+
+    # do angular integration for each input image and return array of bin centers and associated normalized intensities
+    bins, intensity = ai.getRadialHistogramArrays(img)
+
+    # test plot example
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(10,5), dpi=80, facecolor='w', edgecolor='w', frameon=True)
+    plt.hist(bins, bins=nbins, weights=intensity, color='b')
+    plt.show()
+
+@see :py:class:`pypsalg.AngularIntegratorM`
 
 This software was developed for the SIT project.  If you use all or 
 part of it, please give an appropriate acknowledgment.
@@ -16,11 +45,8 @@ __version__ = "$Revision$"
 from time import time
 import math
 import numpy as np
-#import scipy as sp
-#import scipy.ndimage
 
 import matplotlib
-#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 #------------------------------
@@ -106,8 +132,9 @@ class AngularIntegrator :
     def getRadialHistogramArrays(self, image):
         """Fills radial histogram with image intensities and do normalization on actual pixel number if the mask is provided
            and returns two arrays with radial bin centers and integrated (normalized) intensities. 
-        """   
-        bin_integral = np.bincount(self.rbinind.flatten(), weights=image.flatten(), minlength=self.rrange[2])
+        """
+        w = image * self.mask
+        bin_integral = np.bincount(self.rbinind.flatten(), weights=w.flatten(), minlength=self.nbins)
         #print 'bin_integral = ', bin_integral
         #print 'bin_integral.shape = ', bin_integral.shape
         if self.mask is None : return self.bincent, bin_integral
