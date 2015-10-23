@@ -12,6 +12,11 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-34
+2015-10-23 Mikhail S. Dubrovin
+- FiberIndexing.py - which generates lookup table for indexing (PSAS-178)
+- add examples/
+	
 Tag: V00-00-33
 2015-10-14 Mikhail S. Dubrovin
 - in AngularIntegrator.py - fix bug with accounting for mask in intensity accumulation

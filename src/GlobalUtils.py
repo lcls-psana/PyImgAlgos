@@ -275,6 +275,14 @@ def locxymax(nda, order=1, mode='clip') :
     return msk_ext_rows * msk_ext_cols
 
 ##-----------------------------
+
+def str_tstamp(fmt='%Y-%m-%dT%H:%M:%S', time_sec=None) :
+    """Returns string timestamp for specified format and time in sec or current time by default
+    """
+    from time import localtime, strftime
+    return strftime(fmt, localtime(time_sec))
+
+##-----------------------------
 ##-----------------------------
 ##---------- TEST -------------
 ##-----------------------------
@@ -363,6 +371,11 @@ def test_08() :
       gg.show()
 
 ##-----------------------------
+
+def test_09() :
+    print str_tstamp()
+
+##-----------------------------
 ##-----------------------------
 ##-----------------------------
 ##-----------------------------
@@ -385,6 +398,7 @@ def main() :
     elif sys.argv[1]=='6' : test_06()
     elif sys.argv[1]=='7' : test_07()
     elif sys.argv[1]=='8' : test_08()
+    elif sys.argv[1]=='9' : test_09()
     else                  : sys.exit ('Test number parameter is not recognized.\n%s' % usage())
 
 ##-----------------------------
