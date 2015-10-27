@@ -70,20 +70,20 @@ def triclinic_primitive_vectors(a=18.36,  b=26.65, c=4.81,\
                                 alpha=90, beta=90, gamma=102.83) :
     """Returns 3-d (Bravias) primitive vectors directed along crystal axes (edges)
        from lattice cell edge lengths [Angstrom or other prefered units] and angles [degree]
-       for triclinic crystal cell parametes:
+       for triclinic crystal cell parametes::
 
-                *----------*
-               / \        / \
-              /   \      /   \
-             /     \ gamma    \
-            /       *----------*
-           /       /  /       /
-          /alpha  /  /       /
-         *-------/--*       c
-          \     /    \beta /
-           a   /      \   /
-            \ /        \ /
-             *-----b----*
+                  *----------* 
+                 / \        / \ 
+                /   \      /   \ 
+               /     \ gamma    \ 
+              /       *----------* 
+             /       /  /       / 
+            /alpha  /  /       / 
+           *-------/--*       c 
+            \     /    \ beta/ 
+             a   /      \   / 
+              \ /        \ / 
+               *-----b----* 
              
        where a, b, c - crystal cell edge lengths,
        alpha, beta, gamma - interaxial angles around a, b, c edges, respectively'
@@ -208,7 +208,7 @@ def print_nda(nda, cmt) :
 #------------------------------
 
 def print_omega_dr(omega_deg, dr, drmax=1) :
-    """
+    """ Depricated, see str_omega_drhkl.
     """
     lst_dr = [d for d in dr.flatten() if math.fabs(d)<drmax]       
     if len(lst_dr) > 1:
@@ -220,7 +220,7 @@ def print_omega_dr(omega_deg, dr, drmax=1) :
 #------------------------------
 
 def str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_q=0) :
-    """
+    """ Returns the record to save in look-up table or print.
     """
     drmax = 3 * sigma_q
     factor = -1./(2*sigma_q*sigma_q)
@@ -282,12 +282,13 @@ def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
        beta  [deg] - fiber axis tilt,  
        omega [deg] - fiber rotation around axis,  
        For each crysal orientation (beta, gamma) lookup table contains info about lattice nodes
-       closest to the Evald's sphere: 
-       # beta 20.00  omega 178.50 degree
-       # index   beta     omega   h  k  l     dr [1/A]   R(h,k,l)   qv [1/A]   qh [1/A]   P(omega)
-         1078    20.00   178.50   1 -5  0     0.000262   0.211944  -0.016779   0.211221   0.964192
-         1078    20.00   178.50   0 -1  0     0.002470   0.038484   0.000343   0.038306   0.038686
-         1078    20.00   178.50   0  1  0     0.000582   0.038484  -0.000344  -0.038455   0.834544
+       closest to the Evald's sphere::
+
+           # beta 20.00  omega 178.50 degree
+           # index   beta     omega   h  k  l     dr [1/A]   R(h,k,l)   qv [1/A]   qh [1/A]   P(omega)
+             1078    20.00   178.50   1 -5  0     0.000262   0.211944  -0.016779   0.211221   0.964192
+             1078    20.00   178.50   0 -1  0     0.002470   0.038484   0.000343   0.038306   0.038686
+             1078    20.00   178.50   0  1  0     0.000582   0.038484  -0.000344  -0.038455   0.834544
 
        where:
        index - orientation index (just an unique integer number)
@@ -330,16 +331,6 @@ def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
             xrot2, zrot2 = rotation(xrot1, z, beta_deg)
         
             dr, qv, qh = radial_distance(xrot2, yrot1, zrot2, evald_rad)
-        
-            #print 'omega=%.2f degree  dr_min=%.4f ' % (omega_deg, np.min(np.fabs(dr)))
-            #print '\nomega=%.2f degree' % (omega_deg)
-            #print_nda(dr, 'dr:')
-            #print_nda(qh, 'qh:')
-            #print_nda(qv, 'qv:')
-            #print hkl
-        
-            #print 'omega=%.2f degree' % (omega_deg)
-            #print_omega_dr(omega_deg, dr, drmax=3*sigma_q)
         
             txt = str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_q)
             print txt
@@ -443,7 +434,8 @@ def do_work() :
     bpomega = BinPars(0., 180., 360, vtype=np.float32)
     
     # bin parameters for beta [degree] - fiber axis tilt angle
-    bpbeta = BinPars(10., 20., 3, vtype=np.float32, endpoint=True)
+    #bpbeta = BinPars(10., 20., 3, vtype=np.float32, endpoint=True)
+    bpbeta = BinPars(15., 15., 1, vtype=np.float32, endpoint=False)
  
     lut = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_q, fout, bpq, bpomega, bpbeta)
 

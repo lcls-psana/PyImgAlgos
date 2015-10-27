@@ -58,21 +58,23 @@ def _fillimg(r,c,a) :
 ##-----------------------------
 
 def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
-    """Do fraser correction for an array at angle beta and distance L (given in
-    units of pixels (110um) - wavelength not considered, angle is in degrees
-    example fraser(array,10,909); (10 degrees at 100mm distance)
+    """Do fraser correction for an array at angle beta and distance L, given in
+    number of pixels (109.92um), angle is in degrees.
+    Example: fraser(array,10,909); (10 degrees at 100mm distance)
 
     ASSUMPTION:
-    1. 2-d array center corresponds to image center (0,0) by default
+    1. by default 2-d arr image center corresponds to (x,y) origin 
     @param arr      - [in] 2-d image array
     @param beta_deg - [in] angle beta in degrees
     @param L        - [in] distance from sample to detector given in units of pixels (110um)
-    @param center   - [in] center corresponds to image center (0,0) by default
+    @param center   - [in] center (row,column) location on image, which will be used as (x,y) origin 
     @param oshape   - [in] ouitput image shape
     """
 
     sizex = arr.shape[0]
     sizey = arr.shape[1]
+
+    scale = float(L)
 
     xc, yc = center if center is not None else (sizex/2, sizey/2) 
 
@@ -96,8 +98,8 @@ def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
     s12rot = np.sqrt(np.square(s1rot) + np.square(s2rot))
     s12rot[:,1:math.floor(sizex-xc)] *= -1
 
-    s12rot = np.ceil(s12rot * math.floor(sizex-xc))
-    s3rot  = np.ceil(s3rot  * math.floor(sizey-yc))
+    s12rot = np.ceil(s12rot * scale) # old factor: math.floor(sizex-xc))
+    s3rot  = np.ceil(s3rot  * scale) # old factor: math.floor(sizey-yc))
 
     orows, orows1 = oshape[0], oshape[0] - 1
     ocols, ocols1 = oshape[1], oshape[1] - 1
@@ -107,10 +109,6 @@ def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
 
     irows = np.select([irows<0, irows>orows1], [0,orows1], default=irows)
     icols = np.select([icols<0, icols>ocols1], [0,ocols1], default=icols)
-
-    #reciparr = np.zeros(oshape, dtype=arr.dtype)
-    #counts   = np.zeros(oshape, dtype=np.int)
-    #reciparr[irows, icols] = arr
 
     sp.image = np.zeros(oshape, dtype=arr.dtype)
     sp.count = np.zeros(oshape, dtype=np.int)

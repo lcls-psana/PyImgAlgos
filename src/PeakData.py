@@ -12,10 +12,11 @@ Usage::
     pk = PeakData(line)
 
     # access peak attributes
-    exp = pk.exp
-    run = pk.run
-    son  = pk.son  # S/N for pixel with maximal intensity 
-    sonc = pk.sonc # S/N for all pixels included in the peak
+    exp  = pk.exp  # (str)   experiment name
+    run  = pk.run  # (int)   run number
+    son  = pk.son  # (float) S/N for pixel with maximal intensity 
+    sonc = pk.sonc # (float) S/N for all pixels included in the peak
+    line = pk.line # (str)   entire record with peak data
     ...
 
     # get evaluated parameters
@@ -66,7 +67,7 @@ class PeakData :
         sp.date, sp.time, sp.tsec, sp.tnsec, sp.fid = s_date, s_time, int(s_time_sec), int(s_time_nsec), int(s_fid)
         sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix = int(s_seg), int(s_row), int(s_col), float(s_amax), float(s_atot), int(s_npix)
         sp.rcent, sp.ccent, sp.rsigma, sp.csigma = float(s_rcent), float(s_ccent), float(s_rsigma), float(s_csigma)
-        #sp.rmin, sp.rmax, sp.cmin, sp.cmax = int(s_rmin), int(s_rmax), int(s_cmin), int(s_cmax)
+        sp.rmin, sp.rmax, sp.cmin, sp.cmax = int(s_rmin), int(s_rmax), int(s_cmin), int(s_cmax)
         sp.bkgd, sp.rms, sp.son = float(s_bkgd), float(s_rms), float(s_son)
         sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
         sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
@@ -74,7 +75,7 @@ class PeakData :
         sp.dphi000 = sp.phi
         sp.dphi180 = sp.phi - 180 if sp.phi>-90 else sp.phi + 180 # +360-180
 
-        #sp.line = line
+        sp.line = line
         
 #------------------------------
 

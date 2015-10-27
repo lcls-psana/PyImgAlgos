@@ -9,16 +9,16 @@
 #
 #------------------------------------------------------------------------
 
-"""TDPeak - text data peak information holder/accessor class.
+"""TDPeak - this class inherits from PeakData information holder/accessor class.
 
-Works together with TDFileContainer and TDEvent classes.
+Works together with TDFileContainer and TDGroup classes.
 
 
 This software was developed for the LCLS project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
 @see TDFileContainer - loads/holds text data from class and provides per-event-indexed access. 
-@see TDEvent - holds a list of records associated with a single event.
+@see TDGroup - holds a list of records associated with a group of records.
 
 @version $Id$
 
@@ -28,9 +28,6 @@ If you use all or part of it, please give an appropriate acknowledgment.
 __version__ = "$Revision$"
 # $Source$
 ##-----------------------------
-
-#import os
-#from time import time
 
 from pyimgalgos.PeakData import PeakData
 

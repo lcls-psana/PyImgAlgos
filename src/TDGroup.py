@@ -5,11 +5,11 @@
 #  $Id$
 #
 # Description:
-#  class TDEvent
+#  class TDGroup
 #
 #------------------------------------------------------------------------
 
-"""TDEvent - text data event information holder/accessor class.
+"""TDGroup - text data event information holder/accessor class.
 
 Works together with TDFileContainer and TDPeak classes.
 
@@ -36,7 +36,7 @@ __version__ = "$Revision$"
 ##-----------------------------
 ##-----------------------------
 
-class TDEvent :
+class TDGroup :
     """Gets in constructor a list of text data records and converts them in a list of objects 
     """
     def __init__(self, recs, objtype, pbits=0) :
