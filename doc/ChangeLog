@@ -12,14 +12,18 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-36
+2015-10-28 Mikhail S. Dubrovin
+- FiberIndexing.py - add lattice_node_radius() (PSAS-178)
+- PeakData.py, TDIndexRecord.py - improve doc
+
 Tag: V00-00-35
 2015-10-27 Mikhail S. Dubrovin
-- PeakData - add attribute self.line - string with entire peak data from file
+- PeakData - add attribute self.line - string with entire peak data from file (PSAS-178).
 - FiberAngles.fraser - change scale factor scale=L for conversion of s12rot and s3rot
   output image (like it is done in code of Kurtik). Previously it was (sizex-xc), (sizey-yc). 
-- Refactoring TDFileContainer.py, rename TDEvent.py -> TDGroup.py
-- add TDIndexRecord.py
-- add ex-indexing-records.py
+- Refactoring TDFileContainer.py, rename TDEvent.py -> TDGroup.py, 
+	add TDIndexRecord.py, ex-indexing-records.py, ex-indexing-records.py
 	
 Tag: V00-00-34
 2015-10-23 Mikhail S. Dubrovin

@@ -12,9 +12,9 @@ Usage::
     rec = TDIndexRecord(line)
 
     # access record attributes
-    beta = rec.beta
-    prob = rec.P
-    ...
+    index, beta, omega h, k, l, dr, R, qv, qh, P =\
+    rec.index, rec.beta, rec.omega rec.h, rec.k, rec.l, rec.dr, rec.R, rec.qv, rec.qh, rec.P
+    line = rec.line
 
     # print attributes
     rec.print_short()

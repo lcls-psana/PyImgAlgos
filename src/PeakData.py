@@ -19,11 +19,26 @@ Usage::
     line = pk.line # (str)   entire record with peak data
     ...
 
-    # get evaluated parameters
-    signal = pk.peak_signal()
-    noise  = pk.peak_noise()
-    son    = pk.peak_son()
+    # Information available through the PeakData object pk
+    # ____________________________________________________
+    # pk.exp, pk.run, pk.evnum, pk.reg
+    # pk.date, pk.time, pk.tsec, pk.tnsec, pk.fid
+    # pk.seg, pk.row, pk.col, pk.amax, pk.atot, pk.npix
+    # pk.rcent, pk.ccent, pk.rsigma, pk.csigma
+    # pk.rmin, pk.rmax, pk.cmin, pk.cmax
+    # pk.bkgd, pk.rms, pk.son
+    # pk.imrow, pk.imcol
+    # pk.x, pk.y, pk.r, pk.phi
+    # pk.sonc
+    # pk.dphi000
+    # pk.dphi180
+    # pk.line
 
+    # get evaluated parameters
+    # pk.peak_signal()
+    # pk.peak_noise()
+    # pk.peak_son()
+            
     # print attributes
     pk.print_peak_data()
     pk.print_peak_data_short()

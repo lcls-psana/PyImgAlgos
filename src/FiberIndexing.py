@@ -342,6 +342,30 @@ def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
         
 #------------------------------
 
+def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
+                 hmax=3, kmax=2, lmax=1, cdtype=np.float32) :
+
+    print '\nreciprocal space primitive vectors:\n  b1 = %s\n  b2 = %s\n  b3 = %s' %\
+           (str(b1), str(b2), str(b3))
+
+    x, y, z, rarr, harr, karr, larr = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
+
+    hklarr = zip(harr.flatten(), karr.flatten(), larr.flatten())
+    dic_r_hkl = dict(zip(rarr.flatten(),hklarr))   
+
+    r_nodes = sorted(dic_r_hkl.keys())
+
+    print '\n%s\nTable of lattice node parameters sorted by radius' % (80*'_')
+
+    if lmax==0 : print '( h, k) R(h,k)[1/A]'
+    else       : print '( h, k, l) R(h,k,l)[1/A]'
+    for rnode in sorted(dic_r_hkl.keys()) :
+        hkl = dic_r_hkl[rnode]
+        if lmax==0 : print '(%2i,%2i) %6.4f' % (hkl[0], hkl[1], rnode)
+        else       : print '(%2i,%2i,%2i) %6.4f' % (hkl[0], hkl[1], hkl[2], rnode) 
+
+#------------------------------
+
 def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
                  hmax=3, kmax=2, lmax=1, cdtype=np.float32) :
 
@@ -370,7 +394,7 @@ def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     
 #------------------------------
 
-def do_work() :
+def make_index_table() :
 
     from pyimgalgos.GlobalUtils import str_tstamp
 
@@ -380,7 +404,7 @@ def do_work() :
 
     # Lattice parameters
     a, b, c = 18.36, 26.65, 4.81        # Angstrom
-    alpha, beta, gamma = 90, 90, 102.83 # degree
+    alpha, beta, gamma = 90, 90, 77.17  # 180 - 102.83 degree
     hmax, kmax, lmax = 5, 5, 0          # size of lattice to consider
 
     a1, a2, a3 = triclinic_primitive_vectors(a, b, c, alpha, beta, gamma)
@@ -421,6 +445,8 @@ def do_work() :
     #test_lattice()
     test_lattice(b1, b2, b3, hmax, kmax, lmax, cdtype=np.float32)
 
+    lattice_node_radius(b1, b2, b3, hmax, kmax, lmax, cdtype=np.float32)
+    lattice_node_radius(b1, b2, b3, hmax, kmax, 1, cdtype=np.float32)
     #return
     #------------------------------
 
@@ -462,6 +488,6 @@ def do_work() :
 #------------------------------
 
 if __name__ == "__main__" :
-    do_work()
+    make_index_table()
 
 #------------------------------
