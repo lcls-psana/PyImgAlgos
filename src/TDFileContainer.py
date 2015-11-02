@@ -40,10 +40,15 @@ Usage::
 
     # Import
     from pyimgalgos.TDFileContainer import TDFileContainer
+    from pyimgalgos.TDIndexRecord   import TDIndexRecord
+    #from pyimgalgos.TDPeak          import TDPeak # use it by default in TDFileContainer
 
     # Initialization
     fname = '/reg/neh/home1/dubrovin/LCLS/rel-mengning/work/pfv2-cxif5315-r0169-2015-09-14T14:28:04.txt'
     fc = TDFileContainer(fname) # optional arguments: indhdr='Evnum', objtype=TDPeak, pbits=0
+
+    # or for index table: fc = TDFileContainer(fname, indhdr='index', objtype=TDIndexRecord, pbits=0)
+
     fc.print_attrs()
 
     # Iterate over groups
@@ -145,12 +150,22 @@ class TDFileContainer :
 ##-----------------------------
 
     def __call__(self) :
-        """ Prints content of the container.
+        """ Alias to group_num_iterator()
+        """
+        self.group_num_iterator()
+
+##-----------------------------
+
+    def print_content(self, nlines=None) :
+        """ Prints content of the file-container; by default-entire file.
         """
         if self.pbits & 256 : print """default method of class %s""" % self.__class__.__name__
+
+        print '\n', 120*'_', '\n%s holds data from file:\n  %s\n' % (self.__class__.__name__, self.fname)
         for i,rec in enumerate(self.lst_of_recs) :
-            if i>5 : break
-            print i, len(rec)
+            if nlines is not None and i>nlines : break
+            print rec,
+        print 'etc.' if nlines is not None else 'End of file'
 
 ##-----------------------------
 

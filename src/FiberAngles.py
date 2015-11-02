@@ -57,6 +57,37 @@ def _fillimg(r,c,a) :
     
 ##-----------------------------
 
+def fraser_xyz(x, y, z, beta_deg, k=1.0) :
+    """Do fraser transformation for of 3-d points given by x,y,z arrays for angle beta around x and
+    returns horizontal and vertical components of the scattering vector in units of k (eV or 1/A).
+    x,y-arrays representing image point coordinates, z-can be scalar - distance from sample to detector.
+    x, y, and z should be in the same units; ex.: number of pixels (109.92um) or [um], angle is in degrees.
+    Example: fraser_xy(x,y,909,10); (10 degrees at 909 pixel (100mm) distance)
+
+    ASSUMPTION:
+    @param x,y,z    - [in] point coordinate arrays with originn in IP
+    @param beta_deg - [in] angle beta in degrees
+    @param k        - [in] scale factor, ex.: wave number in units of (eV or 1/A).
+    """
+
+    d = np.sqrt(x*x+y*y+z*z)
+    s1 = x/d
+    s2 = z/d - 1
+    s3 = y/d
+
+    cb = math.cos(math.radians(beta_deg))
+    sb = math.sin(math.radians(beta_deg))
+
+    s1rot = s1
+    s2rot = s2 * cb - s3 * sb
+    s3rot = s2 * sb + s3 * cb
+
+    s12rot = np.sign(s1rot)*np.sqrt(np.square(s1rot) + np.square(s2rot))
+
+    return s12rot*k, s3rot*k
+
+##-----------------------------
+
 def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
     """Do fraser correction for an array at angle beta and distance L, given in
     number of pixels (109.92um), angle is in degrees.
@@ -125,6 +156,33 @@ def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
     reciparr = np.select([countpro>0], [sp.image/countpro], default=0)
 
     return s12rot, s3rot, reciparr
+
+#------------------------------
+
+def rotation_cs(X, Y, C, S) :
+    """For numpy arrays X and Y returns the numpy arrays of Xrot and Yrot
+    """
+    Xrot = X*C - Y*S 
+    Yrot = Y*C + X*S 
+    return Xrot, Yrot
+
+#------------------------------
+
+def rotation(X, Y, angle_deg) :
+    """For numpy arrays X and Y returns the numpy arrays of Xrot and Yrot rotated by angle_deg
+    """
+    angle_rad = math.radians(angle_deg)
+    S, C = math.sin(angle_rad), math.cos(angle_rad)
+    return rotation_cs(X, Y, C, S)
+
+#------------------------------
+
+def rotation_phi_beta(x, y, L, phi_deg, beta_deg, scale) :
+    """Returns horizontal and vertical components of the scattering vector in units of scale (k)
+       x, y can be arrays, L-scalar in the same units, ex. scale = k[1/A] or in number of pixels etc.
+    """
+    xrot, yrot = rotation(np.array(x), np.array(y), phi_deg)
+    return fraser_xyz(xrot, yrot, L, beta_deg, scale)
 
 ##-----------------------------
 

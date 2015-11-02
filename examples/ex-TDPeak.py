@@ -11,6 +11,7 @@ def do_work() :
     fname = '/reg/neh/home1/dubrovin/LCLS/rel-mengning/work/pfv2-cxif5315-r0169-2015-09-14T14:28:04.txt'
     fc = TDFileContainer(fname, indhdr='Evnum') #, objtype=TDPeak, pbits=0)
     #fc.print_attrs()
+    fc.print_content(nlines=20) # print part of content 
 
     # Direct access to TDGroup object
     group = fc.group(8)
