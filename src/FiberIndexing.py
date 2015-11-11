@@ -18,14 +18,19 @@ class BinPars() :
     """ Bin parameters storage
     """
     def __init__(self, vmin, vmax, nbins, vtype=np.float32, endpoint=False):
-        self.vmin      = vmin
-        self.vmax      = vmax
-        self.nbins     = nbins
-        self.vtype     = vtype
-        self.endpoint  = endpoint
-        self.binedges  = np.linspace(vmin, vmax, nbins, endpoint=endpoint, dtype=vtype)
-        self.inds      = range(self.binedges.size)
-        self.indbins   = zip(self.inds, self.binedges)          
+        self.vmin       = vmin
+        self.vmax       = vmax
+        self.nbins      = nbins
+        self.binwidth   = (vmax-vmin)/nbins
+        self.halfbinw   = 0.5 * self.binwidth
+        self.vtype      = vtype
+        self.endpoint   = endpoint
+        self.binedges   = np.linspace(vmin, vmax, nbins, endpoint=endpoint, dtype=vtype)
+        self.bincenters = self.binedges + self.halfbinw
+        self.inds       = range(self.binedges.size)
+        self.indedges   = zip(self.inds, self.binedges)          
+        self.indcenters = zip(self.inds, self.bincenters)          
+        self.strrange   ='%.0f-%.0f-%d' % (vmin, vmax, nbins)
 
 #------------------------------
 #------------------------------
@@ -183,7 +188,7 @@ def rotation(X, Y, angle_deg) :
 
 #------------------------------
 
-def radial_distance(X, Y, Z, evald_rad=3) :
+def radial_distance(X, Y, Z, evald_rad=0.5) :
     """For all defined nodes of the lattice returns
        dr - distance from evald sphere to the recipical lattice node,
        qv, qh - vertical, horizontal components of the momentum transfer vector.
@@ -264,7 +269,7 @@ def fill_row(dr, qv, qh, h, k, l, sigma_q, bpq) :
         f_angle = math.exp(factor*dr1*dr1)
 
         # loop over q bins
-        for indq, binq in bpq.indbins :
+        for indq, binq in bpq.indcenters :
 
             dq = qh1 - binq
             if math.fabs(dq) > range_q : continue
@@ -323,7 +328,7 @@ def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 
     ind = 0
     for beta_deg in bpbeta.binedges :
-        for iomega, omega_deg in bpomega.indbins :
+        for iomega, omega_deg in bpomega.indedges :
         
             ind += 1
         
@@ -333,7 +338,7 @@ def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
             dr, qv, qh = radial_distance(xrot2, yrot1, zrot2, evald_rad)
         
             txt = str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_q)
-            print txt
+            print txt,
             if fout is not None : fout.write(txt)
         
             lut[iomega,:] += fill_row(dr, qv, qh, h, k, l, sigma_q, bpq)
@@ -393,19 +398,42 @@ def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     #print_nda(zrot, 'zrot')
     
 #------------------------------
-
-def make_index_table() :
+#------------------------------
+#------------------------------
+#------------------------------
+def make_index_table(prefix='./v01-') :
 
     from pyimgalgos.GlobalUtils import str_tstamp
-
-    fname = 'lut-cxif5315-r0169-%s.txt' % (str_tstamp())
+    fname = '%slut-cxif5315-r0169-%s.txt' % (prefix, str_tstamp())
     fout = open(fname,'w')
     fout.write('# file name: %s\n' % fname)
 
+    #------------------------------
+    # Photon energy
+    Egamma_eV  = 6003.1936                               # eV SIOC:SYS0:ML00:AO541
+    wavelen_nm = wavelength_nm_from_energy_ev(Egamma_eV) # nm
+    evald_rad  = wave_vector_value(Egamma_eV)            # 1/A
+    #-------
+    sigma_q    = 0.002 * evald_rad
+    #-------
+    rec  = '\n# photon energy = %.4f eV' % (Egamma_eV)\
+         + '\n# wavelength = %.4f A' % (wavelen_nm*10)\
+         + '\n# wave number/Evald radius k = 1/lambda = %.6f 1/A' % (evald_rad)\
+         + '\n# sigma_q = %.6f 1/A (approximately = k * <pixel size>/' % (sigma_q)\
+         + '<sample-to-detector distance> = k*100um/100mm)'\
+         + '\n# 3*sigma_q = %.6f 1/A\n' % (3*sigma_q)
+    print rec
+    fout.write(rec)
+
+    #------------------------------
     # Lattice parameters
-    a, b, c = 18.36, 26.65, 4.81        # Angstrom
-    alpha, beta, gamma = 90, 90, 77.17  # 180 - 102.83 degree
-    hmax, kmax, lmax = 5, 5, 0          # size of lattice to consider
+    # from previous analysis note:
+    #a, b, c = 18.36, 26.65, 4.81        # Angstrom
+    #alpha, beta, gamma = 90, 90, 77.17  # 180 - 102.83 degree
+    a= 18.55 # Angstrom
+    b, c = 1.466*a, 0.262*a              # Angstrom
+    alpha, beta, gamma = 90, 90, 78.47   # 180 - 101.53 degree
+    hmax, kmax, lmax = 4, 6, 0           # size of lattice to consider
 
     a1, a2, a3 = triclinic_primitive_vectors(a, b, c, alpha, beta, gamma)
     b1, b2, b3 = reciprocal_from_bravias(a1, a2, a3)
@@ -424,67 +452,76 @@ def make_index_table() :
     print rec
     fout.write(rec)
 
+    fout.write('\n# %s\n\n' % (89*'_'))
+
     #for line in triclinic_primitive_vectors.__doc__.split('\n') : fout.write('\n# %s' % line)
 
-    # Photon energy
-    Egamma_eV = 6003.1936             # eV SIOC:SYS0:ML00:AO541
-    wavelen_nm = wavelength_nm_from_energy_ev(Egamma_eV)
-    evald_rad = wave_vector_value(Egamma_eV)
-    sigma_q = 0.001 * evald_rad
-
-    rec  = '\n# photon energy = %.4f eV' % (Egamma_eV)\
-         + '\n# wavelength = %.4f A' % (wavelen_nm*10)\
-         + '\n# wave number/Evald radius k = 1/lambda = %.6f 1/A' % (evald_rad)\
-         + '\n# sigma_q   = %.6f 1/A (approximately pixel size/sample-to-detector distance = 100um/100mm)' % (sigma_q)\
-         + '\n# 3*sigma_q = %.6f 1/A' % (3*sigma_q)\
-         + '\n# %s\n\n' % (89*'_')
-
-    print rec
-    fout.write(rec)
-
-    #test_lattice()
-    test_lattice(b1, b2, b3, hmax, kmax, lmax, cdtype=np.float32)
-
+    test_lattice       (b1, b2, b3, hmax, kmax, lmax, cdtype=np.float32)
     lattice_node_radius(b1, b2, b3, hmax, kmax, lmax, cdtype=np.float32)
-    lattice_node_radius(b1, b2, b3, hmax, kmax, 1, cdtype=np.float32)
-    #return
-    #------------------------------
+    lattice_node_radius(b1, b2, b3, hmax, kmax, 1,    cdtype=np.float32)
 
-    import matplotlib.pyplot as plt
-    import pyimgalgos.GlobalGraphics as gg
+    #------------------------------
+    #return
+
+    #------------------------------
+    # binning for look-up table and plots
 
     # bin parameters for q in units of k = Evald's sphere radius [1/A]
-    bpq = BinPars(-0.2, 0.2, 800, vtype=np.float32)
+    bpq = BinPars(-0.25, 0.25, 1000, vtype=np.float32, endpoint=False)
 
     # bin parameters for omega [degree] - fiber rotation angle around axis
-    bpomega = BinPars(0., 180., 360, vtype=np.float32)
+    bpomega = BinPars(0.,  180., 360, vtype=np.float32, endpoint=False)
     
     # bin parameters for beta [degree] - fiber axis tilt angle
-    #bpbeta = BinPars(10., 20., 3, vtype=np.float32, endpoint=True)
-    bpbeta = BinPars(15., 15., 1, vtype=np.float32, endpoint=False)
- 
-    lut = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_q, fout, bpq, bpomega, bpbeta)
+    #bpbeta = BinPars(15.,  195.,  2, vtype=np.float32, endpoint=True)
+    #bpbeta = BinPars(15.,   15.,  1, vtype=np.float32, endpoint=False)
+    #bpbeta = BinPars(5.,    25.,  2, vtype=np.float32, endpoint=True)
+    bpbeta  = BinPars(0.,    50., 11, vtype=np.float32, endpoint=True)
+    bpbeta2 = BinPars(180., 230., 11, vtype=np.float32, endpoint=True)
+    str_beta = 'for-beta:%s' % (bpbeta.strrange)
+     
+    print '\n%s\nIndexing lookup table\n' % (91*'_')
+    lut  = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_q, fout, bpq, bpomega, bpbeta)
+    lut2 = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_q, fout, bpq, bpomega, bpbeta2)
 
     fout.close()
-    print '\nFile with lookup table is saved: %s' % fname
+    print '\nIndexing lookup table is saved in the file: %s' % fname
+
+    #------------------------------
+    # produce and save plots
+    import pyimgalgos.GlobalGraphics as gg
+
+    img = lut # or lut2
+    img = lut + lut2
 
     img_range = (bpq.vmin, bpq.vmax, bpomega.vmax, bpomega.vmin) 
     axim = gg.plotImageLarge(lut, img_range=img_range, amp_range=None, figsize=(15,13),\
-                      title='Image', origin='upper', window=(0.05,  0.06, 0.94, 0.94))
+                      title='Non-symmetrized for beta', origin='upper', window=(0.05,  0.06, 0.94, 0.94))
     axim.set_xlabel('$q_{H}$ ($1/\AA$)', fontsize=18)
     axim.set_ylabel('$\omega$ (degree)', fontsize=18)
+    gg.save('%splot-img-prob-omega-vs-qh-%s.png' % (prefix, str_beta), pbits=1)
 
-    arrhi = np.sum(lut,0)
-    fighi, axhi, hi = gg.hist1d(bpq.binedges, bins=bpq.nbins+1, amp_range=(bpq.vmin, bpq.vmax), weights=arrhi,\
+    axim = gg.plotImageLarge(img, img_range=img_range, amp_range=None, figsize=(15,13),\
+                      title='Symmetrized for beta (beta, beta+pi)', origin='upper', window=(0.05,  0.06, 0.94, 0.94))
+    axim.set_xlabel('$q_{H}$ ($1/\AA$)', fontsize=18)
+    axim.set_ylabel('$\omega$ (degree)', fontsize=18)
+    gg.save('%splot-img-prob-omega-vs-qh-sym-%s.png' % (prefix, str_beta), pbits=1)
+
+    arrhi = np.sum(img,0)    
+    fighi, axhi, hi = gg.hist1d(bpq.binedges, bins=bpq.nbins-1, amp_range=(bpq.vmin, bpq.vmax), weights=arrhi,\
                                 color='b', show_stat=True, log=False,\
                                 figsize=(15,5), axwin=(0.05, 0.12, 0.85, 0.80),\
                                 title=None, xlabel='$q_{H}$ ($1/\AA$)', ylabel='Intensity', titwin=None)
     gg.show()
 
-    #import matplotlib.pyplot  as plt
-    #plt.imshow(lut)
-    #plt.show()
-    
+    gg.save_fig(fighi, '%splot-his-prob-vs-qh-%s.png' % (prefix, str_beta), pbits=1)
+
+    qh_weight = zip(bpq.bincenters, arrhi)
+    fname = '%sarr-qh-weight-%s.npy' % (prefix, str_beta)
+    print 'Save qh:weigt array in file %s' % fname
+    np.save(fname, qh_weight)
+
+#------------------------------
 #------------------------------
 
 if __name__ == "__main__" :

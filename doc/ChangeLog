@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-38
+2015-11-11 Mikhail S. Dubrovin
+- update FiberIndexing and PeakStore (PSAS-178)
+
 Tag: V00-00-37
 2015-11-02 Mikhail S. Dubrovin
 - add methods in FiberAngles.py, generalization of PeakStore.py and TDFileContainer.py, update examples (PSAS-178)

@@ -57,7 +57,7 @@ class PeakStore :
         """
         self.fout   = None
         self.pbits  = pbits
-        self.exp    = par if isinstance(par,str) else env.experiment()
+        self.exp    = par if isinstance(par,str) else par.experiment()
         self.runnum = runnum 
         self.set_file_name(prefix)
         self.set_header(header, add_header)
@@ -114,7 +114,7 @@ class PeakStore :
             self.header = '%s  %s' %\
                 ('# Exp     Run  Date       Time      time(sec)   time(nsec) fiduc', add_header )
         else :
-            self.header = '# %s  %s' % (header, add_header )
+            self.header = '# %s %s' % (header, add_header )
 
         if self.pbits & 2 : print 'Hdr : %s' % (self.header)
 
@@ -123,7 +123,7 @@ class PeakStore :
     def rec_evtid(self, evt) :
         """Returns a string with event identidication info: exp, run, evtnum, tstamp, etc.
         """
-        if self.psana is not None :
+        if self.psana is None :
             import psana
             self.psana = psana
  
