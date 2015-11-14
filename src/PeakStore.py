@@ -130,7 +130,7 @@ class PeakStore :
         evtid = evt.get(self.psana.EventId)
         time_sec, time_nsec = evtid.time()
         tstamp = strftime('%Y-%m-%d %H:%M:%S', localtime(time_sec))
-        return '%8s  %3d  %s  %10d  %9d  %5d' % \
+        return '%8s  %3d  %s  %10d  %9d  %6d' % \
                (self.exp, evtid.run(), tstamp, time_sec, time_nsec, evtid.fiducials())
 
 #------------------------------
@@ -142,7 +142,7 @@ class PeakStore :
         if self.fout is not None : self.fout.write('%s\n' % rec)
         self.counter += 1
         #self.evt_peaks.append(peak)
-        if self.pbits & 2 : print '%5d: %s' % (self.counter, rec)
+        if self.pbits & 2 : print '%7d: %s' % (self.counter, rec)
     
 #------------------------------
     

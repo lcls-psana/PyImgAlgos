@@ -4,12 +4,12 @@
 Usage::
 
     # Imports
-    from pyimgalgos.PeakData import PeakData
+    from pyimgalgos.TDPeakRecord import TDPeakRecord
 
     # Usage
 
     # make object
-    pk = PeakData(line)
+    pk = TDPeakRecord(line)
 
     # access peak attributes
     exp  = pk.exp  # (str)   experiment name
@@ -19,7 +19,7 @@ Usage::
     line = pk.line # (str)   entire record with peak data
     ...
 
-    # Information available through the PeakData object pk
+    # Information available through the TDPeakRecord object pk
     # ____________________________________________________
     # pk.exp, pk.run, pk.evnum, pk.reg
     # pk.date, pk.time, pk.tsec, pk.tnsec, pk.fid
@@ -60,7 +60,7 @@ import math
 
 #------------------------------
 
-class PeakData :
+class TDPeakRecord :
 
     def __init__(sp, line, pixel_size = 109.92) :  
         """Parse the string of parameters to values
@@ -91,13 +91,27 @@ class PeakData :
         sp.dphi180 = sp.phi - 180 if sp.phi>-90 else sp.phi + 180 # +360-180
 
         sp.line = line
+        sp.empty = sp.empty_line()
         
+#------------------------------
+    
+    def empty_line(sp) :
+       #header = '# Exp     Run  Date       Time      time(sec)   time(nsec) fiduc'
+       #addhdr = '  Evnum  Reg  Seg  Row  Col  Npix      Amax      Atot   rcent   ccent '+\
+       #         'rsigma  csigma rmin rmax cmin cmax    bkgd     rms     son  imrow   imcol     x[um]     y[um]     r[um]  phi[deg]'
+       fmt = '%8s  %3d  %10s %8s  %10d  %9d  %6d'+\
+             ' %7d  %3s  %3d %4d %4d  %4d  %8.1f  %8.1f  %6.1f  %6.1f %6.2f  %6.2f'+\
+             ' %4d %4d %4d %4d  %6.2f  %6.2f  %6.2f'+\
+             ' %6d  %6d  %8.0f  %8.0f  %8.0f  %8.2f'
+       z=0
+       return fmt % ('exp', z, 'date', 'time', z,z,z,z,'N/A',z,z,z,z,z,z,z,z,z,z, z,z,z,z,z,z,z,z,z,z, z,z,z)       
+
 #------------------------------
 
     def print_peak_data_short(sp) :
         """Prints short subset of data
         """    
-        print '%5d %s %3d %3d %3d %7.1f %7.1f %3d %6d %6d %7.1f %7.1f' % \
+        print '%7d %s %3d %3d %3d %7.1f %7.1f %3d %6d %6d %7.1f %7.1f' % \
               (sp.evnum, sp.reg, sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix, sp.x, sp.y, sp.r, sp.phi)   
 
 #------------------------------
@@ -136,6 +150,13 @@ class PeakData :
         msg = 'Attributes of %s, pixel size[um] =%8.2f' % (sp.__class__.__name__, sp.pixel_size)
         #msg += ', line:  \n%s' % (sp.line)
         print msg
+
+#------------------------------
+
+    def print_short(sp) :
+        """Alias for interface method
+        """
+        sp.print_peak_data_short()
 
 #------------------------------
 #--------------------------------

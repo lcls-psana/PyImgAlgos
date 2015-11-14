@@ -11,14 +11,14 @@
 
 """TDGroup - text data event information holder/accessor class.
 
-Works together with TDFileContainer and TDPeak classes.
+Works together with TDFileContainer and TDPeakRecord classes.
 
 
 This software was developed for the LCLS project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
 @see TDFileContainer - loads/holds text data from class and provides per-event-indexed access. 
-@see TDPeak - holds a list of records associated with a single event.
+@see TDPeakRecord - holds a list of records associated with a single event.
 
 @version $Id$
 
@@ -31,7 +31,7 @@ __version__ = "$Revision$"
 
 #import os
 #from time import time
-#from pyimgalgos.TDPeak import TDPeak
+#from pyimgalgos.TDPeakRecord import TDPeakRecord
 
 ##-----------------------------
 ##-----------------------------

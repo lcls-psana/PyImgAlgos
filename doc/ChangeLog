@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-39
+2015-11-13 Mikhail S. Dubrovin
+- add TDMatchRecord, update FiberIndexing, PeakStore, TDFileContainer, TDGroup, move TDIndexRecord to TDNodeRecord, TDPeak+PeakData to TDPeakRecord(PSAS-178)
+
 Tag: V00-00-38
 2015-11-11 Mikhail S. Dubrovin
 - update FiberIndexing and PeakStore (PSAS-178)

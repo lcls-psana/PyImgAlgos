@@ -235,13 +235,13 @@ def str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_q=0)
     s = ''
     if len(lst_drhkl) > 1:
         s = '# beta %.2f  omega %.2f degree' % (beta_deg, omega_deg)\
-          + '\n# index   beta     omega   h  k  l     dr [1/A]   R(h,k,l)   qv [1/A]   qh [1/A]   P(omega)'
+          + '\n# index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]  P(omega)'
         for e in lst_drhkl :
             if e[1]==0 and e[2]==0 and e[3]==0 : continue
             d = math.fabs(e[0])
             if sigma_q and d > drmax : continue
             prob = math.exp(factor*d*d)
-            s += '\n%6d  %7.2f  %7.2f  %2d %2d %2d    %9.6f  %9.6f  %9.6f  %9.6f  %9.6f' %\
+            s += '\n%6d  %7.2f %7.2f %3d %3d %3d %9.6f %9.6f %9.6f %9.6f %9.6f' %\
                   (ind, beta_deg, omega_deg, e[1], e[2], e[3], e[0], e[4], e[5], e[6], prob)
         return '%s\n\n' % s
     else : return '# beta %.2f  omega %.2f degree EMPTY\n' % (beta_deg, omega_deg)

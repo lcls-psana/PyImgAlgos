@@ -4,12 +4,12 @@
 Usage::
 
     # Imports
-    from pyimgalgos.TDIndexRecord import TDIndexRecord
+    from pyimgalgos.TDNodeRecord import TDNodeRecord
 
     # Usage
 
     # make object
-    rec = TDIndexRecord(line)
+    rec = TDNodeRecord(line)
 
     # access record attributes
     index, beta, omega h, k, l, dr, R, qv, qh, P =\
@@ -35,7 +35,7 @@ import math
 
 #------------------------------
 
-class TDIndexRecord :
+class TDNodeRecord :
 
     def __init__(sp, line) : # , sigma_q = 0.000484) :  
         """Parse the string of parameters to values
@@ -53,8 +53,16 @@ class TDIndexRecord :
         sp.h, sp.k, sp.l = int(s_h), int(s_k), int(s_l)
         sp.dr, sp.R, sp.qv, sp.qh, sp.P = float(s_dr), float(s_R), float(s_qv), float(s_qh), float(s_P) 
 
-        sp.line = line
+        sp.line  = line
+        sp.empty = sp.empty_line()
         
+#------------------------------
+    
+    def empty_line(sp) :
+        fmt = '%6d  %7.2f %7.2f %3d %3d %3d %9.6f %9.6f %9.6f %9.6f %9.6f'
+        z=0
+        return fmt % (z,z,z,z,z,z,z,z,z,z,z)       
+
 #------------------------------
 
     def print_short(sp) :

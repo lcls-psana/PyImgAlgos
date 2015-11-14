@@ -40,14 +40,14 @@ Usage::
 
     # Import
     from pyimgalgos.TDFileContainer import TDFileContainer
-    from pyimgalgos.TDIndexRecord   import TDIndexRecord
-    #from pyimgalgos.TDPeak          import TDPeak # use it by default in TDFileContainer
+    from pyimgalgos.TDNodeRecord   import TDNodeRecord
+    #from pyimgalgos.TDPeakRecord          import TDPeakRecord # use it by default in TDFileContainer
 
     # Initialization
     fname = '/reg/neh/home1/dubrovin/LCLS/rel-mengning/work/pfv2-cxif5315-r0169-2015-09-14T14:28:04.txt'
-    fc = TDFileContainer(fname) # optional arguments: indhdr='Evnum', objtype=TDPeak, pbits=0
+    fc = TDFileContainer(fname) # optional arguments: indhdr='Evnum', objtype=TDPeakRecord, pbits=0
 
-    # or for index table: fc = TDFileContainer(fname, indhdr='index', objtype=TDIndexRecord, pbits=0)
+    # or for index table: fc = TDFileContainer(fname, indhdr='index', objtype=TDNodeRecord, pbits=0)
 
     fc.print_attrs()
 
@@ -60,8 +60,8 @@ Usage::
         for pk in peaks :
             pk.print_short()
 
-            # Information available through the PeakData object pk
-            # ____________________________________________________
+            # Information available through the TDPeakRecord object pk
+            # ________________________________________________________
             # pk.exp, pk.run, pk.evnum, pk.reg
             # pk.date, pk.time, pk.tsec, pk.tnsec, pk.fid
             # pk.seg, pk.row, pk.col, pk.amax, pk.atot, pk.npix
@@ -84,7 +84,7 @@ This software was developed for the LCLS project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
 @see TDGroup - holds a list of records associated with a single group.
-@see TDPeak - user defined class, which provides access to the record data.
+@see TDPeakRecord - user defined class, which provides access to the record data.
 
 @version $Id$
 
@@ -100,7 +100,7 @@ import os
 from time import time
 
 from pyimgalgos.TDGroup import TDGroup
-from pyimgalgos.TDPeak  import TDPeak
+from pyimgalgos.TDPeakRecord  import TDPeakRecord
 
 ##-----------------------------
 ##-----------------------------
@@ -108,7 +108,7 @@ from pyimgalgos.TDPeak  import TDPeak
 class TDFileContainer :
     """ Load and hold record list from file and provide access by group index
     """
-    def __init__(self, fname, indhdr='Evnum', objtype=TDPeak, pbits=0) :
+    def __init__(self, fname, indhdr='Evnum', objtype=TDPeakRecord, pbits=0) :
         """Constructor.
         @param fname   - text table data file name 
         @param indhdr  - header of the field used for group indexing
@@ -407,7 +407,7 @@ def do_work() :
     """ do something here
     """
     fname = '/reg/neh/home1/dubrovin/LCLS/rel-mengning/work/pfv2-cxif5315-r0169-2015-09-14T14:28:04.txt'
-    fc = TDFileContainer(fname, indhdr='Evnum', objtype=TDPeak, pbits=0)
+    fc = TDFileContainer(fname, indhdr='Evnum', objtype=TDPeakRecord, pbits=0)
     fc.print_attrs()
     fc()
 
