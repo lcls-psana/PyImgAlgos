@@ -3,17 +3,15 @@
 
 Usage::
 
-    # Imports
+    # Import
     from pyimgalgos.TDNodeRecord import TDNodeRecord
-
-    # Usage
 
     # make object
     rec = TDNodeRecord(line)
 
     # access record attributes
-    index, beta, omega h, k, l, dr, R, qv, qh, P =\
-    rec.index, rec.beta, rec.omega rec.h, rec.k, rec.l, rec.dr, rec.R, rec.qv, rec.qh, rec.P
+    index, beta, omega, h, k, l, dr, R, qv, qh, P =\
+    rec.index, rec.beta, rec.omega, rec.h, rec.k, rec.l, rec.dr, rec.R, rec.qv, rec.qh, rec.P
     line = rec.line
 
     # print attributes

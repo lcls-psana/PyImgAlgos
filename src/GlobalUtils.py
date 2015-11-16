@@ -6,7 +6,7 @@ Usage::
 
     # Import
     # ==============
-    from pyimgalgos.GlobalUtils import subtract_bkgd, mask_from_windows, ...
+    from pyimgalgos.GlobalUtils import subtract_bkgd, mask_from_windows #, ...
 
     # Background subtraction
     # ======================
@@ -43,9 +43,10 @@ Usage::
     data = random_normal(shape=(32,185,388), mu=0, sigma=10, pbits=0377)
     mask_xy_max = locxymax(data, order=1, mode='clip')
  
-    # Tests
+    # Test
     # ======================
-    python pyimgalgos/src/GlobalUtils.py <test-number>
+    # is implemented for test numbers from 1 to 9. Command example
+    # python pyimgalgos/src/GlobalUtils.py 1
 
 @see :py:class:`pyimgalgos.GlobalUtils`
 

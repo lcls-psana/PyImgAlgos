@@ -51,8 +51,8 @@ def wavelength_nm_from_energy_ev(E_eV=6000) :
 
 def wave_vector_value(E_eV=6000) :
     """Returns wave vector/number value
-       |k| = |1/lambda|    [1/A] - crystalographer's definition
-       |k| = |2*pi/lambda| [1/A] - physics definition
+       k = 1/lambda    [1/A] - crystalographer's definition
+       k = 2*pi/lambda [1/A] - physics definition
     """
     return 1. / (wavelength_nm_from_energy_ev(E_eV) * 10) # 1nm = 10A
     #return 2 * math.pi / (wavelength_nm_from_energy_ev(E_eV) * 10) # 1nm = 10A

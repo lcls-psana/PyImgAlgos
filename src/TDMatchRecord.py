@@ -3,17 +3,15 @@
 
 Usage::
 
-    # Imports
+    # import
     from pyimgalgos.TDMatchRecord import TDMatchRecord
-
-    # Usage
 
     # make object
     rec = TDMatchRecord(line)
 
     # access record attributes
-    index, beta, omega h, k, l, dr, R, qv, qh, P =\
-    rec.index, rec.beta, rec.omega rec.h, rec.k, rec.l, rec.dr, rec.R, rec.qv, rec.qh, rec.P
+    index, beta, omega, h, k, l, dr, R, qv, qh, P =\
+    rec.index, rec.beta, rec.omega, rec.h, rec.k, rec.l, rec.dr, rec.R, rec.qv, rec.qh, rec.P
     line = rec.line
 
     # print attributes

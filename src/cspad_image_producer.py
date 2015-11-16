@@ -1,7 +1,8 @@
 #------------------------------
-"""User analysis module for pyana and psana frameworks.
+"""
+.. py:module cspad_image_producer - for cspad image reconstruction.
 
-This software was developed for the LCLS project.  If you use all or 
+This software was developed for the LCLS project.  If you use all or
 part of it, please give an appropriate acknowledgment.
 
 @version $Id$
@@ -41,28 +42,26 @@ import PyCSPadImage.CSPAD2x2PixCoords as pixcoor2x2
 
 #-----------------------------
 
-class cspad_image_producer (object) :
-    """Produces cspad image from input array of shape (4, 8, 185, 388)"""
+class cspad_image_producer(object) :
+    """cspad_image_producer - produces cspad image from input array of shape (4, 8, 185, 388)"""
 
-#-----------------------------
-
-    def __init__ ( self ) :
-        """Class constructor.
+    def __init__ (self) :
+        """
         Parameters are passed from pyana.cfg configuration file.
         All parameters are passed as strings
-
-        @param calib_dir   string, path to calibration directory for ex.: /reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/
-        @param source      string, address of Detector.Id:Device.ID
-        @param key_in      string, keyword for input array, shape=(4, 8, 185, 388) - for cspad or (185, 388, 2) - for cspad2x2
-        @param key_out     string, unique keyword for output image array
-        @param print_bits  int, bit-word for verbosity control 
         """
+        #@param source      string, address of Detector.Id:Device.ID
+        #@param calib_dir   string, path to calibration directory for ex.: /reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/
+        #@param key_in      string, keyword for input array, shape=(4, 8, 185, 388) - for cspad or (185, 388, 2) - for cspad2x2
+        #@param key_out     string, unique keyword for output image array
+        #@param print_bits  int, bit-word for verbosity control 
+        #"""
 
-        self.m_src        = self.configSrc  ('source', '*-*|Cspad-*')
-        self.m_path_ctypes= self.configStr  ('calib_dir', '')
-        self.m_key_in     = self.configStr  ('key_in',    'cspad_array')
-        self.m_key_out    = self.configStr  ('key_out',   'cspad_image')
-        self.m_print_bits = self.configInt  ('print_bits', 1)
+        self.m_src        = self.configSrc('source', '*-*|Cspad-*')
+        self.m_path_ctypes= self.configStr('calib_dir', '')
+        self.m_key_in     = self.configStr('key_in',    'cspad_array')
+        self.m_key_out    = self.configStr('key_out',   'cspad_image')
+        self.m_print_bits = self.configInt('print_bits', 1)
 
         self.is_configed = False
         self.counter = 0
@@ -101,17 +100,10 @@ class cspad_image_producer (object) :
     def event( self, evt, env ) :
         """This method is called for every L1Accept transition.
 
-        @param evt    event data object
-        @param env    environment object
+           evt - event data object
+           env - environment object
         """
-
-        # Should work for both pyana and pytonic-psana (as compatability method):
-
-        #print '\ncspad_image_producer: evt.keys():', evt.keys()
-
-        self.counter +=1     
-
-
+        self.counter +=1
         self.arr = None
 
         if env.fwkName() == "psana":
@@ -119,11 +111,9 @@ class cspad_image_producer (object) :
             for dtype in self.list_of_dtypes :
                 self.arr = evt.get(dtype, self.m_src, self.m_key_in)
                 if self.arr is not None:
-                    break
-            
+                    break            
         else : 
             self.arr = evt.get(self.m_key_in)
-
 
         if self.needs_in_config() :
             self.set_configuration( evt, env )
