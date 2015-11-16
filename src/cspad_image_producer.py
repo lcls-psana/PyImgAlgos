@@ -1,14 +1,14 @@
 #------------------------------
-"""
-.. py:module cspad_image_producer - for cspad image reconstruction.
+#"""
+#.. py:module cspad_image_producer - for cspad image reconstruction.
 
-This software was developed for the LCLS project.  If you use all or
-part of it, please give an appropriate acknowledgment.
+#This software was developed for the LCLS project.  If you use all or
+#part of it, please give an appropriate acknowledgment.
 
-@version $Id$
+#@version $Id$
 
-@author Mikhail S. Dubrovin
-"""
+#@author Mikhail S. Dubrovin
+#"""
 
 #------------------------------
 #  Module's version from SVN --
@@ -43,13 +43,13 @@ import PyCSPadImage.CSPAD2x2PixCoords as pixcoor2x2
 #-----------------------------
 
 class cspad_image_producer(object) :
-    """cspad_image_producer - produces cspad image from input array of shape (4, 8, 185, 388)"""
+    #"""cspad_image_producer - produces cspad image from input array of shape (4, 8, 185, 388)"""
 
     def __init__ (self) :
-        """
-        Parameters are passed from pyana.cfg configuration file.
-        All parameters are passed as strings
-        """
+        #"""
+        #Parameters are passed from pyana.cfg configuration file.
+        #All parameters are passed as strings.
+        #"""
         #@param source      string, address of Detector.Id:Device.ID
         #@param calib_dir   string, path to calibration directory for ex.: /reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/
         #@param key_in      string, keyword for input array, shape=(4, 8, 185, 388) - for cspad or (185, 388, 2) - for cspad2x2
@@ -213,10 +213,10 @@ class cspad_image_producer(object) :
 #-----------------------------
 
     def set_path_to_calib_types( self, env ) :
-        """Sets self.m_path_ctypes - path to calibration types, if it does not defined in
-           user parameter 'calib_dir', for example:
-           '/reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/'
-        """
+        #"""Sets self.m_path_ctypes - path to calibration types, if it does not defined in
+        #   user parameter 'calib_dir', for example:
+        #   '/reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/'
+        #"""
         # str(self.m_src) = Source("DetInfo(XcsEndstation.0:Cspad.0)")
         # str_src = 'DetInfo(XcsEndstation.0:Cspad.0'    
         str_src = str(self.m_src).split('DetInfo(')[1].split(')"')[0]
