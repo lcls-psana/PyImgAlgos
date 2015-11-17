@@ -1,37 +1,34 @@
-#------------------------------
-#"""
-#.. py:module cspad_image_producer - for cspad image reconstruction.
 
-#This software was developed for the LCLS project.  If you use all or
-#part of it, please give an appropriate acknowledgment.
+##-----------------------------
+"""User analysis module for cspad image reconstruction.
 
-#@version $Id$
+This software was developed for the LCLS project.  If you use all or
+part of it, please give an appropriate acknowledgment.
 
-#@author Mikhail S. Dubrovin
-#"""
+@version $Id$
 
-#------------------------------
+@author Mikhail S. Dubrovin
+"""
+
+##-----------------------------
 #  Module's version from SVN --
-#------------------------------
+##-----------------------------
 __version__ = "$Revision$"
 # $Source$
 
-#--------------------------------
+##-------------------------------
 #  Imports of standard modules --
-#--------------------------------
-import os
-import sys
-import logging
-
-#-----------------------------
-# Imports for other modules --
-#-----------------------------
-#from pypdsdata import xtc
-#from pypdsdata.xtc import *
-#from psana import *
-
-import numpy as np
+##-------------------------------
 import psana
+
+import sys
+import os
+import logging
+import numpy as np
+
+##----------------------------
+# Imports for other modules --
+##----------------------------
 
 import PyCSPadImage.CalibPars         as calp
 import PyCSPadImage.CSPadConfigPars   as ccp
@@ -40,22 +37,21 @@ import PyCSPadImage.CSPADPixCoords    as pixcoor
 import PyCSPadImage.CSPAD2x2CalibPars as calp2x2
 import PyCSPadImage.CSPAD2x2PixCoords as pixcoor2x2
 
-#-----------------------------
 
-class cspad_image_producer(object) :
-    #"""cspad_image_producer - produces cspad image from input array of shape (4, 8, 185, 388)"""
+class cspad_image_producer(object):
+    """Produces cspad image from DAQ input array and put it back in the evt store"""
 
-    def __init__ (self) :
-        #"""
-        #Parameters are passed from pyana.cfg configuration file.
-        #All parameters are passed as strings.
-        #"""
-        #@param source      string, address of Detector.Id:Device.ID
-        #@param calib_dir   string, path to calibration directory for ex.: /reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/
-        #@param key_in      string, keyword for input array, shape=(4, 8, 185, 388) - for cspad or (185, 388, 2) - for cspad2x2
-        #@param key_out     string, unique keyword for output image array
-        #@param print_bits  int, bit-word for verbosity control 
-        #"""
+    def __init__(self):
+        """Class constructor.
+        Parameters are passed from pyana.cfg configuration file.
+        All parameters are passed as strings.
+
+        - source      string, address of Detector.Id:Device.ID
+        - calib_dir   string, path to calibration directory for ex.: ./calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/
+        - key_in      string, keyword for input array, shape=(4, 8, 185, 388) - for cspad or (185, 388, 2) - for cspad2x2
+        - key_out     string, unique keyword for output image array
+        - print_bits  int, bit-word for verbosity control
+        """
 
         self.m_src        = self.configSrc('source', '*-*|Cspad-*')
         self.m_path_ctypes= self.configStr('calib_dir', '')
@@ -69,39 +65,37 @@ class cspad_image_producer(object) :
         self.is_cspad    = False
         self.is_cspad2x2 = False
 
-        self.list_of_dtypes = [
-                               psana.ndarray_int16_3, 
-                               psana.ndarray_int32_3,
-                               psana.ndarray_float32_3,
-                               psana.ndarray_float64_3,
-                               psana.ndarray_int8_3, 
-                               psana.ndarray_int64_3, 
-                               psana.ndarray_int16_4, 
-                               psana.ndarray_int32_4,
-                               psana.ndarray_float32_4,
-                               psana.ndarray_float64_4,
-                               psana.ndarray_int8_4, 
-                               psana.ndarray_int64_4
-                               ]        
+        self.list_of_dtypes = [psana.ndarray_int16_3,\
+                               psana.ndarray_int32_3,\
+                               psana.ndarray_float32_3,\
+                               psana.ndarray_float64_3,\
+                               psana.ndarray_int8_3,\
+                               psana.ndarray_int64_3,\
+                               psana.ndarray_int16_4,\
+                               psana.ndarray_int32_4,\
+                               psana.ndarray_float32_4,\
+                               psana.ndarray_float64_4,\
+                               psana.ndarray_int8_4,\
+                               psana.ndarray_int64_4\
+                               ]
 
         if self.m_print_bits & 1 : self.print_input_pars()
 
-
-#-----------------------------
+##----------------------------
 
     def beginjob( self, evt, env ) : pass
- 
+
     def beginrun( self, evt, env ) : pass
 
     def begincalibcycle( self, evt, env ) : pass
 
-#-----------------------------
+##----------------------------
 
     def event( self, evt, env ) :
         """This method is called for every L1Accept transition.
 
-           evt - event data object
-           env - environment object
+        - evt - event data object
+        - env - environment object
         """
         self.counter +=1
         self.arr = None
@@ -139,7 +133,8 @@ class cspad_image_producer(object) :
 
         else :
             if self.m_print_bits & 32 : 
-                msg = __name__ + ': WARNING! Image can be reconstructed for FULL SIZE CSPAD(2x2) NDARRAYS with shape (32, 185, 388) or (185, 388, 2)'
+                msg = __name__ + ': WARNING! Image can be reconstructed for FULL SIZE CSPAD(2x2)'\
+                               + ' NDARRAYS with shape (32, 185, 388) or (185, 388, 2)'
                 print msg
             
 
@@ -152,7 +147,7 @@ class cspad_image_producer(object) :
             evt.put( self.img2d, self.m_src, self.m_key_out ) # save image in event as 2d numpy array
 
 
-#-----------------------------
+##----------------------------
 
     def endcalibcycle( self, evt, env ) : pass
 
@@ -160,12 +155,12 @@ class cspad_image_producer(object) :
 
     def endjob       ( self, evt, env ) : pass
 
-#-----------------------------
+##----------------------------
 
     def needs_in_config( self ) :
         return False if self.is_configed else True
 
-#-----------------------------
+##----------------------------
 
     def set_configuration( self, evt, env ) :
 
@@ -210,13 +205,13 @@ class cspad_image_producer(object) :
         if self.m_print_bits & 2 : self.print_calibration_parameters()
         if self.m_print_bits & 4 : self.print_configuration_parameters()
 
-#-----------------------------
+##----------------------------
 
     def set_path_to_calib_types( self, env ) :
-        #"""Sets self.m_path_ctypes - path to calibration types, if it does not defined in
-        #   user parameter 'calib_dir', for example:
-        #   '/reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/'
-        #"""
+        """Sets self.m_path_ctypes - path to calibration types, if it does not defined in
+           user parameter 'calib_dir', for example:
+           '/reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/'
+        """
         # str(self.m_src) = Source("DetInfo(XcsEndstation.0:Cspad.0)")
         # str_src = 'DetInfo(XcsEndstation.0:Cspad.0'    
         str_src = str(self.m_src).split('DetInfo(')[1].split(')"')[0]
@@ -234,7 +229,7 @@ class cspad_image_producer(object) :
 
         if self.m_print_bits & 64 : print msg
 
-#-----------------------------
+##----------------------------
 
     def print_input_pars( self ) :
         msg = '\n[%s] List of input parameters\n  path %s\n  source %s\n  key_in %s\n  key_out %s\n  print_bits: %4d' %\
@@ -265,5 +260,4 @@ class cspad_image_producer(object) :
         if   self.is_cspad    : self.config.printCSPadConfigPars()
         elif self.is_cspad2x2 : msg = '%s: for cspad2x2 configuration is not required.' % (__name__)
 
-#-----------------------------
-#-----------------------------
+##----------------------------
