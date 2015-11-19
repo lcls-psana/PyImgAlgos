@@ -30,6 +30,8 @@ If you use all or part of it, please give an appropriate acknowledgment.
 from pyimgalgos.TDPeakRecord import TDPeakRecord
 from pyimgalgos.TDNodeRecord import TDNodeRecord
 
+from time import strftime, localtime #, gmtime, time
+
 #------------------------------
 
 class TDMatchRecord(TDPeakRecord, TDNodeRecord) :
@@ -55,14 +57,14 @@ class TDMatchRecord(TDPeakRecord, TDNodeRecord) :
         sp.qh_fit, sp.qv_fit, sp.dqh_fit = float(s_qh_fit), float(s_qv_fit), float(s_dqh_fit)
         sp.exp, sp.run, sp.evnum, sp.reg = s_exp, int(s_run), int(s_evnum), s_reg
         sp.tsec, sp.tnsec, sp.fid = int(s_time_sec), int(s_time_nsec), int(s_fid)
-        sp.date, sp.time = '2015-11-13', '16:00:00'
         sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix = int(s_seg), int(s_row), int(s_col), float(s_amax), float(s_atot), int(s_npix)
         sp.rcent, sp.ccent, sp.rsigma, sp.csigma = float(s_rcent), float(s_ccent), float(s_rsigma), float(s_csigma)
         sp.rmin, sp.rmax, sp.cmin, sp.cmax = int(s_rmin), int(s_rmax), int(s_cmin), int(s_cmax)
         sp.bkgd, sp.rms, sp.son = float(s_bkgd), float(s_rms), float(s_son)
         sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
         sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
-
+        
+        sp.set_date_time(sp.tsec) #sp.date, sp.time = '2015-11-13', '16:00:00'
         sp.sonc = sp.peak_son()
         sp.dphi000 = sp.phi
         sp.dphi180 = sp.phi - 180 if sp.phi>-90 else sp.phi + 180 # +360-180
@@ -71,6 +73,12 @@ class TDMatchRecord(TDPeakRecord, TDNodeRecord) :
         sp.empty = sp.empty_line()
         #print line
         
+#------------------------------
+    
+    def set_date_time(sp, tsec=None) :
+        tstamp = strftime('%Y-%m-%d %H:%M:%S', localtime(tsec))
+        sp.date, sp.time = tstamp.split()
+
 #------------------------------
     
     def empty_line(sp) :

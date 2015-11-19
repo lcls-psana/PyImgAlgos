@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-41
+2015-11-18 Mikhail S. Dubrovin
+- FiberIndexing.py change interface to BinPars, update ex-FiberIndexing.py, TDMatchRecord (PSAS-178).
+	
 Tag: V00-00-40
 2015-11-16 Mikhail S. Dubrovin
 - update sphinx documentation for cspad_image_producer

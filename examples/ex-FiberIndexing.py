@@ -71,14 +71,14 @@ def make_index_table() :
     import pyimgalgos.GlobalGraphics as gg
 
     # bin parameters for q in units of k = Evald's sphere radius [1/A]
-    bpq = BinPars(-0.2, 0.2, 800, vtype=np.float32)
+    bpq = BinPars((-0.2, 0.2), 800, vtype=np.float32)
 
     # bin parameters for omega [degree] - fiber rotation angle around axis
-    bpomega = BinPars(0., 180., 360, vtype=np.float32)
+    bpomega = BinPars((0., 180.), 360, vtype=np.float32)
     
     # bin parameters for beta [degree] - fiber axis tilt angle
-    #bpbeta = BinPars(10., 20., 3, vtype=np.float32, endpoint=True)
-    bpbeta = BinPars(15., 15., 1, vtype=np.float32, endpoint=False)
+    #bpbeta = BinPars((10., 20.), 3, vtype=np.float32, endpoint=True)
+    bpbeta = BinPars((15., 15.), 1, vtype=np.float32, endpoint=False)
  
     lut = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_q, fout, bpq, bpomega, bpbeta)
 

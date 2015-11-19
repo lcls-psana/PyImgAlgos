@@ -17,9 +17,9 @@ import numpy as np
 class BinPars() :
     """ Bin parameters storage
     """
-    def __init__(self, vmin, vmax, nbins, vtype=np.float32, endpoint=False):
-        self.vmin       = vmin
-        self.vmax       = vmax
+    def __init__(self, edges, nbins, vtype=np.float32, endpoint=False):
+        self.vmin       = vmin = min(edges)
+        self.vmax       = vmax = max(edges)
         self.nbins      = nbins
         self.binwidth   = (vmax-vmin)/nbins
         self.halfbinw   = 0.5 * self.binwidth
@@ -467,17 +467,17 @@ def make_index_table(prefix='./v01-') :
     # binning for look-up table and plots
 
     # bin parameters for q in units of k = Evald's sphere radius [1/A]
-    bpq = BinPars(-0.25, 0.25, 1000, vtype=np.float32, endpoint=False)
+    bpq = BinPars((-0.25, 0.25), 1000, vtype=np.float32, endpoint=False)
 
     # bin parameters for omega [degree] - fiber rotation angle around axis
-    bpomega = BinPars(0.,  180., 360, vtype=np.float32, endpoint=False)
+    bpomega = BinPars((0.,  180.), 360, vtype=np.float32, endpoint=False)
     
     # bin parameters for beta [degree] - fiber axis tilt angle
-    #bpbeta = BinPars(15.,  195.,  2, vtype=np.float32, endpoint=True)
-    #bpbeta = BinPars(15.,   15.,  1, vtype=np.float32, endpoint=False)
-    #bpbeta = BinPars(5.,    25.,  2, vtype=np.float32, endpoint=True)
-    bpbeta  = BinPars(0.,    50., 11, vtype=np.float32, endpoint=True)
-    bpbeta2 = BinPars(180., 230., 11, vtype=np.float32, endpoint=True)
+    #bpbeta = BinPars((15.,  195.),  2, vtype=np.float32, endpoint=True)
+    #bpbeta = BinPars((15.,   15.),  1, vtype=np.float32, endpoint=False)
+    #bpbeta = BinPars((5.,    25.),  2, vtype=np.float32, endpoint=True)
+    bpbeta  = BinPars((0.,    50.), 11, vtype=np.float32, endpoint=True)
+    bpbeta2 = BinPars((180., 230.), 11, vtype=np.float32, endpoint=True)
     str_beta = 'for-beta:%s' % (bpbeta.strrange)
      
     print '\n%s\nIndexing lookup table\n' % (91*'_')
