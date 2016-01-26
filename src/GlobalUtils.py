@@ -7,6 +7,7 @@ Usage::
     # Import
     # ==============
     from pyimgalgos.GlobalUtils import subtract_bkgd, mask_from_windows #, ...
+    from pyimgalgos.NDArrGenerators import random_standard_array
 
     # Background subtraction
     # ======================
@@ -40,9 +41,19 @@ Usage::
     # Make mask of local maximal intensity pixels in x-y (ignoring diagonals)
     # ===================================================================
     # works for 2-d and 3-d arrays only - reshape if needed.
-    data = random_normal(shape=(32,185,388), mu=0, sigma=10, pbits=0377)
+    data = random_standard_array(shape=(32,185,388), mu=0, sigma=10)
     mask_xy_max = locxymax(data, order=1, mode='clip')
+
+    # Get string with time stamp, ex: 2016-01-26T10:40:53
+    # ===================================================================
+    ts = str_tstamp(fmt='%Y-%m-%dT%H:%M:%S', time_sec=None)
  
+    # Save image in file
+    # ==================
+    image = random_standard_array()
+    save_image_tiff(image, fname='image.tiff', verb=True) # 16-bit tiff
+    save_image_file(image, fname='image.png', verb=True) # gif, pdf, eps, png, jpg, jpeg, tiff (8-bit only)
+
     # Test
     # ======================
     # is implemented for test numbers from 1 to 9. Command example
@@ -69,6 +80,22 @@ __version__ = "$Revision$"
 import sys
 import numpy as np
 from scipy.signal import argrelmax
+
+import os
+#------------------------------
+
+class Storage :
+    """Store for shared parameters."""
+    def __init__(self) :
+        self.Image     = None
+        self.scim      = None
+        self.time      = None
+        self.localtime = None
+        self.strftime  = None
+
+##-----------------------------
+
+sp = Storage()
 
 ##-----------------------------
 
@@ -280,8 +307,37 @@ def locxymax(nda, order=1, mode='clip') :
 def str_tstamp(fmt='%Y-%m-%dT%H:%M:%S', time_sec=None) :
     """Returns string timestamp for specified format and time in sec or current time by default
     """
-    from time import localtime, strftime
-    return strftime(fmt, localtime(time_sec))
+    if sp.localtime is None : from time import localtime, strftime; sp.localtime, sp.strftime = localtime, strftime
+
+    return sp.strftime(fmt, sp.localtime(time_sec))
+
+##-----------------------------
+
+def save_image_tiff(image, fname='image.tiff', verb=False) :
+    """Saves image in 16-bit tiff file
+    """
+    if sp.Image is None : import Image; sp.Image=Image
+
+    if verb : print 'Save image in file %s' % fname
+    img = sp.Image.fromarray(image.astype(np.int16))
+    img.save(fname)
+
+##-----------------------------
+
+def save_image_file(image, fname='image.png', verb=False) :
+    """Saves files with type by extension gif, pdf, eps, png, jpg, jpeg, tiff (8-bit only),
+       or txt for any other type
+    """
+    if sp.scim is None : import scipy.misc as scim; sp.scim=scim 
+
+    fields = os.path.splitext(fname)
+    if len(fields)>1 and fields[1] in ['.gif', '.pdf', '.eps', '.png', '.jpg', '.jpeg', '.tiff'] : 
+        if verb : print 'Save image in file %s' % fname
+        sp.scim.imsave(fname, image) 
+    else :
+        if verb : print 'Non-supported file extension. Save image in text file %s' % fname
+        np.savetxt(fname, image, fmt='%8.1f', delimiter=' ', newline='\n')
+        #raise IOError('Unknown file type in extension %s' % fname)
 
 ##-----------------------------
 ##-----------------------------
@@ -289,18 +345,14 @@ def str_tstamp(fmt='%Y-%m-%dT%H:%M:%S', time_sec=None) :
 ##-----------------------------
 ##-----------------------------
 
-from pyimgalgos.TestImageGenerator import random_normal
-from time import time
-import pyimgalgos.GlobalGraphics as gg
-
-##-----------------------------
-
 def test_01() :
+    from pyimgalgos.NDArrGenerators import random_standard_array
+
     print '%s\n%s\n' % (80*'_','Test method subtract_bkgd(...):')
     shape1 = (32,185,388)
     winds = [ (s, 10, 155, 20, 358) for s in (0,1)]
-    data = random_normal(shape=shape1, mu=300, sigma=50, pbits=0377)
-    bkgd = random_normal(shape=shape1, mu=100, sigma=10, pbits=0377)
+    data = random_standard_array(shape=shape1, mu=300, sigma=50)
+    bkgd = random_standard_array(shape=shape1, mu=100, sigma=10)
 
     cdata = subtract_bkgd(data, bkgd, mask=None, winds=winds, pbits=0377)
 
@@ -354,9 +406,13 @@ def test_07() :
 ##-----------------------------
 
 def test_08() :
+    from time import time
+    import pyimgalgos.GlobalGraphics as gg
+    from pyimgalgos.NDArrGenerators import random_standard_array
+
     print '%s\n%s\n' % (80*'_','Test method locxymax(nda, order, mode):')
-    #data = random_normal(shape=(32,185,388), mu=0, sigma=10, pbits=0377)
-    data = random_normal(shape=(2,185,388), mu=0, sigma=10, pbits=0377)
+    #data = random_standard_array(shape=(32,185,388), mu=0, sigma=10)
+    data = random_standard_array(shape=(2,185,388), mu=0, sigma=10)
     t0_sec = time()
     mask = locxymax(data, order=1, mode='clip')
     print 'Consumed t = %10.6f sec' % (time()-t0_sec)
@@ -375,6 +431,17 @@ def test_08() :
 
 def test_09() :
     print str_tstamp()
+
+##-----------------------------
+
+def test_10() :
+    from pyimgalgos.NDArrGenerators import random_standard_array
+
+    image = random_standard_array()
+    verbosity=True
+    save_image_tiff(image, fname='image.tiff', verb=verbosity)
+    save_image_file(image, fname='image.png',  verb=verbosity)
+    save_image_file(image, fname='image.xyz',  verb=verbosity)
 
 ##-----------------------------
 ##-----------------------------
@@ -400,6 +467,7 @@ def main() :
     elif sys.argv[1]=='7' : test_07()
     elif sys.argv[1]=='8' : test_08()
     elif sys.argv[1]=='9' : test_09()
+    elif sys.argv[1]=='10': test_10()
     else                  : sys.exit ('Test number parameter is not recognized.\n%s' % usage())
 
 ##-----------------------------
