@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-43
+2016-01-29 Mikhail S. Dubrovin
+- in GlobalUtils use in tests method from NDArrGenerators, add HBins, NDArrGenerators, update doc for psana modules.
+
 Tag: V00-00-42
 2016-01-26 Mikhail S. Dubrovin
 - add NDArrGenerators.py, in GlobalUtils.py add class Storage, save_image_tiff, save_image_tiff, and test_10.

@@ -41,7 +41,9 @@ Usage::
     # Make mask of local maximal intensity pixels in x-y (ignoring diagonals)
     # ===================================================================
     # works for 2-d and 3-d arrays only - reshape if needed.
+
     data = random_standard_array(shape=(32,185,388), mu=0, sigma=10)
+
     mask_xy_max = locxymax(data, order=1, mode='clip')
 
     # Get string with time stamp, ex: 2016-01-26T10:40:53
@@ -50,7 +52,7 @@ Usage::
  
     # Save image in file
     # ==================
-    image = random_standard_array()
+    image = random_standard()
     save_image_tiff(image, fname='image.tiff', verb=True) # 16-bit tiff
     save_image_file(image, fname='image.png', verb=True) # gif, pdf, eps, png, jpg, jpeg, tiff (8-bit only)
 
@@ -346,14 +348,13 @@ def save_image_file(image, fname='image.png', verb=False) :
 ##-----------------------------
 
 def test_01() :
-    from pyimgalgos.NDArrGenerators import random_standard_array
+    from pyimgalgos.NDArrGenerators import random_standard
 
     print '%s\n%s\n' % (80*'_','Test method subtract_bkgd(...):')
     shape1 = (32,185,388)
-    winds = [ (s, 10, 155, 20, 358) for s in (0,1)]
-    data = random_standard_array(shape=shape1, mu=300, sigma=50)
-    bkgd = random_standard_array(shape=shape1, mu=100, sigma=10)
-
+    winds = [(s, 10, 155, 20, 358) for s in (0,1)]
+    data = random_standard(shape=shape1, mu=300, sigma=50)
+    bkgd = random_standard(shape=shape1, mu=100, sigma=10)
     cdata = subtract_bkgd(data, bkgd, mask=None, winds=winds, pbits=0377)
 
 ##-----------------------------
@@ -408,11 +409,11 @@ def test_07() :
 def test_08() :
     from time import time
     import pyimgalgos.GlobalGraphics as gg
-    from pyimgalgos.NDArrGenerators import random_standard_array
+    from pyimgalgos.NDArrGenerators import random_standard
 
     print '%s\n%s\n' % (80*'_','Test method locxymax(nda, order, mode):')
-    #data = random_standard_array(shape=(32,185,388), mu=0, sigma=10)
-    data = random_standard_array(shape=(2,185,388), mu=0, sigma=10)
+    #data = random_standard(shape=(32,185,388), mu=0, sigma=10)
+    data = random_standard(shape=(2,185,388), mu=0, sigma=10)
     t0_sec = time()
     mask = locxymax(data, order=1, mode='clip')
     print 'Consumed t = %10.6f sec' % (time()-t0_sec)
@@ -435,9 +436,9 @@ def test_09() :
 ##-----------------------------
 
 def test_10() :
-    from pyimgalgos.NDArrGenerators import random_standard_array
+    from pyimgalgos.NDArrGenerators import random_standard
 
-    image = random_standard_array()
+    image = random_standard()
     verbosity=True
     save_image_tiff(image, fname='image.tiff', verb=verbosity)
     save_image_file(image, fname='image.png',  verb=verbosity)

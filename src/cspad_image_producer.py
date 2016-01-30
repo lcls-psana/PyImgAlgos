@@ -1,6 +1,7 @@
-
-##-----------------------------
+#------------------------------
 """User analysis module for cspad image reconstruction.
+
+@see class :py:class:`pyimgalgos.cspad_image_producer`
 
 This software was developed for the LCLS project.  If you use all or
 part of it, please give an appropriate acknowledgment.
@@ -10,25 +11,26 @@ part of it, please give an appropriate acknowledgment.
 @author Mikhail S. Dubrovin
 """
 
-##-----------------------------
+#------------------------------
 #  Module's version from SVN --
-##-----------------------------
+#------------------------------
 __version__ = "$Revision$"
 # $Source$
 
-##-------------------------------
+#--------------------------------
 #  Imports of standard modules --
-##-------------------------------
+#--------------------------------
 import psana
+#from psana import *
 
-import sys
 import os
-import logging
-import numpy as np
+#import sys
+#import logging
+#import numpy as np
 
-##----------------------------
+#-----------------------------
 # Imports for other modules --
-##----------------------------
+#-----------------------------
 
 import PyCSPadImage.CalibPars         as calp
 import PyCSPadImage.CSPadConfigPars   as ccp
@@ -37,20 +39,17 @@ import PyCSPadImage.CSPADPixCoords    as pixcoor
 import PyCSPadImage.CSPAD2x2CalibPars as calp2x2
 import PyCSPadImage.CSPAD2x2PixCoords as pixcoor2x2
 
+class cspad_image_producer(object) :
 
-class cspad_image_producer(object):
-    """Produces cspad image from DAQ input array and put it back in the evt store"""
-
-    def __init__(self):
-        """Class constructor.
-        Parameters are passed from pyana.cfg configuration file.
-        All parameters are passed as strings.
-
-        - source      string, address of Detector.Id:Device.ID
-        - calib_dir   string, path to calibration directory for ex.: ./calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/
-        - key_in      string, keyword for input array, shape=(4, 8, 185, 388) - for cspad or (185, 388, 2) - for cspad2x2
-        - key_out     string, unique keyword for output image array
-        - print_bits  int, bit-word for verbosity control
+    def __init__(self) :
+        """Produces cspad image from DAQ input array and put it back in the evt store.        
+           Parameters are passed as strings from pyana.cfg configuration file.
+           
+           - source      string, address of Detector.Id:Device.ID
+           - calib_dir   string, path to calibration directory
+           - key_in      string, keyword for input array, shape=(4, 8, 185, 388) or (185, 388, 2)
+           - key_out     string, unique keyword for output image array
+           - print_bits  int, bit-word for verbosity control
         """
 
         self.m_src        = self.configSrc('source', '*-*|Cspad-*')
@@ -76,12 +75,11 @@ class cspad_image_producer(object):
                                psana.ndarray_float32_4,\
                                psana.ndarray_float64_4,\
                                psana.ndarray_int8_4,\
-                               psana.ndarray_int64_4\
-                               ]
+                               psana.ndarray_int64_4]
 
         if self.m_print_bits & 1 : self.print_input_pars()
 
-##----------------------------
+#-----------------------------
 
     def beginjob( self, evt, env ) : pass
 
@@ -89,13 +87,13 @@ class cspad_image_producer(object):
 
     def begincalibcycle( self, evt, env ) : pass
 
-##----------------------------
+#-----------------------------
 
     def event( self, evt, env ) :
         """This method is called for every L1Accept transition.
-
-        - evt - event data object
-        - env - environment object
+        
+           - evt - event data object
+           - env - environment object
         """
         self.counter +=1
         self.arr = None
@@ -105,8 +103,8 @@ class cspad_image_producer(object):
             for dtype in self.list_of_dtypes :
                 self.arr = evt.get(dtype, self.m_src, self.m_key_in)
                 if self.arr is not None:
-                    break            
-        else : 
+                    break
+        else :
             self.arr = evt.get(self.m_key_in)
 
         if self.needs_in_config() :
@@ -132,11 +130,11 @@ class cspad_image_producer(object):
             self.img2d = self.coord.get_cspad2x2_image(self.arr)
 
         else :
-            if self.m_print_bits & 32 : 
+            if self.m_print_bits & 32 :
                 msg = __name__ + ': WARNING! Image can be reconstructed for FULL SIZE CSPAD(2x2)'\
                                + ' NDARRAYS with shape (32, 185, 388) or (185, 388, 2)'
                 print msg
-            
+
 
         if self.img2d is not None :
 
@@ -147,7 +145,7 @@ class cspad_image_producer(object):
             evt.put( self.img2d, self.m_src, self.m_key_out ) # save image in event as 2d numpy array
 
 
-##----------------------------
+#-----------------------------
 
     def endcalibcycle( self, evt, env ) : pass
 
@@ -155,12 +153,12 @@ class cspad_image_producer(object):
 
     def endjob       ( self, evt, env ) : pass
 
-##----------------------------
+#-----------------------------
 
     def needs_in_config( self ) :
         return False if self.is_configed else True
 
-##----------------------------
+#-----------------------------
 
     def set_configuration( self, evt, env ) :
 
@@ -171,13 +169,13 @@ class cspad_image_producer(object):
             self.is_cspad    = False
             self.is_cspad2x2 = True
             self.group = 'CsPad2x2::CalibV1'
-            
+
             self.set_path_to_calib_types(env)
 
             #self.calib  = calp2x2.CSPAD2x2CalibPars()
             self.calib  = calp2x2.CSPAD2x2CalibPars(self.m_path_ctypes, self.run)
             self.coord  = pixcoor2x2.CSPAD2x2PixCoords(self.calib)
-            self.config = None 
+            self.config = None
 
             msg = __name__ + ': Set configuration for CSPAD2x2'
             self.is_configed = True
@@ -189,11 +187,11 @@ class cspad_image_producer(object):
             self.group = 'CsPad::CalibV1'
 
             self.set_path_to_calib_types(env)
-    
+
             self.calib  = calp.CalibPars(self.m_path_ctypes, self.run)
             self.coord  = pixcoor.CSPADPixCoords(self.calib)
             self.config = ccp.CSPadConfigPars()
-            
+
             msg = __name__ + ': Set configuration for CSPAD'
             self.is_configed = True
 
@@ -205,15 +203,13 @@ class cspad_image_producer(object):
         if self.m_print_bits & 2 : self.print_calibration_parameters()
         if self.m_print_bits & 4 : self.print_configuration_parameters()
 
-##----------------------------
+#-----------------------------
 
     def set_path_to_calib_types( self, env ) :
-        """Sets self.m_path_ctypes - path to calibration types, if it does not defined in
-           user parameter 'calib_dir', for example:
-           '/reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/'
+        """Sets m_path_ctypes - path to calibration types, if it does not defined in
+           user parameter calib_dir, for example:
+           /reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/
         """
-        # str(self.m_src) = Source("DetInfo(XcsEndstation.0:Cspad.0)")
-        # str_src = 'DetInfo(XcsEndstation.0:Cspad.0'    
         str_src = str(self.m_src).split('DetInfo(')[1].split(')"')[0]
 
         cdir = env.calibDir()
@@ -229,7 +225,7 @@ class cspad_image_producer(object):
 
         if self.m_print_bits & 64 : print msg
 
-##----------------------------
+#-----------------------------
 
     def print_input_pars( self ) :
         msg = '\n[%s] List of input parameters\n  path %s\n  source %s\n  key_in %s\n  key_out %s\n  print_bits: %4d' %\
@@ -260,4 +256,4 @@ class cspad_image_producer(object):
         if   self.is_cspad    : self.config.printCSPadConfigPars()
         elif self.is_cspad2x2 : msg = '%s: for cspad2x2 configuration is not required.' % (__name__)
 
-##----------------------------
+#-----------------------------

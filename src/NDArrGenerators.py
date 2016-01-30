@@ -51,7 +51,7 @@ def reshape_to_3d(arr) :
 
 #-----------------------------
 
-def random_standard_array(shape=(40,60), mu=200, sigma=25) :
+def random_standard(shape=(40,60), mu=200, sigma=25) :
     """Returns numpy array of requested shape and type filled with normal distribution for mu and sigma.
     """
     return mu + sigma*np.random.standard_normal(shape)
@@ -65,7 +65,15 @@ def random_exponential(shape=(40,60), a0=100) :
 
 #-----------------------------
 
-def random_array_256(shape=(40,60), dtype=np.uint8) :
+def random_1(shape=(40,60), dtype=np.float) :
+    """Returns numpy array of requested shape and type filled with random numbers in the range [0,255].
+    """
+    a = np.random.random(shape)
+    return np.require(a, dtype) 
+
+#-----------------------------
+
+def random_256(shape=(40,60), dtype=np.uint8) :
     """Returns numpy array of requested shape and type filled with random numbers in the range [0,255].
     """
     a = 255*np.random.random(shape)
@@ -73,7 +81,7 @@ def random_array_256(shape=(40,60), dtype=np.uint8) :
 
 #-----------------------------
 
-def random_array_xffffffff(shape=(40,60), dtype=np.uint32, add=0xff000000) :
+def random_xffffffff(shape=(40,60), dtype=np.uint32, add=0xff000000) :
     """Returns numpy array of requested shape and type 
        filled with random numbers in the range [0,0xffffff] with bits 0xff000000 for alpha mask.  
     """
@@ -107,10 +115,11 @@ def print_ndarr(nda, name='', first=0, last=5) :
 if __name__ == '__main__':
 
     print_ndarr(random_exponential(), 'random_exponential')
-    print_ndarr(random_standard_array(), 'random_standard_array')
-    print_ndarr(random_array_256(), 'random_array_256', last=10)
-    print_ndarr(random_array_xffffffff(), 'random_array_xffffffff')
-    print_ndarr(random_standard_array(), 'random_standard_array')
+    print_ndarr(random_standard(), 'random_standard')
+    print_ndarr(random_1(), 'random_1', last=10)
+    print_ndarr(random_256(), 'random_256', last=10)
+    print_ndarr(random_xffffffff(), 'random_xffffffff')
+    print_ndarr(random_standard(), 'random_standard')
     print_ndarr(aranged_array(), 'aranged_array')
     #print_ndarr(, '')
     print 'Test is completed'

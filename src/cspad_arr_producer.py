@@ -24,9 +24,9 @@ import logging
 #-----------------------------
 # Imports for other modules --
 #-----------------------------
-#from pypdsdata import xtc
+#### from pypdsdata import xtc
 
-from pypdsdata.xtc import *
+#### from pypdsdata.xtc import *
 from psana import *
 import numpy as np
 
@@ -52,11 +52,11 @@ class cspad_arr_producer (object) :
         Parameters are passed from pyana.cfg configuration file.
         All parameters are passed as strings
 
-        @param source      string, address of Detector-Id|Device-ID
-        @param dtype_type  string, output array data type
-        @param key_out     string, unique keyword for output array identification
-        @param val_miss    float,  intensity value substituted for missing in data 2x1s
-        @param print_bits  int, bit-word for verbosity control 
+        - source     - string, address of Detector-Id|Device-ID
+        - dtype_type - string, output array data type
+        - key_out    - string, unique keyword for output array identification
+        - val_miss   - float,  intensity value substituted for missing in data 2x1s
+        - print_bits - int, bit-word for verbosity control 
         """
 
         self.m_src        = self.configSrc  ('source', '*-*|Cspad-*')
@@ -107,8 +107,8 @@ class cspad_arr_producer (object) :
         do a one-time initialization possible extracting values from event
         data (which is a Configure object) or environment.
 
-        @param evt    event data object
-        @param env    environment object
+        - evt - event data object
+        - env - environment object
         """
 
         if env.fwkName() == "psana": self.config = env.getConfig(CsPad.Config, self.m_src)
@@ -135,8 +135,8 @@ class cspad_arr_producer (object) :
         """This optional method is called if present at the beginning 
         of the new run.
 
-        @param evt    event data object
-        @param env    environment object
+        - evt - event data object
+        - env - environment object
         """
         #logging.info( "cspad_arr_producer.beginrun() called" )
         pass
@@ -148,8 +148,8 @@ class cspad_arr_producer (object) :
     def event( self, evt, env ) :
         """This method is called for every L1Accept transition.
 
-        @param evt    event data object
-        @param env    environment object
+        - evt - event data object
+        - env - environment object
         """
 
         self.arr = None

@@ -19,8 +19,8 @@ __version__ = "$Revision$"
 #  Imports of standard modules --
 #--------------------------------
 import os
-import sys
-import logging
+#import sys
+#import logging
 import tempfile
 
 #-----------------------------
@@ -42,7 +42,7 @@ from time import sleep
 import Image
 from CorAna.ArrFileExchange import *
 
-from cspad_arr_producer import *
+#from cspad_arr_producer import *
 
 class image_save_in_file (object) :
     """Saves image array in file with specified in the name type."""
@@ -51,12 +51,12 @@ class image_save_in_file (object) :
         """Class constructor.
         Parameters are passed from pyana.cfg configuration file.
 
-        @param source      string, address of Detector.Id:Device.ID
-        @param key_in      string, keyword for input image array of variable shape
-        @param ofname      string, output file name (type is selected by extention) supported formats: txt, tiff, gif, pdf, eps, png, jpg, jpeg, npy (default), npz
-        @param mode        int, 0-save one event per event, >0-length of the ring buffer (or round robin) for event browser
-        @param delay_sec   int, additional sleep time in sec between events for event browser
-        @param print_bits  int, bit-word for verbosity control 
+        - source     - string, address of Detector.Id:Device.ID
+        - key_in     - string, keyword for input image array of variable shape
+        - ofname     - string, output file name (type is selected by extention) supported formats: txt, tiff, gif, pdf, eps, png, jpg, jpeg, npy (default), npz
+        - mode       - int, 0-save one event per event, >0-length of the ring buffer (or round robin) for event browser
+        - delay_sec  - int, additional sleep time in sec between events for event browser
+        - print_bits - int, bit-word for verbosity control 
         """
 
         self.m_src        = self.configSrc  ('source', '*-*|Cspad-*')
@@ -99,8 +99,8 @@ class image_save_in_file (object) :
     def event( self, evt, env ) :
         """This method is called for every L1Accept transition.
 
-        @param evt    event data object
-        @param env    environment object
+        - evt - event data object
+        - env - environment object
         """
 
         self.image = None
