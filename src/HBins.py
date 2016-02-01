@@ -5,28 +5,28 @@ Usage::
 
     from pyimgalgos.HBins import HBins
 
-    # Equal bins
+    # Equal bins constructor
     hb = HBins((1,6), nbins=5)
 
-    # Variable bins
+    # Variable bins constructor
     hb = HBins((1,2,4,6,10))
 
     # Access methods
-    nbins         = hb.nbins()         # int
-    edges         = hb.edges()         # np.array
-    vmin          = hb.vmin()          # vtype
-    vmax          = hb.vmax()          # vtype
-    vtype         = hb.vtype()         # np.dtype
-    equalbins     = hb.equalbins()     # bool
+    nbins         = hb.nbins()         # returns int input parameter - number of bins
+    edges         = hb.edges()         # returns np.array input list of bin edges
+    vmin          = hb.vmin()          # returns vtype minimal value of bin edges
+    vmax          = hb.vmax()          # returns vtype maximal value of bin edges
+    vtype         = hb.vtype()         # returns np.dtype - type of bin edge values 
+    equalbins     = hb.equalbins()     # returns bool True/False for equal/variable size bins 
 
-    limits        = hb.limits()        # np.array (vmin, vmax)
-    binedges      = hb.binedges()      # np.array of size nbins+1 
-    binedgesleft  = hb.binedgesleft()  # np.array of size nbins
-    binedgesright = hb.binedgesright() # np.array of size nbins
-    bincenters    = hb.bincenters()    # np.array of size nbins
-    binwidth      = hb.binwidth()      # np.array of size nbins or scalar for Equal bins
-    halfbinw      = hb.halfbinw()      # np.array of size nbins or scalar for Equal bins
-    strrange      = hb.strrange(fmt)   # str of formatted vmin, vmax, nbins ex: 1-6-5
+    limits        = hb.limits()        # returns np.array of limits (vmin, vmax)
+    binedges      = hb.binedges()      # returns np.array with bin edges of size nbins+1 
+    binedgesleft  = hb.binedgesleft()  # returns np.array with bin left edges of size nbins
+    binedgesright = hb.binedgesright() # returns np.array with bin rignt edges of size nbins
+    bincenters    = hb.bincenters()    # returns np.array with bin centers of size nbins
+    binwidth      = hb.binwidth()      # returns np.array with bin widths of size nbins or scalar bin width for equal bins
+    halfbinw      = hb.halfbinw()      # returns np.array with half-bin widths of size nbins or scalar bin half-width for equal bins
+    strrange      = hb.strrange(fmt)   # returns str of formatted vmin, vmax, nbins ex: 1-6-5
 
     # Print methods
     hb.print_attrs_defined()
@@ -67,12 +67,13 @@ class HBins() :
            - vtype - numpy type of bin values (optional parameter)          
         """
         self._name       = self.__class__.__name__
-        self._edges      = np.array(edges, dtype=vtype)
+        self._vtype      = vtype
+        self._set_valid_edges(edges)
+        self._set_valid_nbins(nbins)
+
         self._vmin       = min(self._edges)
         self._vmax       = max(self._edges)
-        self._nbins      = int(nbins if nbins is not None else len(edges)-1)
-        self._vtype      = vtype
-        self._equalbins  = len(edges)==2 and nbins is not None
+        self._equalbins  = len(self._edges)==2 and nbins is not None
 
         self._limits     = None
         self._binwidth   = None 
@@ -83,6 +84,50 @@ class HBins() :
         self._indedges   = None 
         self._indcenters = None 
         self._strrange   = None
+
+
+    def _set_valid_edges(self, edges) :
+        if not isinstance(edges,(tuple,list)) :
+            raise ValueError('Parameter edges is not a tuple or list: '\
+                             'edges=%s' % str(edges))
+
+        if len(edges)<2 :
+            raise ValueError('Sequence of edges should have at least two values: '\
+                             'edges=%s' % str(edges))
+
+        if not all([isinstance(v,(int, float)) for v in tuple(edges)]) :
+            raise ValueError('Sequence of edges has a wrong type value: '\
+                             'edges=%s' % str(edges))
+
+        if edges[0]==edges[-1] :
+            raise ValueError('Sequence of edges has equal limits: '\
+                             'edges=%s' % str(edges))
+
+        if len(edges)>2 :
+            if edges[0]<edges[-1] and not all([x<y for x,y in zip(edges[:-1], edges[1:])]) :
+                raise ValueError('Sequence of edges is not monotonically ascending: '\
+                                 'edges=%s' % str(edges))
+
+            if edges[0]>edges[-1] and not all([x>y for x,y in zip(edges[:-1], edges[1:])]) :
+                raise ValueError('Sequence of edges is not monotonically descending: '\
+                                 'edges=%s' % str(edges))
+
+        self._edges = np.array(edges, dtype=self._vtype)
+
+
+    def _set_valid_nbins(self, nbins) :
+
+        if nbins is None :
+            self._nbins = len(self._edges)-1
+            return
+
+        if not isinstance(nbins, int) :
+            raise ValueError('nbins=%s has a wrong type. Expected integer.' % str(nbins))
+
+        if nbins < 1 :
+            raise ValueError('nbins=%d should be positive.' % nbins)
+
+        self._nbins = nbins
 
 
     def edges(self) :
@@ -216,5 +261,32 @@ if __name__ == "__main__" :
 
     o1 = HBins((1,6), 5);      test(o1, 'Test HBins for EQUAL BINS')
     o2 = HBins((1,2,4,6,10));  test(o2, 'Test HBins for VARIABLE BINS')
+
+    try : o = HBins((1,6), 5.5)
+    except Exception as e : print 'Test Exception non-int nbins:', e
+ 
+    try : o = HBins((1,6), -5)
+    except Exception as e : print 'Test Exception nbins<1:', e
+ 
+    try : o = HBins((1,6), 0)
+    except Exception as e : print 'Test Exception nbins<1:', e
+ 
+    try : o = HBins((1,6,3))
+    except Exception as e : print 'Test Exception non-monotonic edges:', e
+ 
+    try : o = HBins((3,6,1))
+    except Exception as e : print 'Test Exception non-monotonic edges:', e
+ 
+    try : o = HBins((3,2,2,1))
+    except Exception as e : print 'Test Exception non-monotonic edges:', e
+ 
+    try : o = HBins((3,'s',1))
+    except Exception as e : print 'Test Exception wrong type value in edges:', e
+
+    try : o = HBins(3)
+    except Exception as e : print 'Test Exception not-sequence in edges:', e
+
+    try : o = HBins((3,))
+    except Exception as e : print 'Test Exception sequence<2 in edges:', e
 
 #------------------------------
