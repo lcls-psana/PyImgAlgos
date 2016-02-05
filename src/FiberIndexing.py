@@ -6,6 +6,7 @@ Created on Oct 7, 2015
 """
 #------------------------------
 
+import sys
 import math
 import numpy as np
 
@@ -133,6 +134,8 @@ def lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
             hmax=3, kmax=2, lmax=1, cdtype=np.float32):
     """ returns n-d arrays of 3d coordinates or 2d(if lmax=0) for 3d lattice and Miller hkl indices
     """
+    #print '\nIn %s' % sys._getframe().f_code.co_name
+
     lst_h = range(-hmax, hmax+1)
     lst_k = range(-kmax, kmax+1)
     lst_l = range(-lmax, lmax+1)
@@ -190,8 +193,9 @@ def rotation(X, Y, angle_deg) :
 
 def radial_distance(X, Y, Z, evald_rad=0.5) :
     """For all defined nodes of the lattice returns
-       dr - distance from evald sphere to the recipical lattice node,
+       dr - distance from evald sphere to the reciprocal lattice node,
        qv, qh - vertical, horizontal components of the momentum transfer vector.
+       NOTE: X, Y, Z, DX, L, dr, qv, qh, ql are the numpy arrays with shape=(2*hmax+1, 2*kmax+1, 2*lmax+1), evald_rad is a scalar
     """
     DX = X + evald_rad
     L  = np.sqrt(DX*DX + Y*Y + Z*Z)
@@ -204,11 +208,26 @@ def radial_distance(X, Y, Z, evald_rad=0.5) :
 
 #------------------------------
 
-def print_nda(nda, cmt) :
+def print_nda(nda, cmt, fmt=' %8.4f') :
     """Prints ndarray and its shape with preceded comment.
     """
-    print '\n%s.shape: %s' % (cmt, str(nda.shape))
-    for c in nda : print c
+    print '\n%s.shape: %s' % (cmt, str(nda.shape)),
+
+    if len(nda.shape)==1 :
+        for c in nda : print fmt % c,
+
+    elif len(nda.shape)==2 : 
+        for row in nda :
+            print '\nrow: ',
+            for c in row : print fmt % c,
+            
+    elif len(nda.shape)==3 : 
+        for layer in nda :
+            print '\n(3d) layer: ',
+            for row in layer :
+                print '\nrow: ',
+                for c in row : print fmt % c,
+    print '\n'
     
 #------------------------------
 
@@ -224,22 +243,23 @@ def print_omega_dr(omega_deg, dr, drmax=1) :
     
 #------------------------------
 
-def str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_q=0) :
+def str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_ql) :
     """ Returns the record to save in look-up table or print.
     """
-    drmax = 3 * sigma_q
-    factor = -1./(2*sigma_q*sigma_q)
+    drmax = 3 * sigma_ql
+    factor = -1./(2*sigma_ql*sigma_ql)
     
     lst_drhkl = [e for e in zip(dr.flatten(), h.flatten(), k.flatten(), l.flatten(),\
                                 r.flatten(), qv.flatten(), qh.flatten()) if math.fabs(e[0])<drmax]       
     s = ''
-    if len(lst_drhkl) > 1:
+
+    if len(lst_drhkl) > 1:  #because lst_drhkl always has a record (0.0, 0, 0, 0, 0.0, 0.0, 0.0)
         s = '# beta %.2f  omega %.2f degree' % (beta_deg, omega_deg)\
           + '\n# index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]  P(omega)'
         for e in lst_drhkl :
             if e[1]==0 and e[2]==0 and e[3]==0 : continue
             d = math.fabs(e[0])
-            if sigma_q and d > drmax : continue
+            if sigma_ql and d > drmax : continue
             prob = math.exp(factor*d*d)
             s += '\n%6d  %7.2f %7.2f %3d %3d %3d %9.6f %9.6f %9.6f %9.6f %9.6f' %\
                   (ind, beta_deg, omega_deg, e[1], e[2], e[3], e[0], e[4], e[5], e[6], prob)
@@ -248,15 +268,17 @@ def str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_q=0)
     
 #------------------------------
 
-def fill_row(dr, qv, qh, h, k, l, sigma_q, bpq) :
+def fill_row(dr, qv, qh, h, k, l, sigma_ql, sigma_qt, bpq) :
     """Returns histogram array (row) for horizontal q component
        filled by probability to see the peak, modulated by the Gaussian function of dr,
        where dr is a radial distance between the lattice node and Evald's sphere.
     """
     row = np.zeros((bpq.nbins,), dtype=np.float32)
 
-    range_q = 3 * sigma_q
-    factor = -1./(2.*sigma_q*sigma_q)
+    range_ql = 3 * sigma_ql
+    range_qt = 3 * sigma_qt
+    factor_ql = -1./(2.*sigma_ql*sigma_ql)
+    factor_qt = -1./(2.*sigma_qt*sigma_qt)
     
     # loop over lattice nodes
     for dr1, qv1, qh1, h1, k1, l1 in zip(dr.flatten(), qv.flatten(), qh.flatten(), h.flatten(), k.flatten(), l.flatten()) :
@@ -264,17 +286,17 @@ def fill_row(dr, qv, qh, h, k, l, sigma_q, bpq) :
         #if dr1==0 and qv1==0 : continue # and qh1==0 
         if h1==0 and k1==0 : continue
 
-        if math.fabs(dr1) > range_q : continue
+        if math.fabs(dr1) > range_ql : continue
 
-        f_angle = math.exp(factor*dr1*dr1)
+        f_angle = math.exp(factor_ql*dr1*dr1)
 
         # loop over q bins
         for indq, binq in bpq.indcenters :
 
             dq = qh1 - binq
-            if math.fabs(dq) > range_q : continue
+            if math.fabs(dq) > range_qt : continue
 
-            row[indq] = f_angle * math.exp(factor*dq*dq)
+            row[indq] = f_angle * math.exp(factor_qt*dq*dq)
 
     return row
 
@@ -283,7 +305,16 @@ def fill_row(dr, qv, qh, h, k, l, sigma_q, bpq) :
 def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
                       hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
                       evald_rad=3, sigma_q=0.001, fout=None, bpq=None, bpomega=None, bpbeta=None) :
-    """Makes lookup table - peak information as a function of angle beta and omega, where
+    """Depricated, see  make_lookup_table_v2 with sigma_ql, sigma_qt in stead of sigma_q
+    """
+    return make_lookup_table_v2(b1, b2, b3, hmax, kmax, lmax, cdtype, evald_rad, sigma_q, sigma_q, fout, bpq, bpomega, bpbeta)
+
+#------------------------------
+
+def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
+                      hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
+                      evald_rad=3, sigma_ql=0.001, sigma_qt=0.001, fout=None, bpq=None, bpomega=None, bpbeta=None) :
+    """Makes lookup table - crystal lattice nodes information as a function of angle beta and omega, where
        beta  [deg] - fiber axis tilt,  
        omega [deg] - fiber rotation around axis,  
        For each crysal orientation (beta, gamma) lookup table contains info about lattice nodes
@@ -302,7 +333,7 @@ def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
        dr [1/A] - distance between lattice node and Evald's sphere
        R(h,k,l) [1/A] - distance between nodes (h,k,l) and (0,0,0)
        qv, qh [1/A] - vertical and horizontal components of scattering vector q
-       P(omega) - un-normalized probability (<1) evaluated for dr(omega) using sigma_q.
+       P(omega) - un-normalized probability (<1) evaluated for dr(omega) using sigma_ql.
 
        File name is generated automatically with current time stamp like
        lut-cxif5315-r0169-2015-10-23T14:58:36.txt
@@ -312,7 +343,8 @@ def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
        hmax, kmax, lmax - lattice node indeces
        cdtype - data type for lattice node coordinates,
        evald_rad - Evald's sphere radius,
-       sigma_q - expected q resolution,
+       sigma_ql - expected q resolution along k (due to crystal rotation),
+       sigma_qt - expected qt resolution (in detector plane),
        fout - open output file object,
        bpq, bpomega, bpbeta - binning parameters for q, omega, and beta
        NOTE: Units of b1, b2, b3, evald_rad, and sigma_q should be the same, for example [1/A].
@@ -337,21 +369,24 @@ def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
         
             dr, qv, qh = radial_distance(xrot2, yrot1, zrot2, evald_rad)
         
-            txt = str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_q)
+            txt = str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_ql)
             print txt,
             if fout is not None : fout.write(txt)
         
-            lut[iomega,:] += fill_row(dr, qv, qh, h, k, l, sigma_q, bpq)
+            lut[iomega,:] += fill_row(dr, qv, qh, h, k, l, sigma_ql, sigma_qt, bpq)
         
     return lut
         
 #------------------------------
 
 def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
-                 hmax=3, kmax=2, lmax=1, cdtype=np.float32) :
+                 hmax=3, kmax=2, lmax=1, cdtype=np.float32, fmt = '%10.6f') :
 
-    print '\nreciprocal space primitive vectors:\n  b1 = %s\n  b2 = %s\n  b3 = %s' %\
-           (str(b1), str(b2), str(b3))
+    print '\nIn %s' % sys._getframe().f_code.co_name
+    print 'reciprocal space primitive vectors:\n  b1 = (%s)\n  b2 = (%s)\n  b3 = (%s)' %\
+           (', '.join([fmt % v for v in b1]),\
+            ', '.join([fmt % v for v in b2]),\
+            ', '.join([fmt % v for v in b3]))
 
     x, y, z, rarr, harr, karr, larr = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
 
@@ -372,22 +407,24 @@ def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 #------------------------------
 
 def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
-                 hmax=3, kmax=2, lmax=1, cdtype=np.float32) :
+                 hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
+                 do_plot=False, evald_rad=0.5, prefix='', do_movie=False) :
 
-    print '\n%s\nTest lattice with default parameters' % (80*'_')
+    print '\nIn %s' % sys._getframe().f_code.co_name
+    print '%s\nTest lattice with default parameters' % (80*'_')
 
     x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
 
-    print_nda(h, 'h')
-    print_nda(k, 'k')
-    print_nda(l, 'l')
+    print_nda(h, 'h', fmt=' %3d')
+    print_nda(k, 'k', fmt=' %3d')
+    print_nda(l, 'l', fmt=' %3d')
     print_nda(x, 'x coords')
     print_nda(y, 'y coords')
     print_nda(z, 'z coords')
     print_nda(r, 'r of lattice nodes')
         
-    omega_deg = 30
-    beta_deg = 15
+    omega_deg = 9
+    beta_deg = 0
     
     xrot1, yrot1 = rotation(x, y, omega_deg)
     xrot2, zrot2 = rotation(xrot1, z, beta_deg)
@@ -396,7 +433,42 @@ def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     print_nda(yrot1, 'yrot1')
     print_nda(zrot2, 'zrot2')
     #print_nda(zrot, 'zrot')
-    
+
+    if do_plot :
+        import matplotlib.pyplot as plt
+        import pyimgalgos.GlobalGraphics as gg
+        fig, ax = gg.plotGraph(x,y, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.86), pfmt='bo')
+        ax.set_xlabel('Reciprocal x ($1/\AA$)', fontsize=18)
+        ax.set_ylabel('Reciprocal y ($1/\AA$)', fontsize=18)
+        gg.save_fig(fig, '%sreciprocal-space-lattice.png' % prefix, pbits=1)
+
+        lst_omega = range(0,180,5) if do_movie else range(0,10,9)
+
+        beta_deg = 0
+        for omega_deg in lst_omega :
+            xrot1, yrot1 = rotation(x, y, omega_deg)
+            xrot2, zrot2 = rotation(xrot1, z, beta_deg)
+            fig, ax = gg.plotGraph(xrot2, yrot1, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.84), pfmt='bo')
+            ax.set_xlim((-0.5,  0.4))
+            ax.set_ylim((-0.45, 0.45))
+            ax.set_title('beta=%.0f  omega=%.0f' % (beta_deg, omega_deg), color='k', fontsize=20)
+            ax.set_xlabel('Reciprocal x ($1/\AA$)', fontsize=18)
+            ax.set_ylabel('Reciprocal y ($1/\AA$)', fontsize=18)
+            gg.drawCenter(ax, (-evald_rad,0), s=0.04, linewidth=2, color='k')
+            gg.drawCircle(ax, (-evald_rad,0), evald_rad, linewidth=1, color='k', fill=False)
+            #gg.show('do not hold')
+            gg.save_fig(fig, '%sreciprocal-space-lattice-rotated-beta=%03d-omega=%03d.png'%\
+                        (prefix, int(beta_deg), int(omega_deg)), pbits=1)
+
+        if do_movie :
+            import os
+            cmd = 'convert %sreciprocal-space-lattice-rotated-beta=*.png movie.gif' % (prefix)
+            print 'Wait for completion of the command: %s' % cmd
+            os.system(cmd)
+            print 'DONE!'
+        
+        gg.show('do not hold')
+
 #------------------------------
 #------------------------------
 #------------------------------
@@ -414,14 +486,17 @@ def make_index_table(prefix='./v01-') :
     wavelen_nm = wavelength_nm_from_energy_ev(Egamma_eV) # nm
     evald_rad  = wave_vector_value(Egamma_eV)            # 1/A
     #-------
-    sigma_q    = 0.002 * evald_rad
+    sigma_ql   = 0.002 * evald_rad
+    sigma_qt   = 0.002 * evald_rad
     #-------
     rec  = '\n# photon energy = %.4f eV' % (Egamma_eV)\
          + '\n# wavelength = %.4f A' % (wavelen_nm*10)\
          + '\n# wave number/Evald radius k = 1/lambda = %.6f 1/A' % (evald_rad)\
-         + '\n# sigma_q = %.6f 1/A (approximately = k * <pixel size>/' % (sigma_q)\
+         + '\n# sigma_ql = %.6f 1/A (approximately = k * <pixel size>/' % (sigma_ql)\
+         + '\n# sigma_qt = %.6f 1/A (approximately = k * <pixel size>/' % (sigma_qt)\
          + '<sample-to-detector distance> = k*100um/100mm)'\
-         + '\n# 3*sigma_q = %.6f 1/A\n' % (3*sigma_q)
+         + '\n# 3*sigma_ql = %.6f 1/A\n' % (3*sigma_ql)\
+         + '\n# 3*sigma_qt = %.6f 1/A\n' % (3*sigma_qt)
     print rec
     fout.write(rec)
 
@@ -481,8 +556,8 @@ def make_index_table(prefix='./v01-') :
     str_beta = 'for-beta:%s' % (bpbeta.strrange)
      
     print '\n%s\nIndexing lookup table\n' % (91*'_')
-    lut  = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_q, fout, bpq, bpomega, bpbeta)
-    lut2 = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_q, fout, bpq, bpomega, bpbeta2)
+    lut  = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_ql, sigma_qt, fout, bpq, bpomega, bpbeta)
+    lut2 = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_ql, sigma_qt, fout, bpq, bpomega, bpbeta2)
 
     fout.close()
     print '\nIndexing lookup table is saved in the file: %s' % fname

@@ -28,6 +28,9 @@ Usage::
     halfbinw      = hb.halfbinw()      # returns np.array with half-bin widths of size nbins or scalar bin half-width for equal bins
     strrange      = hb.strrange(fmt)   # returns str of formatted vmin, vmax, nbins ex: 1-6-5
 
+    ind     = hb.bin_index(value)      # returns bin index [0,nbins) for value
+    indarr  = hb.bin_indexes(valarr)   # returns array of bin index [0,nbins) for array of values
+
     # Print methods
     hb.print_attrs_defined()
     hb.print_attrs()
@@ -75,6 +78,7 @@ class HBins() :
         self._vmax       = max(self._edges)
         self._equalbins  = len(self._edges)==2 and nbins is not None
 
+        # dynamic parameters
         self._limits     = None
         self._binwidth   = None 
         self._halfbinw   = None 
@@ -208,6 +212,34 @@ class HBins() :
         if self._bincenters is None :
             self._bincenters = self.binedgesleft() + self.halfbinw()
         return self._bincenters
+
+
+    def bin_index(self, v) :
+        """Returns bin index for scalar value"""
+        if v<self._vmin : return 0
+        indmax = self._nbins - 1
+        if v>=self._vmax : return indmax
+
+        if self._equalbins :
+            return math.floor((v-self._vmin)/self.binwidth())
+
+        for ind, edgeright in self.binedgesright() :
+            if v<edgeright :
+                return ind
+
+
+    def bin_indexes(self, arr) :
+        if self._equalbins :
+            factor = float(self._nbins)/(self._vmax-self._vmin)
+            nbins1 = self._nbins-1
+            ind = np.array((arr-self._vmin)*factor, dtype = np.int32)
+            return np.select((ind<0, ind>nbins1), (0, nbins1), default=ind)
+
+        else :
+            conds = [arr<edge for edge in self.binedgesright()]
+            ivals  = np.array(range(self._nbins), dtype=np.int32)
+            #ivals[0] = 0 # re-define index for underflow
+            return np.select(conds, ivals, default=self._nbins-1)
 
 
     def strrange(self, fmt='%.0f-%.0f-%d') :
