@@ -407,8 +407,9 @@ def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 #------------------------------
 
 def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
-                 hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
-                 do_plot=False, evald_rad=0.5, prefix='', do_movie=False) :
+                 hmax=3, kmax=2, lmax=1, cdtype=np.float32) :
+
+    from Detector.GlobalUtils import print_ndarr
 
     print '\nIn %s' % sys._getframe().f_code.co_name
     print '%s\nTest lattice with default parameters' % (80*'_')
@@ -429,45 +430,78 @@ def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     xrot1, yrot1 = rotation(x, y, omega_deg)
     xrot2, zrot2 = rotation(xrot1, z, beta_deg)
 
-    print_nda(xrot2, 'xrot2')
-    print_nda(yrot1, 'yrot1')
-    print_nda(zrot2, 'zrot2')
+    #print_nda(xrot2, 'xrot2')
+    #print_nda(yrot1, 'yrot1')
+    #print_nda(zrot2, 'zrot2')
     #print_nda(zrot, 'zrot')
+    print_ndarr(xrot2, 'xrot2')
+    print_ndarr(yrot1, 'yrot1')
+    print_ndarr(zrot2, 'zrot2')
 
-    if do_plot :
-        import matplotlib.pyplot as plt
-        import pyimgalgos.GlobalGraphics as gg
-        fig, ax = gg.plotGraph(x,y, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.86), pfmt='bo')
+#------------------------------
+
+def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
+                 hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
+                 evald_rad=0.5, qtol=0.01, prefix='', do_movie=False) :
+
+    import matplotlib.pyplot as plt
+    import pyimgalgos.GlobalGraphics as gg
+    
+    print '\nIn %s' % sys._getframe().f_code.co_name
+    print '%s\nTest lattice with default parameters' % (80*'_')
+
+    x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
+
+    xlimits = ylimits = (-0.3, 0.3) # plot limits in (1/A)
+
+    fig, ax = gg.plotGraph(x,y, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.86), pfmt='bo')
+    ax.set_xlim(xlimits)
+    ax.set_ylim(ylimits)
+    ax.set_xlabel('Reciprocal x ($1/\AA$)', fontsize=18)
+    ax.set_ylabel('Reciprocal y ($1/\AA$)', fontsize=18)
+    gg.save_fig(fig, '%sreciprocal-space-lattice.png' % prefix, pbits=1)
+
+    lst_omega = range(0,180,2) if do_movie else range(0,13,11)
+    #lst_omega = range(0,180,5) if do_movie else range(0,13,11)
+    #lst_omega = range(0,180,45) if do_movie else range(0,13,11)
+
+    beta_deg = 0
+    for omega_deg in lst_omega :
+
+        xrot1, yrot1 = rotation(x, y, omega_deg)
+        xrot2, zrot2 = rotation(xrot1, z, beta_deg)        
+        dr, qv, qh = radial_distance(xrot2, yrot1, zrot2, evald_rad)
+
+        xhit = [xr for dq,xr in zip(dr.flatten(), xrot2.flatten()) if math.fabs(dq)<qtol]
+        yhit = [yr for dq,yr in zip(dr.flatten(), yrot1.flatten()) if math.fabs(dq)<qtol]
+
+        #fig, ax = gg.plotGraph(xrot2, yrot1, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.84), pfmt='bo')
+        ax.cla()
+        ax.set_xlim(xlimits)
+        ax.set_ylim(ylimits)
+        ax.plot(xrot1, yrot1, 'yo')
+        if len(xhit)>0 and len(yhit)>0 : ax.plot(xhit, yhit, 'bo')
+
+        ax.set_title('beta=%.0f  omega=%.0f' % (beta_deg, omega_deg), color='k', fontsize=20)
         ax.set_xlabel('Reciprocal x ($1/\AA$)', fontsize=18)
         ax.set_ylabel('Reciprocal y ($1/\AA$)', fontsize=18)
-        gg.save_fig(fig, '%sreciprocal-space-lattice.png' % prefix, pbits=1)
+        gg.drawCenter(ax, (-evald_rad,0), s=0.04, linewidth=2, color='k')
+        gg.drawCircle(ax, (-evald_rad,0), evald_rad, linewidth=1, color='k', fill=False)
+        fig.canvas.draw()
+        gg.show('Do not hold!')
+        gg.save_fig(fig, '%sreciprocal-space-lattice-rotated-beta=%03d-omega=%03d.png'%\
+                    (prefix, int(beta_deg), int(omega_deg)), pbits=1)
 
-        lst_omega = range(0,180,5) if do_movie else range(0,10,9)
-
-        beta_deg = 0
-        for omega_deg in lst_omega :
-            xrot1, yrot1 = rotation(x, y, omega_deg)
-            xrot2, zrot2 = rotation(xrot1, z, beta_deg)
-            fig, ax = gg.plotGraph(xrot2, yrot1, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.84), pfmt='bo')
-            ax.set_xlim((-0.5,  0.4))
-            ax.set_ylim((-0.45, 0.45))
-            ax.set_title('beta=%.0f  omega=%.0f' % (beta_deg, omega_deg), color='k', fontsize=20)
-            ax.set_xlabel('Reciprocal x ($1/\AA$)', fontsize=18)
-            ax.set_ylabel('Reciprocal y ($1/\AA$)', fontsize=18)
-            gg.drawCenter(ax, (-evald_rad,0), s=0.04, linewidth=2, color='k')
-            gg.drawCircle(ax, (-evald_rad,0), evald_rad, linewidth=1, color='k', fill=False)
-            #gg.show('do not hold')
-            gg.save_fig(fig, '%sreciprocal-space-lattice-rotated-beta=%03d-omega=%03d.png'%\
-                        (prefix, int(beta_deg), int(omega_deg)), pbits=1)
-
-        if do_movie :
-            import os
-            cmd = 'convert %sreciprocal-space-lattice-rotated-beta=*.png movie.gif' % (prefix)
-            print 'Wait for completion of the command: %s' % cmd
-            os.system(cmd)
-            print 'DONE!'
-        
-        gg.show('do not hold')
+    if do_movie :
+        import os
+        #dir_movie = 'movie'
+        #os.system('mkdir %s'% dir_movie)
+        cmd = 'convert %sreciprocal-space-lattice-rotated-beta=*.png movie.gif' % (prefix)
+        print 'Wait for completion of the command: %s' % cmd
+        os.system(cmd)
+        print 'DONE!'
+    
+    gg.show()
 
 #------------------------------
 #------------------------------

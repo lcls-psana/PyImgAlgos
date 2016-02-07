@@ -246,6 +246,22 @@ def funcy2(x, a, b, c) :
     return a*x*x + b*x + c
 
 ##-----------------------------
+
+def qh_to_xy(qh, R) :
+    """Returns reciprocal (xe,ye) coordinates of the qh projection on Evald sphere.
+       qh - (numpy array) horizontal component of q values (1/A)
+       R  - (float scalar) Evald sphere radius (1/A)
+       Assuming that center of the Evald sphere is in (-R,0); qh is oriented along y.
+       NOTE: qh, L, sina, cosa, xe, ye - are the numpy arrays of the same shape as qh
+    """
+    L = np.sqrt(R*R + qh*qh) 
+    sina = qh/L
+    cosa = R/L
+    xe = R * (cosa-1.)
+    ye = R * sina
+    return xe, ye
+
+##-----------------------------
 ##---------- TESTS ------------
 ##-----------------------------
 

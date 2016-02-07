@@ -12,6 +12,12 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+	
+Tag: V00-00-46
+2016-02-06 Mikhail S. Dubrovin
+- FiberAngles.py add qh_to_xy(qh, R)
+- FiberIndexing.py update method test_lattice, add plot_lattice with movie 
+	
 Tag: V00-00-45
 2016-02-05 Mikhail S. Dubrovin
 - HBins.py add bin_index and bin_indexes; GlobalGraphics.py add cmap parameter; FiberIndexing.py use sigma_ql, sigma_qt 
