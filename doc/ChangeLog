@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 	
+Tag: V00-00-47
+2016-02-12 Mikhail S. Dubrovin
+- FiberIndexing.py - update plot_lattice
+
 Tag: V00-00-46
 2016-02-06 Mikhail S. Dubrovin
 - FiberAngles.py add qh_to_xy(qh, R)

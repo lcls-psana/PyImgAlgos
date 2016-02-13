@@ -442,7 +442,13 @@ def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 
 def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
                  hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
-                 evald_rad=0.5, qtol=0.01, prefix='', do_movie=False) :
+                 evald_rad=0.5, qtol=0.01, prefix='', do_movie=False, delay=400) :
+    """Plots 2-d reciprocal space lattice, evald sphere,
+       generates series of plots for rotated lattice and movie from these plots.
+
+       - do_movie = True/False - on/off production of movie
+       - delay - is a time in msec between movie frames.
+    """
 
     import matplotlib.pyplot as plt
     import pyimgalgos.GlobalGraphics as gg
@@ -453,6 +459,8 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
 
     xlimits = ylimits = (-0.3, 0.3) # plot limits in (1/A)
+    #ylimits = (-0.4, 0.4) # plot limits in (1/A)
+    #xlimits = (-0.5, 0.3) # plot limits in (1/A)
 
     fig, ax = gg.plotGraph(x,y, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.86), pfmt='bo')
     ax.set_xlim(xlimits)
@@ -496,7 +504,7 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
         import os
         #dir_movie = 'movie'
         #os.system('mkdir %s'% dir_movie)
-        cmd = 'convert %sreciprocal-space-lattice-rotated-beta=*.png movie.gif' % (prefix)
+        cmd = 'convert -delay %f %sreciprocal-space-lattice-rotated-beta=*.png movie.gif' % (delay, prefix)
         print 'Wait for completion of the command: %s' % cmd
         os.system(cmd)
         print 'DONE!'
