@@ -80,6 +80,7 @@ class HBins() :
         self._vmin       = min(self._edges)
         self._vmax       = max(self._edges)
         self._equalbins  = len(self._edges)==2 and nbins is not None
+        self._ascending  = self._edges[0] < self._edges[-1]
 
         # dynamic parameters
         self._limits     = None
@@ -94,7 +95,7 @@ class HBins() :
 
 
     def _set_valid_edges(self, edges) :
-        if not isinstance(edges,(tuple,list)) :
+        if not isinstance(edges,(tuple,list,np.array)) :
             raise ValueError('Parameter edges is not a tuple or list: '\
                              'edges=%s' % str(edges))
 
@@ -166,10 +167,14 @@ class HBins() :
         return self._equalbins
 
 
+    def ascending(self) :
+        return self._ascending
+
+
     def limits(self) :
         """Returns np.array of two ordered limits (vmin, vmax)"""
         if self._limits is None :
-            self._limits = np.array((self._vmin, self._vmax), dtype=self._vtype)
+            self._limits = np.array((self._edges[0], self._edges[-1]), dtype=self._vtype)
         return self._limits
 
 
@@ -177,7 +182,7 @@ class HBins() :
         """Returns np.array of nbins+1 values of bin edges"""
         if self._binedges is None : 
             if self._equalbins :
-                self._binedges = np.linspace(self._vmin, self._vmax, self._nbins+1, endpoint=True, dtype=self._vtype)
+                self._binedges = np.linspace(self._edges[0], self._edges[-1], self._nbins+1, endpoint=True, dtype=self._vtype)
             else :
                 self._binedges = self._edges
         return self._binedges
@@ -197,7 +202,7 @@ class HBins() :
         """Returns np.array of nbins values of bin widths"""
         if self._binwidth is None :
             if self._equalbins :
-                self._binwidth = float(self._vmax-self._vmin)/self._nbins
+                self._binwidth = float(self._edges[-1]-self._edges[0])/self._nbins
             else :
                 self._binwidth = self.binedgesright() - self.binedgesleft()
         return self._binwidth
@@ -227,16 +232,25 @@ class HBins() :
         """Returns bin index for scalar value"""
         
         indmin, indmax = self._set_limit_indexes(edgemode)
-
-        if v< self._vmin : return indmin
-        if v>=self._vmax : return indmax
-
+        if self._ascending :
+            if v< self._edges[0]  : return indmin
+            if v>=self._edges[-1] : return indmax
+        else :
+            if v> self._edges[0]  : return indmin
+            if v<=self._edges[-1] : return indmax
+            
         if self._equalbins :
-            return math.floor((v-self._vmin)/self.binwidth())
+            return math.floor((v-self._edges[0])/self.binwidth())
 
-        for ind, edgeright in enumerate(self.binedgesright()) :
-            if v<edgeright :
-                return ind
+            
+        if self._ascending :
+            for ind, edgeright in enumerate(self.binedgesright()) :
+                if v<edgeright :
+                    return ind
+        else :            
+            for ind, edgeright in enumerate(self.binedgesright()) :
+                if v>edgeright :
+                    return ind
 
 
     def bin_indexes(self, arr, edgemode=0) :
@@ -244,14 +258,19 @@ class HBins() :
         indmin, indmax = self._set_limit_indexes(edgemode)
 
         if self._equalbins :
-            factor = float(self._nbins)/(self._vmax-self._vmin)
+            factor = float(self._nbins)/(self._edges[-1]-self._edges[0])
             nbins1 = self._nbins-1
-            nparr = (np.array(arr, dtype=self._vtype)-self._vmin)*factor
+            nparr = (np.array(arr, dtype=self._vtype)-self._edges[0])*factor
             ind = np.array(np.floor(nparr), dtype=np.int32)
             return np.select((ind<0, ind>nbins1), (indmin, indmax), default=ind)
 
         else :
-            conds = np.array([arr<edge for edge in self.binedges()], dtype=np.bool)
+            conds = None
+            if self._ascending :
+                conds = np.array([arr<edge for edge in self.binedges()], dtype=np.bool)
+            else :            
+                conds = np.array([arr>edge for edge in self.binedges()], dtype=np.bool)
+
             inds1d = range(-1, self._nbins)
             inds1d[0] = indmin # re-define index for underflow
             inds = np.array(len(arr)*inds1d, dtype=np.int32)
@@ -266,7 +285,7 @@ class HBins() :
     def strrange(self, fmt='%.0f-%.0f-%d') :
         """Returns string of range parameters"""
         if self._strrange is None :
-            self._strrange =fmt % (self._vmin, self._vmax, self._nbins)
+            self._strrange =fmt % (self._edges[0], self._edges[-1], self._nbins)
         return self._strrange
 
 

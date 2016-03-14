@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 	
+Tag: V00-00-49
+2016-03-14 Mikhail S. Dubrovin
+- HBins.py - update for descending bins, add unitest test_HBins, add RadialBkgd.py (PSAS-178)
+
 Tag: V00-00-48
 2016-02-17 Mikhail S. Dubrovin
 - HBins.py - in methods bin_index(es) add parameter edgemode, update tests for EQUAL and VARIABLE bins.
