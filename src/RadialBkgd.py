@@ -19,6 +19,7 @@ Usage::
     opb          = rb.obj_phibins() # returns HBins object
     rad          = rb.pixel_rad()
     irad         = rb.pixel_irad()
+    phi0         = rb.pixel_phi0()
     phi          = rb.pixel_phi()
     iphi         = rb.pixel_iphi()
     iseq         = rb.pixel_iseq()
@@ -29,6 +30,10 @@ Usage::
 
     # Global methods
     # --------------
+
+    from pyimgalgos.RadialBkgd import polarization_factor
+
+    polf = polarization_factor(rad, phi, z)
     result = divide_protected(num, den, vsub_zero=0)
     r, theta = cart2polar(x, y)
     x, y = polar2cart(r, theta)
@@ -90,6 +95,16 @@ def bincount(map_bins, map_weights=None, length=None) :
     weights = None if map_weights is None else map_weights.flatten()
     return np.bincount(map_bins.flatten(), weights, length)
 
+
+def polarization_factor(rad, phi_deg, z) :
+    """Returns per-pixel polarization factors, assuming that detector is perpendicular to Z.
+    """
+    phi = np.deg2rad(phi_deg)
+    ones = np.ones_like(rad)
+    theta = np.arctan2(rad, z)
+    pol = 1 - np.sqrt(np.fabs(np.sin(theta)*np.cos(phi)))
+    return divide_protected(ones, pol, vsub_zero=0)
+
 #------------------------------
 
 class RadialBkgd() :
@@ -108,12 +123,12 @@ class RadialBkgd() :
                         default=32 - bin size equal to 1 rhumb for default phiedges
         """
         self.mask = mask
-        self.rad, self.phi = cart2polar(xarr, yarr)
+        self.rad, self.phi0 = cart2polar(xarr, yarr)
 
-        phi0 = min(phiedges[0], phiedges[-1])
+        phimin = min(phiedges[0], phiedges[-1])
         print 'Phi limits: ', phiedges[0], phiedges[-1]
 
-        self.phi = np.select((self.phi<phi0, self.phi>=phi0), (self.phi+360.,self.phi))
+        self.phi = np.select((self.phi0<phimin, self.phi0>=phimin), (self.phi0+360.,self.phi0))
 
         if len(self.rad.shape)>3 :
             self.rad = gu.reshape_to_3d(self.rad)
@@ -167,53 +182,70 @@ class RadialBkgd() :
 
 
     def pixel_obj_radbins(self) :
+        """Returns HBins object for radial bins."""
         return self.rb
 
 
     def pixel_obj_phibins(self) :
+        """Returns HBins object for angular bins."""
         return self.pb
 
 
     def pixel_rad(self) :
+        """Returns numpy array of pixel radial parameters."""
         return self.rad
 
 
     def pixel_irad(self) :
+        """Returns numpy array of pixel radial indexes."""
         return self.irad
 
 
+    def pixel_phi0(self) :
+        """Returns numpy array of pixel angules in the range [-180,180] degree."""
+        return self.phi0
+
+
     def pixel_phi(self) :
+        """Returns numpy array of pixel angules in the range [phi_min, phi_min+360] degree."""
         return self.phi
 
 
     def pixel_iphi(self) :
+        """Returns numpy array of pixel angular indexes."""
         return self.iphi
 
 
     def pixel_iseq(self) :
+        """Returns numpy array of sequentially (in rad and phi) numerated pixel indexes."""
         return self.iseq
 
 
     def npixels_per_bin(self) :
+        """Returns numpy array of number of accounted pixels per bin."""
         return self.npix_per_bin
 
 
     def intensity_per_bin(self, nda) :
+        """Returns numpy array of total pixel intensity per bin for input array nda."""
         return np.bincount(self.iseq, weights=nda.flatten(), minlength=None)
 
 
     def average_per_bin(self, nda) :
+        """Returns numpy array of averaged in bin intensity for input array nda."""
         num = self.intensity_per_bin(nda)
         den = self.npixels_per_bin()
         return divide_protected(num, den, vsub_zero=0)
 
 
     def bkgd_nda(self, nda) :
+        """Returns numpy array of per-pixel background for input array nda."""
         bin_bkgd = self.average_per_bin(nda)
         return np.array([bin_bkgd[i] for i in self.iseq])
 
 
     def subtract_bkgd(self, nda) :
+        """Returns numpy array of background subtracted input array nda."""
         return nda.flatten() - self.bkgd_nda(nda)
 
 #------------------------------
@@ -252,28 +284,34 @@ def test(ntest) :
     print 'Time to retrieve geometry %.3f sec' % (time()-t0_sec)
 
     t0_sec = time()
-    rbkg = RadialBkgd(X, Y, mask) # v0
-    #rbkg = RadialBkgd(X, Y, mask, nradbins=500, nphibins=1) # v1
-    #rbkg = RadialBkgd(X, Y, mask, nradbins=500, nphibins=8, phiedges=(-20, 240), radedges=(10000,80000)) # v2
-    #rbkg = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(240, -20), radedges=(80000,10000)) # v3
-    #rbkg = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(-20, 240), radedges=(10000,80000))
+    #rb = RadialBkgd(X, Y, mask) # v0
+    rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=1) # v1
+    #rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=8, phiedges=(-20, 240), radedges=(10000,80000)) # v2
+    #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(240, -20), radedges=(80000,10000)) # v3
+    #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(-20, 240), radedges=(10000,80000))
 
     print 'RadialBkgd initialization time %.3f sec' % (time()-t0_sec)
 
-    #print 'npixels_per_bin:',   rbkg.npixels_per_bin()
-    #print 'intensity_per_bin:', rbkg.intensity_per_bin(arr)
-    #print 'average_per_bin:',   rbkg.average_per_bin(arr)
+    #print 'npixels_per_bin:',   rb.npixels_per_bin()
+    #print 'intensity_per_bin:', rb.intensity_per_bin(arr)
+    #print 'average_per_bin:',   rb.average_per_bin(arr)
 
     t0_sec = time()
     nda = arr
-    if ntest == 2 : nda = rbkg.pixel_rad()
-    if ntest == 3 : nda = rbkg.pixel_phi()
-    if ntest == 4 : nda = rbkg.pixel_irad() + 2
-    if ntest == 5 : nda = rbkg.pixel_iphi() + 2
-    if ntest == 6 : nda = rbkg.pixel_iseq() + 2
-    if ntest == 7 : nda = mask
-    if ntest == 8 : nda = rbkg.bkgd_nda(nda)
-    if ntest == 9 : nda = rbkg.subtract_bkgd(nda) * mask.flatten() 
+    if   ntest == 2 : nda = rb.pixel_rad()
+    elif ntest == 3 : nda = rb.pixel_phi()
+    elif ntest == 4 : nda = rb.pixel_irad() + 2
+    elif ntest == 5 : nda = rb.pixel_iphi() + 2
+    elif ntest == 6 : nda = rb.pixel_iseq() + 2
+    elif ntest == 7 : nda = mask
+    elif ntest == 8 : nda = rb.bkgd_nda(nda)
+    elif ntest == 9 : nda = rb.subtract_bkgd(nda) * mask.flatten() 
+
+    pf = gu.reshape_to_2d(polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 2e6))
+
+    if   ntest ==10 : nda = pf
+    elif ntest ==11 : nda = arr * pf
+    elif ntest ==12 : nda = rb.subtract_bkgd(arr * pf) * mask.flatten() 
     print 'Get n-d array time %.3f sec' % (time()-t0_sec)
 
     img = img_from_pixel_arrays(iX, iY, nda)
@@ -289,7 +327,7 @@ def test(ntest) :
       da = (ave-3*rms, ave+3*rms)
       ds = (ave-3*rms, ave+6*rms)
 
-    prefix = 'fig-v0-cspad-RadialBkgd'
+    prefix = 'fig-v1-2m-cspad-RadialBkgd'
 
     gg.plotImageLarge(img, amp_range=da, figsize=(14,12))
     gg.save('%s-%02d-img.png' % (prefix, ntest))
