@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 	
+Tag: V00-00-51
+2016-03-15 Mikhail S. Dubrovin
+- RadialBkgd.py - update example
+
 Tag: V00-00-50
 2016-03-14 Mikhail S. Dubrovin
 - RadialBkgd.py - update doc, add method polarization_factor with example.

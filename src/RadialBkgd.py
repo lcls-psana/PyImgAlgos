@@ -266,8 +266,9 @@ def test(ntest) :
     #det = psana.Detector('CxiDs2.0:Cspad.0', ds.env())
 
     dir       = '/reg/g/psdm/detector/alignment/cspad/calib-cxi-camera2-2016-02-05'
-    fname_nda = '%s/nda-water-ring-cxij4716-r0022-e000001-CxiDs2-0-Cspad-0-ave.txt' % dir
+    #fname_nda = '%s/nda-water-ring-cxij4716-r0022-e000001-CxiDs2-0-Cspad-0-ave.txt' % dir
     #fname_nda = '%s/nda-water-ring-cxij4716-r0022-e001000-CxiDs2-0-Cspad-0-ave.txt' % dir
+    fname_nda = '%s/nda-water-ring-cxij4716-r0022-e014636-CxiDs2-0-Cspad-0-ave.txt' % dir
     fname_geo = '%s/calib/CsPad::CalibV1/CxiDs2.0:Cspad.0/geometry/geo-cxi01516-2016-02-18-Ag-behenate-tuned.data' % dir
 
     # load n-d array with averaged water ring
@@ -286,6 +287,7 @@ def test(ntest) :
     t0_sec = time()
     #rb = RadialBkgd(X, Y, mask) # v0
     rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=1) # v1
+    #rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=200) # v5
     #rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=8, phiedges=(-20, 240), radedges=(10000,80000)) # v2
     #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(240, -20), radedges=(80000,10000)) # v3
     #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(-20, 240), radedges=(10000,80000))
@@ -307,11 +309,12 @@ def test(ntest) :
     elif ntest == 8 : nda = rb.bkgd_nda(nda)
     elif ntest == 9 : nda = rb.subtract_bkgd(nda) * mask.flatten() 
 
-    pf = gu.reshape_to_2d(polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 2e6))
+    pf = gu.reshape_to_2d(polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 0.5e6))
 
     if   ntest ==10 : nda = pf
     elif ntest ==11 : nda = arr * pf
     elif ntest ==12 : nda = rb.subtract_bkgd(arr * pf) * mask.flatten() 
+    elif ntest ==13 : nda = rb.bkgd_nda(arr * pf)
     print 'Get n-d array time %.3f sec' % (time()-t0_sec)
 
     img = img_from_pixel_arrays(iX, iY, nda)
@@ -324,12 +327,13 @@ def test(ntest) :
 
     else :
       ave, rms = nda.mean(), nda.std()
-      da = (ave-3*rms, ave+3*rms)
-      ds = (ave-3*rms, ave+6*rms)
+      da = ds = (ave-2*rms, ave+2*rms)
+      #ds = (ave-1*rms, ave+3*rms)
+      #ds = da = (-10, 10)
 
-    prefix = 'fig-v1-2m-cspad-RadialBkgd'
+    prefix = 'fig-v5-cspad-RadialBkgd'
 
-    gg.plotImageLarge(img, amp_range=da, figsize=(14,12))
+    gg.plotImageLarge(img, amp_range=da, figsize=(14,12), cmap='gray')
     gg.save('%s-%02d-img.png' % (prefix, ntest))
 
     gg.hist1d(nda, bins=None, amp_range=ds, weights=None, color=None, show_stat=True, log=False, \
