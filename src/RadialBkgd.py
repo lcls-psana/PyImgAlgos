@@ -60,8 +60,6 @@ import math
 import numpy as np
 from pyimgalgos.HBins import HBins
 
-import pyimgalgos.GlobalUtils as gu
-
 #------------------------------
 
 def divide_protected(num, den, vsub_zero=0) :
@@ -102,7 +100,8 @@ def polarization_factor(rad, phi_deg, z) :
     phi = np.deg2rad(phi_deg)
     ones = np.ones_like(rad)
     theta = np.arctan2(rad, z)
-    pol = 1 - np.sqrt(np.fabs(np.sin(theta)*np.cos(phi)))
+    sxc = np.sin(theta)*np.cos(phi)
+    pol = 1 - sxc*sxc
     return divide_protected(ones, pol, vsub_zero=0)
 
 #------------------------------
@@ -122,17 +121,14 @@ class RadialBkgd() :
            - nphibins - number of angular bins
                         default=32 - bin size equal to 1 rhumb for default phiedges
         """
-        self.mask = mask
         self.rad, self.phi0 = cart2polar(xarr, yarr)
+        shape = (self.rad.size,)
+        self.rad.shape = shape
+        self.phi0.shape = shape
 
         phimin = min(phiedges[0], phiedges[-1])
-        print 'Phi limits: ', phiedges[0], phiedges[-1]
 
         self.phi = np.select((self.phi0<phimin, self.phi0>=phimin), (self.phi0+360.,self.phi0))
-
-        if len(self.rad.shape)>3 :
-            self.rad = gu.reshape_to_3d(self.rad)
-            self.phi = gu.reshape_to_3d(self.phi)
 
         self._set_rad_bins(radedges, nradbins)
         self._set_phi_bins(phiedges, nphibins)
@@ -148,7 +144,8 @@ class RadialBkgd() :
                np.logical_and(self.irad > -1, self.irad < nrbins),
                np.logical_and(self.iphi > -1, self.iphi < npbins)
                )
-        if mask is not None : cond *= gu.reshape_to_3d(mask)
+
+        if mask is not None : cond *= mask.flatten()
 
         self.iseq = np.select((cond,), (self.iphi*nrbins + self.irad,), ntbins).flatten()
 
@@ -179,6 +176,7 @@ class RadialBkgd() :
         from Detector.GlobalUtils import print_ndarr
         print_ndarr(self.rad,'self.rad')
         print_ndarr(self.phi,'self.phi')
+        #print 'Phi limits: ', phiedges[0], phiedges[-1]
 
 
     def pixel_obj_radbins(self) :
@@ -274,19 +272,20 @@ def test(ntest) :
     # load n-d array with averaged water ring
     arr = load_txt(fname_nda)
     #print_ndarr(arr,'water ring')
-    arr.shape = (32*185, 388)
+    arr.shape = (arr.size,) # (32*185*388,)
 
     # retrieve geometry
     t0_sec = time()
     geo = GeometryAccess(fname_geo)
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
-    mask = geo.get_pixel_mask(mbits=0377)
+    mask = geo.get_pixel_mask(mbits=0377).flatten() 
     print 'Time to retrieve geometry %.3f sec' % (time()-t0_sec)
 
     t0_sec = time()
     #rb = RadialBkgd(X, Y, mask) # v0
-    rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=1) # v1
+    rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=8) # v1
+    #rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=1) # v1
     #rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=200) # v5
     #rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=8, phiedges=(-20, 240), radedges=(10000,80000)) # v2
     #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(240, -20), radedges=(80000,10000)) # v3
@@ -299,49 +298,55 @@ def test(ntest) :
     #print 'average_per_bin:',   rb.average_per_bin(arr)
 
     t0_sec = time()
-    nda = arr
-    if   ntest == 2 : nda = rb.pixel_rad()
-    elif ntest == 3 : nda = rb.pixel_phi()
-    elif ntest == 4 : nda = rb.pixel_irad() + 2
-    elif ntest == 5 : nda = rb.pixel_iphi() + 2
-    elif ntest == 6 : nda = rb.pixel_iseq() + 2
-    elif ntest == 7 : nda = mask
-    elif ntest == 8 : nda = rb.bkgd_nda(nda)
-    elif ntest == 9 : nda = rb.subtract_bkgd(nda) * mask.flatten() 
+    nda, title = arr, 'averaged data'
+    if   ntest == 2 : nda, title = rb.pixel_rad(),        'pixel radius value'
+    elif ntest == 3 : nda, title = rb.pixel_phi(),        'pixel phi value'
+    elif ntest == 4 : nda, title = rb.pixel_irad() + 2,   'pixel radial bin index' 
+    elif ntest == 5 : nda, title = rb.pixel_iphi() + 2,   'pixel phi bin index'
+    elif ntest == 6 : nda, title = rb.pixel_iseq() + 2,   'pixel sequential (inr and phi) bin index'
+    elif ntest == 7 : nda, title = mask,                  'mask'
+    elif ntest == 8 : nda, title = rb.bkgd_nda(nda),      'averaged radial background'
+    elif ntest == 9 : nda, title = rb.subtract_bkgd(nda) * mask, 'background-subtracted data'
+    else :
+        t1_sec = time()
+        pf = polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 94e3) # Z=94mm
+        print 'Time to evaluate polarization correction factor %.3f sec' % (time()-t1_sec)
 
-    pf = gu.reshape_to_2d(polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 0.5e6))
+        if   ntest ==10 : nda, title = pf,                    'polarization factor'
+        elif ntest ==11 : nda, title = arr * pf,              'polarization-corrected averaged data'
+        elif ntest ==12 : nda, title = rb.subtract_bkgd(arr * pf) * mask , 'polarization-corrected radial background'
+        elif ntest ==13 : nda, title = rb.bkgd_nda(arr * pf), 'polarization-corrected background-subtracted data'
 
-    if   ntest ==10 : nda = pf
-    elif ntest ==11 : nda = arr * pf
-    elif ntest ==12 : nda = rb.subtract_bkgd(arr * pf) * mask.flatten() 
-    elif ntest ==13 : nda = rb.bkgd_nda(arr * pf)
-    print 'Get n-d array time %.3f sec' % (time()-t0_sec)
+    print 'Get %s n-d array time %.3f sec' % (title, time()-t0_sec)
 
     img = img_from_pixel_arrays(iX, iY, nda)
 
     da, ds = None, None
-
+    colmap = 'jet' # 'cubehelix' 'cool' 'summer' 'jet' 'winter'
     if ntest in (2,3,4,5,6,7) :
-      da = (nda.min()-1, nda.max()+1)
-      ds = da
+        da = (nda.min()-1, nda.max()+1)
+        ds = da
 
+    if ntest in (12,) :
+        ds = da = (-20, 20)
+        colmap = 'gray'
     else :
-      ave, rms = nda.mean(), nda.std()
-      da = ds = (ave-2*rms, ave+2*rms)
-      #ds = (ave-1*rms, ave+3*rms)
-      #ds = da = (-10, 10)
+        ave, rms = nda.mean(), nda.std()
+        da = ds = (ave-2*rms, ave+3*rms)
 
-    prefix = 'fig-v5-cspad-RadialBkgd'
+    prefix = 'fig-v6-cspad-RadialBkgd'
 
-    gg.plotImageLarge(img, amp_range=da, figsize=(14,12), cmap='gray')
+    gg.plotImageLarge(img, amp_range=da, figsize=(14,12), title=title, cmap=colmap)
     gg.save('%s-%02d-img.png' % (prefix, ntest))
 
     gg.hist1d(nda, bins=None, amp_range=ds, weights=None, color=None, show_stat=True, log=False, \
            figsize=(6,5), axwin=(0.18, 0.12, 0.78, 0.80), \
-           title=None, xlabel='Pixel value', ylabel='Number of pixels', titwin='Pixel value sprctrum')
+           title=None, xlabel='Pixel value', ylabel='Number of pixels', titwin=title)
     gg.save('%s-%02d-his.png' % (prefix, ntest))
 
     gg.show()
+
+    print 'End of test for %s' % title    
 
 #------------------------------
 
@@ -350,7 +355,7 @@ if __name__ == '__main__' :
     ntest = int(sys.argv[1]) if len(sys.argv)>1 else 1
     print 'Test # %d' % ntest
     test(ntest)
-    sys.exit('End of test')
+    #sys.exit('End of test')
  
 #------------------------------
 #------------------------------
