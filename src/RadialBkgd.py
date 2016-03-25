@@ -171,6 +171,8 @@ class RadialBkgd() :
             raise ValueError('Difference between angular edges should not exceed 360 degree;'\
                              ' phiedges: %.0f, %.0f' % (phiedges[0], phiedges[-1]))        
         self.pb = HBins(phiedges, nphibins)
+        phi1, phi2 = self.pb.limits()
+        self.is360 = math.fabs(math.fabs(phi2-phi1)-360) < 1e-3
 
 
     def print_attrs(self) :
@@ -260,10 +262,7 @@ class RadialBkgd() :
     def bkgd_nda_interpol(self, nda, method='linear', verb=False) : # 'nearest' 'cubic'
         """Returns 1-d numpy array of per-pixel interpolated background for averaged input data."""
 
-        #phi1, phi2 = self.pb.limits()
-        #if math.fabs(math.fabs(phi2-phi1)-360) > 0.1 :
-        #    raise ValueError('Interpolation works for 360 degree coverage ONLY;',
-        #                     ' phiedges: %.0f, %.0f' % (phi1, phi2))        
+        #if not is360 : raise ValueError('Interpolation works for 360 degree coverage ONLY') 
 
         if self.griddata is None :
             from scipy.interpolate import griddata
@@ -273,11 +272,13 @@ class RadialBkgd() :
         binv = self.average_rad_phi(nda, do_transp=False)
 
         # 2) add values in bin edges
-        vrad = 0.5*(binv[0,:] + binv[-1,:]) # [iphi, irad]
-        #print 'binv:\n', binv
+        
         if verb : print 'binv.shape: ', binv.shape
-
-        nodea = np.vstack((vrad, binv, vrad))
+        vrad_a1,  vrad_a2 = binv[0,:], binv[-1,:]
+        if self.is360 :
+            vrad_a1 = vrad_a2 = 0.5*(binv[0,:] + binv[-1,:]) # [iphi, irad]
+        nodea = np.vstack((vrad_a1, binv, vrad_a2))
+        
         vang_rmin, vang_rmax = nodea[:,0], nodea[:,-1]
         vang_rmin.shape = vang_rmax.shape = (vang_rmin.size, 1) # it should be 2d for hstack
         val_nodes = np.hstack((vang_rmin, nodea, vang_rmax))
@@ -396,6 +397,9 @@ def test01(ntest) :
         elif ntest ==11 : nda, title = arr * pf,              'polarization-corrected averaged data'
         elif ntest ==12 : nda, title = rb.subtract_bkgd(arr * pf) * mask , 'polarization-corrected background subtracted data'
         elif ntest ==13 : nda, title = rb.bkgd_nda(arr * pf), 'polarization-corrected averaged radial background'
+        elif ntest ==14 : nda, title = rb.bkgd_nda_interpol(arr * pf) * mask , 'polarization-corrected interpolated radial background'
+        elif ntest ==15 : nda, title = rb.subtract_bkgd_interpol(arr * pf) * mask , 'polarization-corrected interpolated radial background-subtracted data'
+
 
         else :
             print 'Test %d is not implemented' % ntest 
@@ -410,7 +414,7 @@ def test01(ntest) :
     if ntest in (2,3,4,5,6,7) :
         da = ds = (nda.min()-1., nda.max()+1.)
 
-    if ntest in (12,) :
+    if ntest in (12,15) :
         ds = da = (-20, 20)
         colmap = 'gray'
 

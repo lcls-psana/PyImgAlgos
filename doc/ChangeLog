@@ -14,6 +14,10 @@ reverse time order.
 =======
 Tag: V00-00-53
 2016-03-22 Mikhail S. Dubrovin
+- RadialBkgd.py - fix interpolation issue with angular edges at non-360 degree.
+
+Tag: V00-00-53
+2016-03-22 Mikhail S. Dubrovin
 - RadialBkgd.py - add interpolated background, add self-tests, update docs.
 
 Tag: V00-00-52
