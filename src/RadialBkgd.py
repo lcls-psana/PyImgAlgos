@@ -32,6 +32,12 @@ Usage::
     cdata = rb.subtract_bkgd(nda)
     cdata = rb.subtract_interpol(nda, method='linear')
 
+
+    # Print attributes and n-d arrays
+    # -------------------------------
+    rb.print_attrs()
+    rb.print_ndarrs()
+
     # Global methods
     # --------------
     from pyimgalgos.RadialBkgd import polarization_factor
@@ -125,9 +131,10 @@ class RadialBkgd() :
                         default=32 - bin size equal to 1 rhumb for default phiedges
         """
         self.rad, self.phi0 = cart2polar(xarr, yarr)
-        shape = (self.rad.size,)
-        self.rad.shape = shape
-        self.phi0.shape = shape
+        self.shapeflat = (self.rad.size,)
+        self.rad.shape = self.shapeflat
+        self.phi0.shape = self.shapeflat
+        self.mask = mask
 
         phimin = min(phiedges[0], phiedges[-1])
 
@@ -176,25 +183,28 @@ class RadialBkgd() :
 
 
     def print_attrs(self) :
-        print self.pb.strrange(fmt='Phi bins:  min:%6.0f  max:%6.0f  nbins:%5d')
-        print self.rb.strrange(fmt='Rad bins:  min:%6.0f  max:%6.0f  nbins:%5d')
+        print '%s attrbutes:' % self.__class__.__name__
+        print self.pb.strrange(fmt='Phi bins:  min:%8.1f  max:%8.1f  nbins:%5d')
+        print self.rb.strrange(fmt='Rad bins:  min:%8.1f  max:%8.1f  nbins:%5d')
 
 
-    def print_ndars(self) :
+    def print_ndarrs(self) :
+        print '%s n-d arrays:' % self.__class__.__name__
         if self.print_ndarr is None :
             from Detector.GlobalUtils import print_ndarr
             self.print_ndarr = print_ndarr
-        self.print_ndarr(self.rad,'self.rad')
-        self.print_ndarr(self.phi,'self.phi')
+        self.print_ndarr(self.rad, '  rad')
+        self.print_ndarr(self.phi, '  phi')
+        self.print_ndarr(self.mask,'  mask')
         #print 'Phi limits: ', phiedges[0], phiedges[-1]
 
 
-    def pixel_obj_radbins(self) :
+    def obj_radbins(self) :
         """Returns HBins object for radial bins."""
         return self.rb
 
 
-    def pixel_obj_phibins(self) :
+    def obj_phibins(self) :
         """Returns HBins object for angular bins."""
         return self.pb
 
@@ -234,28 +244,35 @@ class RadialBkgd() :
         return self.npix_per_bin
 
 
+    def _flatten_(self, nda) :
+        if len(nda.shape)>1 :
+            #nda = nda.flatten()
+            nda.shape = self.shapeflat
+        return nda
+
+
     def intensity_per_bin(self, nda) :
         """Returns 1-d numpy array of total pixel intensity per bin for input array nda."""
-        return np.bincount(self.iseq, weights=nda.flatten(), minlength=None)
+        return np.bincount(self.iseq, weights=self._flatten_(nda), minlength=None)
 
 
     def average_per_bin(self, nda) :
         """Returns 1-d numpy array of averaged in bin intensity for input array nda."""
-        num = self.intensity_per_bin(nda)
+        num = self.intensity_per_bin(self._flatten_(nda))
         den = self.npixels_per_bin()
         return divide_protected(num, den, vsub_zero=0)
 
 
     def average_rad_phi(self, nda, do_transp=True) :
         """Returns 2-d (rad,phi) numpy array of averaged in bin intensity for input array nda."""
-        arr_rphi = self.average_per_bin(nda)[:-1]
+        arr_rphi = self.average_per_bin(self._flatten_(nda))[:-1]
         arr_rphi.shape = (self.pb.nbins(), self.rb.nbins())
         return np.transpose(arr_rphi) if do_transp else arr_rphi
 
 
     def bkgd_nda(self, nda) :
         """Returns 1-d numpy array of per-pixel background for input array nda."""
-        bin_bkgd = self.average_per_bin(nda)
+        bin_bkgd = self.average_per_bin(self._flatten_(nda))
         return np.array([bin_bkgd[i] for i in self.iseq])
 
 
@@ -269,7 +286,7 @@ class RadialBkgd() :
             self.griddata = griddata
 
         # 1) get values in bin centers
-        binv = self.average_rad_phi(nda, do_transp=False)
+        binv = self.average_rad_phi(self._flatten_(nda), do_transp=False)
 
         # 2) add values in bin edges
         
@@ -310,14 +327,16 @@ class RadialBkgd() :
         return np.select((self.iseq<self.pb.nbins()*self.rb.nbins(),), (grid_vals,), default=0)
 
 
-    def subtract_bkgd(self, nda) :
+    def subtract_bkgd(self, ndarr) :
         """Returns 1-d numpy array of per-pixel background subtracted input data."""
-        return nda.flatten() - self.bkgd_nda(nda)
+        nda = self._flatten_(ndarr)
+        return nda - self.bkgd_nda(nda)
 
 
-    def subtract_bkgd_interpol(self, nda, method='linear', verb=False) :
+    def subtract_bkgd_interpol(self, ndarr, method='linear', verb=False) :
         """Returns 1-d numpy array of per-pixel interpolated-background subtracted input data."""
-        return nda.flatten() - self.bkgd_nda_interpol(nda, method, verb)
+        nda = self._flatten_(ndarr)
+        return nda - self.bkgd_nda_interpol(nda, method, verb)
 
 #------------------------------
 #------------------------------
