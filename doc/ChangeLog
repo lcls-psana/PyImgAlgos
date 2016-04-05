@@ -12,6 +12,14 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-56
+2016-04-05 Mikhail S. Dubrovin
+- GlobalUtils.py - add methods helping to demangle Cheerah records
+- add TDCheetahPeakRecord.py - work with comma-separated data
+- TDFileContainer.py - treat correctly comma-separated data, 
+	               add "_" for member methods
+- TDGroup.py - update doc
+	
 Tag: V00-00-55
 2016-03-28 Mikhail S. Dubrovin
 - RadialBkgd.py - fix names of obj_radbins, print_* methods, add _flatten_(nda)

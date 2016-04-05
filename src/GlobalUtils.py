@@ -49,7 +49,11 @@ Usage::
     # Get string with time stamp, ex: 2016-01-26T10:40:53
     # ===================================================================
     ts = str_tstamp(fmt='%Y-%m-%dT%H:%M:%S', time_sec=None)
- 
+
+    # Converters for Cheetah
+    # ======================
+    runnum, tstamp, tsec, fid = convertCheetahEventName('LCLS_2015_Feb22_r0169_022047_197f7', fmtts='%Y-%m-%dT%H:%M:%S')
+
     # Save image in file
     # ==================
     image = random_standard()
@@ -79,11 +83,13 @@ __version__ = "$Revision$"
 
 ##-----------------------------
 
+import os
 import sys
+import math
 import numpy as np
 from scipy.signal import argrelmax
+from time import time, strptime, strftime, localtime, mktime
 
-import os
 #------------------------------
 
 class Storage :
@@ -341,6 +347,39 @@ def save_image_file(image, fname='image.png', verb=False) :
         np.savetxt(fname, image, fmt='%8.1f', delimiter=' ', newline='\n')
         #raise IOError('Unknown file type in extension %s' % fname)
 
+#------------------------------
+
+def convertCheetahEventName(evname, fmtts='%Y-%m-%dT%H:%M:%S') :
+    """Converts Cheetah event name like 'LCLS_2015_Feb22_r0169_022047_197f7'
+       and returns runnum, tstamp, tsec, fid = 169, '2015-02-22T02:20:47', <tsec>, 197f7
+    """
+    fields = evname.split('_')
+    if len(fields) != 6 :
+        raise ValueError('Cheetah event name has unexpected structure (ex: '\
+                         'LCLS_2015_Feb22_r0169_022047_197f7) \n number of fields is not 6: %s' % evname)
+
+    s_factory, s_year, s_mon_day, s_run, s_time, s_fid = fields
+    
+    #fid    = int(s_fid, 16)
+    runnum = int(s_run.strip('r').lstrip('0'))
+    struct = strptime('%s-%s-%s' % (s_year, s_mon_day, s_time), '%Y-%b%d-%H%M%S')
+    tsec   = mktime(struct)
+    tstamp = strftime(fmtts, localtime(tsec))
+    return runnum, tstamp, tsec, s_fid
+
+#------------------------------
+
+def src_from_rc8x8(row, col) :
+    """Converts Cheetah 8x8 ASICs table row and column to seg, row, col coordinates
+    """
+    qsegs, rows, cols = (8, 185, 388) 
+    quad = math.floor(col/cols) # [0,3]
+    qseg = math.floor(row/rows) # [0,7]
+    s = qsegs*quad + qseg
+    c = col%cols if isinstance(col, int) else math.fmod(col, cols)
+    r = row%rows if isinstance(row, int) else math.fmod(row, rows)
+    return s, r, c
+
 ##-----------------------------
 ##-----------------------------
 ##---------- TEST -------------
@@ -445,6 +484,13 @@ def test_10() :
     save_image_file(image, fname='image.xyz',  verb=verbosity)
 
 ##-----------------------------
+
+def test_11() :
+    eventName = 'LCLS_2015_Feb22_r0169_022047_197f7'
+    runnum, tstamp, tsec, fid = convertCheetahEventName(eventName, fmtts='%Y-%m-%dT%H:%M:%S')
+    print 'Method convertCheetahEventName converts Cheetah event name %s' % eventName,\
+          '\nto runnum: %d  tstamp: %s  tsec: %d  fid: %s' % (runnum, tstamp, tsec, fid)
+
 ##-----------------------------
 ##-----------------------------
 ##-----------------------------
@@ -469,6 +515,7 @@ def main() :
     elif sys.argv[1]=='8' : test_08()
     elif sys.argv[1]=='9' : test_09()
     elif sys.argv[1]=='10': test_10()
+    elif sys.argv[1]=='11': test_11()
     else                  : sys.exit ('Test number parameter is not recognized.\n%s' % usage())
 
 ##-----------------------------

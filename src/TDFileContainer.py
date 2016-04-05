@@ -39,23 +39,42 @@ Usage::
     # !!! NOTE: None is returned whenever requested information is missing.
 
     # Import
-    from pyimgalgos.TDFileContainer import TDFileContainer
-    from pyimgalgos.TDNodeRecord   import TDNodeRecord
-    #from pyimgalgos.TDPeakRecord          import TDPeakRecord # use it by default in TDFileContainer
+    from pyimgalgos.TDFileContainer     import TDFileContainer
+    from pyimgalgos.TDPeakRecord        import TDPeakRecord # use it by default in TDFileContainer
+    from pyimgalgos.TDNodeRecord        import TDNodeRecord
+    from pyimgalgos.TDCheetahPeakRecord import TDCheetahPeakRecord
 
     # Initialization
+    # for peakfinder records
     fname = '/reg/neh/home1/dubrovin/LCLS/rel-mengning/work/pfv2-cxif5315-r0169-2015-09-14T14:28:04.txt'
-    fc = TDFileContainer(fname) # optional arguments: indhdr='Evnum', objtype=TDPeakRecord, pbits=0
+    fc = TDFileContainer(fname, indhdr='Evnum', objtype=TDPeakRecord, pbits=0)
 
-    # or for index table: fc = TDFileContainer(fname, indhdr='index', objtype=TDNodeRecord, pbits=0)
+    # for index table:
+    fc = TDFileContainer(fname, indhdr='index', objtype=TDNodeRecord)
 
+    # for Cheetah file with peaks:
+    fc = TDFileContainer(fname, indhdr='frameNumber', objtype=TDCheetahPeakRecord)
+
+    gr_nums = fc.group_numbers()
+    ngrps   = fc.number_of_groups()
+    grnum   = fc.current_group_number()
+
+    gr_curr = fc.group(grpnum) # returns current or specified group
+    gr_next = fc.next()        # returns next group
+    gr_prev = fc.previous()    # returns previous group
+    hdr     = fc.header()        
+
+    # Print
     fc.print_attrs()
+    fc.print_content(nlines=None) # prints nline (or all by default) lines from file conteiner
+ 
+    # ____________________________________
 
-    # Iterate over groups
+    # Example of iterations over groups
     for grnum in fc.group_num_iterator() :
         group = fc.next()
         group.print_attrs()
-        peaks = group() # or group.get_objs()
+        peaks = group.get_objs()
 
         for pk in peaks :
             pk.print_short()
@@ -75,16 +94,20 @@ Usage::
             # pk.dphi180
             # pk.line
 
-    # Direct access to group by its number
+    # Example of direct access to group by its number
     grpnum = 8 # but grpnum is not necessaraly conecutive number, it should be in fc.group_num_iterator() ...
-    group = fc.group(grpnum)
+    group = fc.group(grpnum) # returns current or specified group
     group.print_attrs()
 
 This software was developed for the LCLS project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
-@see TDGroup - holds a list of records associated with a single group.
-@see TDPeakRecord - user defined class, which provides access to the record data.
+@see classes
+\n  :py:class:`pyimgalgos.TDFileContainer` - file records container. 
+\n  :py:class:`pyimgalgos.TDGroup` - holds a list of records associated with a single group.
+\n  :py:class:`pyimgalgos.TDPeakRecord` - provides access to the peak record.
+\n  :py:class:`pyimgalgos.TDNodeRecord` - provides access to the look-up table with crystal orientation record.
+\n  :py:class:`pyimgalgos.TDCheetahPeakRecord` - provides access to the Cheetah peak record.
 
 @version $Id$
 
@@ -109,11 +132,12 @@ class TDFileContainer :
     """ Load and hold record list from file and provide access by group index
     """
     def __init__(self, fname, indhdr='Evnum', objtype=TDPeakRecord, pbits=0) :
-        """Constructor.
-        @param fname   - text table data file name 
-        @param indhdr  - header of the field used for group indexing
-        @param objtype - object type used for data record processing/access
-        @param pbits   - print control bit-word; pbits & 256 - tracking
+        """Constructor
+           Args:
+           fname   (str) - text table data file name 
+           indhdr  (str) - header of the field used for group indexing
+           objtype (TD*Recor) - object type used for data record processing/access
+           pbits   (int) - print control bit-word; pbits & 256 - tracking
         """
         if pbits & 256 : print 'c-tor of class %s' % self.__class__.__name__
         self.indhdr = indhdr
@@ -126,13 +150,13 @@ class TDFileContainer :
         self.lst_begin    = [] # list of record indexes in the lst_of_recs
         self.lst_nrecords = [] # list of numbor of records in group 
         
-        self.load_recs_from_file(fname)
+        self._load_recs_from_file(fname)
         self._group_indexing()
-        self.reset_indexes()
+        self._reset_indexes()
 
 ##-----------------------------
 
-    def reset_indexes(self) :
+    def _reset_indexes(self) :
         """ resets indexes for iterator
         """        
         self.first_iteration = True
@@ -179,7 +203,19 @@ class TDFileContainer :
 
 ##-----------------------------
 
-    def load_recs_from_file(self, fname) :
+    def _load_recs_from_file(self, fname) :
+        if not os.path.lexists(fname) : raise IOError('File %s is not found' % fname)
+        self.fname = fname
+        t0_sec = time()
+        f=open(fname,'r')
+        self.lst_of_recs = []
+        for rec in f : self.lst_of_recs.append(rec.replace(',',' '))
+        f.close()
+        if self.pbits & 256 : print 'File loading time %.3f sec' % (time()-t0_sec)
+
+##-----------------------------
+
+    def _load_recs_from_file_v0(self, fname) :
         if not os.path.lexists(fname) : raise IOError('File %s is not found' % fname)
         self.fname = fname
         t0_sec = time()
@@ -190,7 +226,7 @@ class TDFileContainer :
 
 ##-----------------------------
 
-    def part_rec_parser(self, rec) :
+    def _part_rec_parser(self, rec) :
         """ 1. saves the 1st header in self.hdr, return None for header
             2. defines index of the field self.indhdr (='Evnum')
             3. returns None for empty recs (if any)
@@ -223,7 +259,7 @@ class TDFileContainer :
 
         for ind, rec in enumerate(self.lst_of_recs) :
 
-            grnum = self.part_rec_parser(rec)
+            grnum = self._part_rec_parser(rec)
             if grnum is None : continue # in case of comments and empty recs
 
             # check if record is from the next group and add it to the list
@@ -255,7 +291,7 @@ class TDFileContainer :
 #    def list_of_groups(self) :
 #        """returns list of group objects
 #        """
-#        self.reset_indexes()
+#        self._reset_indexes()
 #        return [self.next() for grnum in self.lst_grnum]
 #
 ##-----------------------------
@@ -270,7 +306,7 @@ class TDFileContainer :
     def group_num_iterator(self) :
         """resets indexes to the beginning of arrays and returns list of group numbers
         """
-        self.reset_indexes()
+        self._reset_indexes()
         return self.lst_grnum
 
 ##-----------------------------
@@ -404,7 +440,7 @@ class TDFileContainer :
 ##-----------------------------
 
 def do_work() :
-    """ do something here
+    """ Test
     """
     fname = '/reg/neh/home1/dubrovin/LCLS/rel-mengning/work/pfv2-cxif5315-r0169-2015-09-14T14:28:04.txt'
     fc = TDFileContainer(fname, indhdr='Evnum', objtype=TDPeakRecord, pbits=0)
@@ -434,8 +470,10 @@ def do_work() :
     #print 'Time to generate list of group objects %.3f sec' % (time()-t0_sec)
 
 ##-----------------------------
+
 if __name__ == "__main__" :
     do_work()
     print('Test is completed')
     #sys.exit('Processing is completed')
+
 ##-----------------------------

@@ -41,9 +41,10 @@ class TDGroup :
     """
     def __init__(self, recs, objtype, pbits=0) :
         """Constructor
-        @param recs    - list of text data records from file associated with this event
-        @param objtype - object type used for text data record processing/access
-        @param pbits   - print control bit-word; pbits & 256 - tracking
+           Args:
+           recs    - list of text data records from file associated with this event
+           objtype - object type used for text data record processing/access
+           pbits   - print control bit-word; pbits & 256 - tracking
         """
         if pbits & 256 : print 'c-tor of class %s' % self.__class__.__name__
         self.objtype = objtype
