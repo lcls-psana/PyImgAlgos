@@ -228,13 +228,17 @@ def funcy(x, phi_deg, bet_deg) :
     t = sb/cb if cb else None
     s, c  = math.sin(phi), math.cos(phi)
     D = c*c - t*t
-    if D==0 : return 10
+    if D==0 :
+        print 'WARNING in funcy: D=0'
+        D = 1e-10
+
     B = c*(x*s+t)/D
     C = (2*t*x*s + x*x*(s-t)*(s+t))/D
     sqarg = B*B-C
-    #print 'sqarg: ', sqarg
-    #if sqarg<0 : sqarg=0
-    sqapro = np.select([sqarg>0, sqarg<0], [sqarg, 0], default=sqarg)
+    #if sqarg<0 :
+    #    print 'WARNING in funcy: solution of eqn does not exist because of sqarg<0 :', sqarg
+
+    sqapro = np.select([sqarg>=0,], [sqarg,], default=0)
     sign = 1 if bet>0 else -1
     return -B + sign*np.sqrt(sqapro)
 

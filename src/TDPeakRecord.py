@@ -38,6 +38,11 @@ Usage::
     # pk.peak_signal()
     # pk.peak_noise()
     # pk.peak_son()
+
+    # for peak records with fit information:
+    # pk.fit_phi, pk.fit_beta
+    # pk.fit_phi_err, pk.fit_beta_err
+    # pk.fit_chi2, pk.fit_ndof, pk.fit_prob
             
     # print attributes
     pk.print_peak_data()
@@ -92,6 +97,13 @@ class TDPeakRecord :
 
         sp.line = line
         sp.empty = sp.empty_line()
+
+        # get extended parameters for peak record with fit parameters
+        if len(sp.fields) == 39 :
+            s_fit_phi, s_fit_beta, s_fit_phi_err, s_fit_beta_err, s_fit_chi2, s_fit_ndof, s_fit_prob = sp.fields[32:39]
+            sp.fit_phi, sp.fit_beta = float(s_fit_phi), float(s_fit_beta)
+            sp.fit_phi_err, sp.fit_beta_err = float(s_fit_phi_err), float(s_fit_beta_err)
+            sp.fit_chi2, sp.fit_ndof, sp.fit_prob = float(s_fit_chi2), int(s_fit_ndof), float(s_fit_prob)
         
 #------------------------------
     
@@ -158,7 +170,6 @@ class TDPeakRecord :
         """
         sp.print_peak_data_short()
 
-#------------------------------
 #--------------------------------
 #-----------  TEST  -------------
 #--------------------------------
