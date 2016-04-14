@@ -16,6 +16,9 @@ Usage::
 
     Fit functions
     yarr = funcy(xarr, phi_deg, bet_deg)
+
+    yarr = funcy_l1(xarr, phi_deg, bet_deg, DoR=0.4765, sgnrt=-1.)
+
     yarr2 = funcy2(xarr, a, b, c)
 
     # Commands to test in the release directory: 
@@ -65,9 +68,9 @@ def fraser_xyz(x, y, z, beta_deg, k=1.0) :
     Example: fraser_xy(x,y,909,10); (10 degrees at 909 pixel (100mm) distance)
 
     ASSUMPTION:
-    @param x,y,z    - [in] point coordinate arrays with originn in IP
-    @param beta_deg - [in] angle beta in degrees
-    @param k        - [in] scale factor, ex.: wave number in units of (eV or 1/A).
+       - x,y,z    - [in] point coordinate arrays with originn in IP
+       - beta_deg - [in] angle beta in degrees
+       - k        - [in] scale factor, ex.: wave number in units of (eV or 1/A).
     """
 
     d = np.sqrt(x*x+y*y+z*z)
@@ -95,11 +98,11 @@ def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
 
     ASSUMPTION:
     1. by default 2-d arr image center corresponds to (x,y) origin 
-    @param arr      - [in] 2-d image array
-    @param beta_deg - [in] angle beta in degrees
-    @param L        - [in] distance from sample to detector given in units of pixels (110um)
-    @param center   - [in] center (row,column) location on image, which will be used as (x,y) origin 
-    @param oshape   - [in] ouitput image shape
+       - arr      - [in] 2-d image array
+       - beta_deg - [in] angle beta in degrees
+       - L        - [in] distance from sample to detector given in units of pixels (110um)
+       - center   - [in] center (row,column) location on image, which will be used as (x,y) origin 
+       - oshape   - [in] ouitput image shape
     """
 
     sizex = arr.shape[0]
@@ -188,11 +191,11 @@ def rotation_phi_beta(x, y, L, phi_deg, beta_deg, scale) :
 
 def calc_phi(x1pix, y1pix, x2pix, y2pix, dist) :
     """Evaluates fiber phi angle [rad] for two peaks in equatorial region
-    @param x1pix - [in] x coordinate of the 1st point
-    @param y1pix - [in] y coordinate of the 1st point 
-    @param x1pix - [in] x coordinate of the 2nd point 
-    @param y1pix - [in] y coordinate of the 2nd point 
-    @param dist  - [in] distance from sample to detector
+       - x1pix - [in] x coordinate of the 1st point
+       - y1pix - [in] y coordinate of the 1st point 
+       - x1pix - [in] x coordinate of the 2nd point 
+       - y1pix - [in] y coordinate of the 2nd point 
+       - dist  - [in] distance from sample to detector
     """	
     x1 = x1pix / dist
     y1 = y1pix / dist
@@ -206,10 +209,10 @@ def calc_phi(x1pix, y1pix, x2pix, y2pix, dist) :
 
 def calc_beta(xpix, ypix, phi, dist) :
     """Evaluates fiber beta angle [rad] for two peaks in equatorial region
-    @param xpix - [in] x coordinate of the point
-    @param ypix - [in] y coordinate of the point 
-    @param phi  - [in] fiber tilt angle [rad] if the detector plane
-    @param dist - [in] distance from sample to detector
+       - xpix - [in] x coordinate of the point
+       - ypix - [in] y coordinate of the point 
+       - phi  - [in] fiber tilt angle [rad] if the detector plane
+       - dist - [in] distance from sample to detector
     """	
     x1 = xpix / dist
     y1 = ypix / dist
@@ -217,8 +220,8 @@ def calc_beta(xpix, ypix, phi, dist) :
     return -math.atan((y1*math.cos(phi) + x1*math.sin(phi)) / fac)
 
 ##-----------------------------
-
-def funcy(x, phi_deg, bet_deg) :
+# DEPRICATED DUE TO UPDATED FORMALISM
+def funcy_v0(x, phi_deg, bet_deg) :
     """Function for parameterization of y(x, phi, beta)
        of peaks in mediane plane for fiber diffraction
        ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
@@ -241,6 +244,102 @@ def funcy(x, phi_deg, bet_deg) :
     sqapro = np.select([sqarg>=0,], [sqarg,], default=0)
     sign = 1 if bet>0 else -1
     return -B + sign*np.sqrt(sqapro)
+
+##-----------------------------
+
+def funcy(x, phi_deg, bet_deg) :
+    """Function for parameterization of y(x, phi, beta)
+       of peaks in mediane plane for fiber diffraction
+       ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
+    """
+    INFI, ZERO = 1e20, 1e-20
+    phi, bet = math.radians(phi_deg), math.radians(bet_deg)
+    sb, cb = math.sin(bet), math.cos(bet)
+    t = sb/cb if cb else INFI
+    s, c = math.sin(phi), math.cos(phi)
+    s, c = (s/t, c/t) if t else (s*INFI, c*INFI)
+
+    D = c*c - 1 if math.fabs(c)!=1 else ZERO
+
+    B = c*(x*s+1)/D
+    C = (x*x*(s*s-1) + 2*x*s)/D
+    sqarg = B*B-C
+
+    #for v in sqarg :
+    # if v<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+
+    sqapro = np.select([sqarg>0,], [sqarg,], default=0)
+    sign = 1 if bet>0 else -1
+    return -B + sign*np.sqrt(sqapro)
+
+##-----------------------------
+
+def funcy_l0(x, phi_deg, bet_deg, sgnrt=-1.) :
+    """Function for parameterization of y(x, phi, beta)
+       of peaks in mediane plane for fiber diffraction
+       ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
+    """
+    INFI, ZERO = 1e20, 1e-20
+    phi, bet = math.radians(phi_deg), math.radians(bet_deg)
+    sb, cb = math.sin(bet), math.cos(bet)
+    t = sb/cb if cb else INFI
+    s, c = math.sin(phi), math.cos(phi)
+    s, c = (s/t, c/t) if t else (s*INFI, c*INFI)
+
+    D = c*c - 1 if math.fabs(c)!=1 else ZERO
+
+    B = c*(x*s+1)/D
+    C = (x*x*(s*s-1) + 2*x*s)/D
+    sqarg = B*B-C
+
+    if isinstance(sqarg, np.float64) :
+        if sqarg<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+    else :
+        for v in sqarg :
+            if v<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+
+    sqapro = np.select([sqarg>0,], [sqarg,], default=0)
+    return -B + sgnrt * np.sqrt(sqapro)
+
+##-----------------------------
+
+def funcy_l1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=-1.) :
+    """Function for parameterization of y(x, phi, beta)
+       of peaks in l=1 plane for fiber diffraction
+       DoR = d/R ratio, where d is a distance between l=0 and l=1 on image,
+       DoR = 392/913.27 - default
+       R is sample to detector distance
+       ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
+    """
+    INFI, ZERO = 1e20, 1e-20
+    phi, bet = math.radians(phi_deg), math.radians(bet_deg)
+    sb, cb = math.sin(bet), math.cos(bet)
+    t = sb/cb if cb else INFI
+    s, c = math.sin(phi), math.cos(phi)
+    g = 0
+    if sb :
+        G = 1+DoR/sb if sb else INFI
+        g = 1/G if G else INFI
+        s, c = (g*s/t, g*c/t) if t else (g*s*INFI, g*c*INFI)
+    else :
+        s, c = s/DoR, c/DoR
+    D = c*c - 1 if math.fabs(c)!=1 else ZERO
+
+    # parameters of of y^2 + 2By + C = 0 
+    B = c*(x*s+g)/D
+    C = (x*x*(s*s-1) + 2*g*x*s + g*g - 1)/D
+    sqarg = B*B-C
+
+    if isinstance(sqarg, np.float64) :
+        if sqarg<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+    else :
+        for v in sqarg :
+            if v<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+
+    sqapro = np.select([sqarg>0,], [sqarg,], default=0)
+    #sign = 1 if bet>0 else -1
+    #return -B + sign*np.sqrt(sqapro)
+    return -B + sgnrt * np.sqrt(sqapro)
 
 ##-----------------------------
 
@@ -333,6 +432,120 @@ def test_plot_beta() :
 
 ##-----------------------------
 
+def test_plot_beta_l0(sgnrt=1.) :
+    print """Test plot for beta angle"""
+
+    import pyimgalgos.GlobalGraphics as gg
+
+    xarr = np.linspace(-2,2,50)
+    phi = 0
+    cmt = 'NEG' if sgnrt<0 else 'POS' #'-B -/+ sqrt(B*B-C)'
+
+    y_000 = [funcy_l0(x, phi,   0, sgnrt) for x in xarr]
+
+    y_m10 = [funcy_l0(x, phi, -10, sgnrt) for x in xarr]
+    y_m20 = [funcy_l0(x, phi, -20, sgnrt) for x in xarr]
+    y_m30 = [funcy_l0(x, phi, -30, sgnrt) for x in xarr]    
+    y_m40 = [funcy_l0(x, phi, -40, sgnrt) for x in xarr]    
+    y_m50 = [funcy_l0(x, phi, -50, sgnrt) for x in xarr]    
+
+    y_p10 = [funcy_l0(x, phi,  10) for x in xarr]
+    y_p20 = [funcy_l0(x, phi,  20) for x in xarr]
+    y_p30 = [funcy_l0(x, phi,  30) for x in xarr]
+    y_p40 = [funcy_l0(x, phi,  40) for x in xarr]
+    y_p50 = [funcy_l0(x, phi,  50) for x in xarr]
+    
+    #fig2, ax2 = gg.plotGraph(xarr, y_m01, pfmt='k.', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80)) 
+    fig2, ax2 = gg.plotGraph(xarr, y_000, pfmt='k-', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80), lw=2) 
+
+    #b: blue
+    #g: green
+    #r: red
+    #c: cyan
+    #m: magenta
+    #y: yellow
+    #k: black
+    #w: white
+
+    ax2.plot(xarr, y_m10,'r.')
+    ax2.plot(xarr, y_m20,'y.')
+    ax2.plot(xarr, y_m30,'b.')
+    ax2.plot(xarr, y_m40,'m.')
+    ax2.plot(xarr, y_m50,'g+')
+
+    ax2.plot(xarr, y_p10,'r-')
+    ax2.plot(xarr, y_p20,'y-')
+    ax2.plot(xarr, y_p30,'b-')
+    ax2.plot(xarr, y_p40,'m-')
+    ax2.plot(xarr, y_p50,'g-x')
+
+    ax2.set_xlabel('x', fontsize=14)
+    ax2.set_ylabel('y', fontsize=14)
+    ax2.set_title('%s: phi=%.1f, beta=-50,-40,-30,-20,-10,0,10,20,30,40,50' % (cmt,phi), color='k', fontsize=20)
+
+    gg.savefig('test-plot-beta-l0-%s.png' % cmt)
+    gg.show()
+
+##-----------------------------
+##-----------------------------
+
+def test_plot_beta_l1(DoR=0.4292, sgnrt=-1.) :
+    print """Test plot for beta angle"""
+
+    import pyimgalgos.GlobalGraphics as gg
+
+    xarr = np.linspace(-2,2,50)
+    phi = 0
+    cmt = 'NEG' if sgnrt<0 else 'POS' #'-B -/+ sqrt(B*B-C)'
+    cmt = '%s-DoR-%.3f' % (cmt, DoR)
+
+    y_000 = [funcy_l1(x, phi,   0, DoR, sgnrt) for x in xarr]
+
+    y_m02 = [funcy_l1(x, phi,  -2, DoR, sgnrt) for x in xarr]
+    y_m05 = [funcy_l1(x, phi,  -5, DoR, sgnrt) for x in xarr]
+    y_m10 = [funcy_l1(x, phi, -10, DoR, sgnrt) for x in xarr]
+    y_m20 = [funcy_l1(x, phi, -20, DoR, sgnrt) for x in xarr]
+    y_m30 = [funcy_l1(x, phi, -30, DoR, sgnrt) for x in xarr]    
+    y_m40 = [funcy_l1(x, phi, -40, DoR, sgnrt) for x in xarr]    
+    y_m50 = [funcy_l1(x, phi, -50, DoR, sgnrt) for x in xarr]    
+
+    y_p02 = [funcy_l1(x, phi,   2, DoR, sgnrt) for x in xarr]
+    y_p05 = [funcy_l1(x, phi,   5, DoR, sgnrt) for x in xarr]
+    y_p10 = [funcy_l1(x, phi,  10, DoR, sgnrt) for x in xarr]
+    y_p20 = [funcy_l1(x, phi,  20, DoR, sgnrt) for x in xarr]
+    y_p30 = [funcy_l1(x, phi,  25, DoR, sgnrt) for x in xarr]
+    
+    #fig2, ax2 = gg.plotGraph(xarr, y_m01, pfmt='k.', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80)) 
+    fig2, ax2 = gg.plotGraph(xarr, y_000, pfmt='k-', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80), lw=2) 
+
+    #b: blue
+    #g: green
+    #r: red
+    #c: cyan
+    #m: magenta
+    #y: yellow
+    #k: black
+    #w: white
+
+    ax2.plot(xarr, y_m10,'y.')
+    ax2.plot(xarr, y_m20,'b.')
+    ax2.plot(xarr, y_m30,'m.')
+    ax2.plot(xarr, y_m40,'g.')
+    ax2.plot(xarr, y_m50,'c.')
+
+    ax2.plot(xarr, y_p10,'b-')
+    ax2.plot(xarr, y_p20,'m-')
+    ax2.plot(xarr, y_p30,'g-+')
+
+    ax2.set_xlabel('x', fontsize=14)
+    ax2.set_ylabel('y', fontsize=14)
+    ax2.set_title('%s: phi=%.1f, beta=-50,-40,-30,-20,-10,0,10,20,25' % (cmt,phi), color='k', fontsize=20)
+
+    gg.savefig('test-plot-beta-l1-%s.png' % cmt)
+    gg.show()
+
+##-----------------------------
+
 def test_fraser() :
     print """Test fraser transformation"""
 
@@ -367,6 +580,10 @@ if __name__ == "__main__" :
     if   sys.argv[1]=='1' : test_fraser()
     elif sys.argv[1]=='2' : test_plot_phi()
     elif sys.argv[1]=='3' : test_plot_beta()
+    elif sys.argv[1]=='4' : test_plot_beta_l1(DoR=392/913.27, sgnrt=+1.)
+    elif sys.argv[1]=='5' : test_plot_beta_l1(DoR=392/913.27, sgnrt=-1.)
+    elif sys.argv[1]=='6' : test_plot_beta_l0(sgnrt=+1.)
+    elif sys.argv[1]=='7' : test_plot_beta_l0(sgnrt=-1.)
     else :
         print 'Default test: test_fraser()'
         test_fraser()

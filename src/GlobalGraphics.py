@@ -235,10 +235,10 @@ def plotImageAndSpectrum(arr, amp_range=None) : #range=(0,500)
 
 #------------------------------
 
-def plotGraph(x,y, figsize=(5,10), window=(0.15, 0.10, 0.78, 0.86), pfmt='b-') : 
+def plotGraph(x,y, figsize=(5,10), window=(0.15, 0.10, 0.78, 0.86), pfmt='b-', lw=1) : 
     fig = plt.figure(figsize=figsize, dpi=80, facecolor='w', edgecolor='w', frameon=True)
     ax = fig.add_axes(window)
-    ax.plot(x,y,pfmt)
+    ax.plot(x, y, pfmt, linewidth=lw)
     return fig, ax
 
 #------------------------------
