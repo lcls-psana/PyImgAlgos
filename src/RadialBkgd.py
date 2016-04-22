@@ -30,7 +30,7 @@ Usage::
     bkgd  = rb.bkgd_nda(nda)
     bkgd  = rb.bkgd_nda_interpol(nda, method='linear') # method='nearest' 'cubic'
     cdata = rb.subtract_bkgd(nda)
-    cdata = rb.subtract_interpol(nda, method='linear')
+    cdata = rb.subtract_bkgd_interpol(nda, method='linear')
 
 
     # Print attributes and n-d arrays

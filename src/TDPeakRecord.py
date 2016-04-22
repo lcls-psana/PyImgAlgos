@@ -76,22 +76,42 @@ class TDPeakRecord :
         sp.pixel_size = pixel_size
         
         sp.fields = line.rstrip('\n').split()
+        nfields = len(sp.fields)
 
-        s_exp, s_run, s_date, s_time, s_time_sec, s_time_nsec, \
-        s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot, \
-        s_rcent, s_ccent, s_rsigma, s_csigma, s_rmin, s_rmax, s_cmin, s_cmax, \
-        s_bkgd, s_rms, s_son, s_imrow, s_imcol, s_x, s_y, s_r, s_phi = \
-        sp.fields[0:32]
-        
-        sp.exp, sp.run, sp.evnum, sp.reg = s_exp, int(s_run), int(s_evnum), s_reg
-        sp.date, sp.time, sp.tsec, sp.tnsec, sp.fid = s_date, s_time, int(s_time_sec), int(s_time_nsec), int(s_fid)
-        sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix = int(s_seg), int(s_row), int(s_col), float(s_amax), float(s_atot), int(s_npix)
-        sp.rcent, sp.ccent, sp.rsigma, sp.csigma = float(s_rcent), float(s_ccent), float(s_rsigma), float(s_csigma)
-        sp.rmin, sp.rmax, sp.cmin, sp.cmax = int(s_rmin), int(s_rmax), int(s_cmin), int(s_cmax)
-        sp.bkgd, sp.rms, sp.son = float(s_bkgd), float(s_rms), float(s_son)
-        sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
-        sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
-        sp.sonc = sp.peak_son()
+        if nfields == 39 or nfields == 32:
+            s_exp, s_run, s_date, s_time, s_time_sec, s_time_nsec, \
+            s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot, \
+            s_rcent, s_ccent, s_rsigma, s_csigma, s_rmin, s_rmax, s_cmin, s_cmax, \
+            s_bkgd, s_rms, s_son, s_imrow, s_imcol, s_x, s_y, s_r, s_phi = \
+            sp.fields[0:32]
+
+            sp.exp, sp.run, sp.evnum, sp.reg = s_exp, int(s_run), int(s_evnum), s_reg
+            sp.date, sp.time, sp.tsec, sp.tnsec, sp.fid = s_date, s_time, int(s_time_sec), int(s_time_nsec), int(s_fid)
+            sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix = int(s_seg), int(s_row), int(s_col), float(s_amax), float(s_atot), int(s_npix)
+            sp.rcent, sp.ccent, sp.rsigma, sp.csigma = float(s_rcent), float(s_ccent), float(s_rsigma), float(s_csigma)
+            sp.rmin, sp.rmax, sp.cmin, sp.cmax = int(s_rmin), int(s_rmax), int(s_cmin), int(s_cmax)
+            sp.bkgd, sp.rms, sp.son = float(s_bkgd), float(s_rms), float(s_son)
+            sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
+            sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
+            sp.sonc = sp.peak_son()
+            
+        elif nfields == 28: # r1 peak record: discarded s_rmin, s_rmax, s_cmin, s_cmax, + bkgd corrected amax, atot, son
+            s_exp, s_run, s_date, s_time, s_time_sec, s_time_nsec, \
+            s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot, \
+            s_rcent, s_ccent, s_rsigma, s_csigma, \
+            s_bkgd, s_rms, s_son, s_imrow, s_imcol, s_x, s_y, s_r, s_phi = \
+            sp.fields[0:28]
+
+            sp.exp, sp.run, sp.evnum, sp.reg = s_exp, int(s_run), int(s_evnum), s_reg
+            sp.date, sp.time, sp.tsec, sp.tnsec, sp.fid = s_date, s_time, int(s_time_sec), int(s_time_nsec), int(s_fid)
+            sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix = int(s_seg), int(s_row), int(s_col), float(s_amax), float(s_atot), int(s_npix)
+            sp.rcent, sp.ccent, sp.rsigma, sp.csigma = float(s_rcent), float(s_ccent), float(s_rsigma), float(s_csigma)
+            sp.rmin, sp.rmax, sp.cmin, sp.cmax = 0, 0, 0, 0
+            sp.bkgd, sp.rms, sp.son = float(s_bkgd), float(s_rms), float(s_son)
+            sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
+            sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
+            sp.sonc = sp.son
+            
         sp.dphi000 = sp.phi
         sp.dphi180 = sp.phi - 180 if sp.phi>-90 else sp.phi + 180 # +360-180
 
@@ -99,7 +119,7 @@ class TDPeakRecord :
         sp.empty = sp.empty_line()
 
         # get extended parameters for peak record with fit parameters
-        if len(sp.fields) == 39 :
+        if nfields == 39 :
             s_fit_phi, s_fit_beta, s_fit_phi_err, s_fit_beta_err, s_fit_chi2, s_fit_ndof, s_fit_prob = sp.fields[32:39]
             sp.fit_phi, sp.fit_beta = float(s_fit_phi), float(s_fit_beta)
             sp.fit_phi_err, sp.fit_beta_err = float(s_fit_phi_err), float(s_fit_beta_err)

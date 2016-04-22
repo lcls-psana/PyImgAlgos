@@ -60,6 +60,11 @@ Usage::
     save_image_tiff(image, fname='image.tiff', verb=True) # 16-bit tiff
     save_image_file(image, fname='image.png', verb=True) # gif, pdf, eps, png, jpg, jpeg, tiff (8-bit only)
 
+
+    # Create directory
+    # ==================
+    create_directory('work-dir')
+
     # Test
     # ======================
     # is implemented for test numbers from 1 to 9. Command example
@@ -379,6 +384,15 @@ def src_from_rc8x8(row, col) :
     c = col%cols if isinstance(col, int) else math.fmod(col, cols)
     r = row%rows if isinstance(row, int) else math.fmod(row, rows)
     return s, r, c
+
+#------------------------------
+
+def create_directory(dir) : 
+    if os.path.exists(dir) :
+        print 'Directory exists: %s' % dir
+    else :
+        os.makedirs(dir)
+        print 'Directory created: %s' % dir
 
 ##-----------------------------
 ##-----------------------------

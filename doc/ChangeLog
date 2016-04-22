@@ -12,6 +12,13 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-60
+2016-04-21 Mikhail S. Dubrovin
+- RadialBkgd.py - fix documentation.
+- GlobalUtils.py - add method create_directory
+- FiberAngles.py - fix root selection in funcy_l0, update test_plot_beta_l0
+- TDPeakRecord.py - add support for 28-field peak record from rev.1 peakfinders
+	
 Tag: V00-00-59
 2016-04-15 Mikhail S. Dubrovin
 - add ex-RadialBkgd.py

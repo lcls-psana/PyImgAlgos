@@ -248,33 +248,13 @@ def funcy_v0(x, phi_deg, bet_deg) :
 ##-----------------------------
 
 def funcy(x, phi_deg, bet_deg) :
-    """Function for parameterization of y(x, phi, beta)
-       of peaks in mediane plane for fiber diffraction
-       ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
+    """DEPRICATED alias for funcy_l0(x, phi, beta)
     """
-    INFI, ZERO = 1e20, 1e-20
-    phi, bet = math.radians(phi_deg), math.radians(bet_deg)
-    sb, cb = math.sin(bet), math.cos(bet)
-    t = sb/cb if cb else INFI
-    s, c = math.sin(phi), math.cos(phi)
-    s, c = (s/t, c/t) if t else (s*INFI, c*INFI)
-
-    D = c*c - 1 if math.fabs(c)!=1 else ZERO
-
-    B = c*(x*s+1)/D
-    C = (x*x*(s*s-1) + 2*x*s)/D
-    sqarg = B*B-C
-
-    #for v in sqarg :
-    # if v<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
-
-    sqapro = np.select([sqarg>0,], [sqarg,], default=0)
-    sign = 1 if bet>0 else -1
-    return -B + sign*np.sqrt(sqapro)
+    return funcy_l0(x, phi_deg, bet_deg)
 
 ##-----------------------------
 
-def funcy_l0(x, phi_deg, bet_deg, sgnrt=-1.) :
+def funcy_l0(x, phi_deg, bet_deg) :
     """Function for parameterization of y(x, phi, beta)
        of peaks in mediane plane for fiber diffraction
        ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
@@ -293,17 +273,18 @@ def funcy_l0(x, phi_deg, bet_deg, sgnrt=-1.) :
     sqarg = B*B-C
 
     if isinstance(sqarg, np.float64) :
-        if sqarg<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+        if sqarg<0 : print 'WARNING in funcy_l0: solution does not exist because of sqarg<0 :', sqarg
     else :
         for v in sqarg :
-            if v<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+            if v<0 : print 'WARNING in funcy_l0: solution does not exist because of sqarg<0 :', sqarg
 
     sqapro = np.select([sqarg>0,], [sqarg,], default=0)
-    return -B + sgnrt * np.sqrt(sqapro)
+    #sign = 1 if bet>0 else -1
+    return -B + np.sign(B)*np.sqrt(sqapro)
 
 ##-----------------------------
 
-def funcy_l1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=-1.) :
+def funcy_l1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=1.) :
     """Function for parameterization of y(x, phi, beta)
        of peaks in l=1 plane for fiber diffraction
        DoR = d/R ratio, where d is a distance between l=0 and l=1 on image,
@@ -432,28 +413,28 @@ def test_plot_beta() :
 
 ##-----------------------------
 
-def test_plot_beta_l0(sgnrt=1.) :
+def test_plot_beta_l0() :
     print """Test plot for beta angle"""
 
     import pyimgalgos.GlobalGraphics as gg
 
     xarr = np.linspace(-2,2,50)
     phi = 0
-    cmt = 'NEG' if sgnrt<0 else 'POS' #'-B -/+ sqrt(B*B-C)'
+    cmt = 'l0'
 
-    y_000 = [funcy_l0(x, phi,   0, sgnrt) for x in xarr]
+    y_000 = [funcy_l0(x, phi,   0) for x in xarr]
 
-    y_m10 = [funcy_l0(x, phi, -10, sgnrt) for x in xarr]
-    y_m20 = [funcy_l0(x, phi, -20, sgnrt) for x in xarr]
-    y_m30 = [funcy_l0(x, phi, -30, sgnrt) for x in xarr]    
-    y_m40 = [funcy_l0(x, phi, -40, sgnrt) for x in xarr]    
-    y_m50 = [funcy_l0(x, phi, -50, sgnrt) for x in xarr]    
+    y_m10 = [funcy_l0(x, phi, -10) for x in xarr]
+    y_m20 = [funcy_l0(x, phi, -20) for x in xarr]
+    y_m30 = [funcy_l0(x, phi, -30) for x in xarr]    
+    y_m40 = [funcy_l0(x, phi, -40) for x in xarr]    
+    y_m50 = [funcy_l0(x, phi, -48) for x in xarr]    
 
     y_p10 = [funcy_l0(x, phi,  10) for x in xarr]
     y_p20 = [funcy_l0(x, phi,  20) for x in xarr]
     y_p30 = [funcy_l0(x, phi,  30) for x in xarr]
     y_p40 = [funcy_l0(x, phi,  40) for x in xarr]
-    y_p50 = [funcy_l0(x, phi,  50) for x in xarr]
+    y_p50 = [funcy_l0(x, phi,  48) for x in xarr]
     
     #fig2, ax2 = gg.plotGraph(xarr, y_m01, pfmt='k.', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80)) 
     fig2, ax2 = gg.plotGraph(xarr, y_000, pfmt='k-', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80), lw=2) 
@@ -483,7 +464,7 @@ def test_plot_beta_l0(sgnrt=1.) :
     ax2.set_ylabel('y', fontsize=14)
     ax2.set_title('%s: phi=%.1f, beta=-50,-40,-30,-20,-10,0,10,20,30,40,50' % (cmt,phi), color='k', fontsize=20)
 
-    gg.savefig('test-plot-beta-l0-%s.png' % cmt)
+    gg.savefig('test-plot-beta-l0.png')
     gg.show()
 
 ##-----------------------------
@@ -582,8 +563,7 @@ if __name__ == "__main__" :
     elif sys.argv[1]=='3' : test_plot_beta()
     elif sys.argv[1]=='4' : test_plot_beta_l1(DoR=392/913.27, sgnrt=+1.)
     elif sys.argv[1]=='5' : test_plot_beta_l1(DoR=392/913.27, sgnrt=-1.)
-    elif sys.argv[1]=='6' : test_plot_beta_l0(sgnrt=+1.)
-    elif sys.argv[1]=='7' : test_plot_beta_l0(sgnrt=-1.)
+    elif sys.argv[1]=='6' : test_plot_beta_l0()
     else :
         print 'Default test: test_fraser()'
         test_fraser()
