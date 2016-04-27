@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-61
+2016-04-27 Mikhail S. Dubrovin
+- FiberAngles.py - update of method names, aliases, tests
+
 Tag: V00-00-60
 2016-04-21 Mikhail S. Dubrovin
 - RadialBkgd.py - fix documentation.

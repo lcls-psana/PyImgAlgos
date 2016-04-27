@@ -14,15 +14,19 @@ Usage::
     phi  = calc_phi (x1, y1, x2, y2, dist)
     beta = calc_beta(x1, y1, phi, dist)
 
-    Fit functions
+    #Fit functions
     yarr = funcy(xarr, phi_deg, bet_deg)
 
-    yarr = funcy_l1(xarr, phi_deg, bet_deg, DoR=0.4765, sgnrt=-1.)
+    yarr = funcy_l1_v0(xarr, phi_deg, bet_deg, DoR=0.4765, sgnrt=-1.)
+    (depric.) yarr = funcy_l1_v1(xarr, phi_deg, bet_deg, DoR=0.4765, sgnrt=-1.)
 
     yarr2 = funcy2(xarr, a, b, c)
 
+    # Conversion methods
+    qx, qy, qz = recipnorm(x, y, z) # returns q/|k| components for 3-d point along k'.
+
     # Commands to test in the release directory: 
-    python ./pyimgalgos/src/FiberAngles.py <test-id>
+    # python ./pyimgalgos/src/FiberAngles.py <test-id>
     # where
     # <test-id> = 1 - test of the Fraser transformation
     # <test-id> = 2 - test of the phi angle
@@ -261,9 +265,12 @@ def funcy_l0(x, phi_deg, bet_deg) :
     """
     INFI, ZERO = 1e20, 1e-20
     phi, bet = math.radians(phi_deg), math.radians(bet_deg)
-    sb, cb = math.sin(bet), math.cos(bet)
-    t = sb/cb if cb else INFI
     s, c = math.sin(phi), math.cos(phi)
+    sb, cb = math.sin(bet), math.cos(bet)
+    if not sb :
+        return -x*s/c if c else INFI 
+
+    t = sb/cb if cb else INFI
     s, c = (s/t, c/t) if t else (s*INFI, c*INFI)
 
     D = c*c - 1 if math.fabs(c)!=1 else ZERO
@@ -284,7 +291,46 @@ def funcy_l0(x, phi_deg, bet_deg) :
 
 ##-----------------------------
 
-def funcy_l1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=1.) :
+def funcy_l1_v0(x, phi_deg, bet_deg, DoR=0.474, sgnrt=1.) :
+    """Function for parameterization of y(x, phi, beta). v0: EQUATION FOR D/L=...
+       of peaks in l=1 plane for fiber diffraction
+       DoR = d/R ratio, where d is a distance between l=0 and l=1 on image,
+       DoR = 433/913.27 - default constant
+       R is sample to detector distance
+       ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
+    """
+    INFI, ZERO = 1e20, 1e-20
+    phi, bet = math.radians(phi_deg), math.radians(bet_deg)
+    sb, cb = math.sin(bet), math.cos(bet)
+    s, c = math.sin(phi), math.cos(phi)
+    if not sb :
+        return (DoR - x*s)/c if c else INFI
+
+    t = sb/cb if cb else INFI
+    s, c = s/t, c/t
+    G = 1-DoR/sb if sb else INFI
+    D = c*c - 1 if math.fabs(c)!=1 else ZERO
+
+    # parameters of of y^2 + 2By + C = 0 
+    B = c*(x*s+G)/D
+    C = (x*x*(s*s-1) + 2*x*s*G + G*G - 1)/D
+    sqarg = B*B-C
+
+    if isinstance(sqarg, np.float64) :
+        if sqarg<0 : print 'WARNING in funcy_l1_v0: solution does not exist because of sqarg<0 :', sqarg
+    else :
+        for v in sqarg :
+            if v<0 : print 'WARNING in funcy_l1_v0: solution does not exist because of sqarg<0 :', sqarg
+
+    sqapro = np.select([sqarg>0,], [sqarg,], default=0)
+
+    #sign = 1 if bet<-13 else -1
+    #return -B + sign * np.sqrt(sqapro)
+    return -B + sgnrt * np.sqrt(sqapro)
+
+##-----------------------------
+
+def funcy_l1_v1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=1.) :
     """Function for parameterization of y(x, phi, beta)
        of peaks in l=1 plane for fiber diffraction
        DoR = d/R ratio, where d is a distance between l=0 and l=1 on image,
@@ -312,10 +358,10 @@ def funcy_l1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=1.) :
     sqarg = B*B-C
 
     if isinstance(sqarg, np.float64) :
-        if sqarg<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+        if sqarg<0 : print 'WARNING in funcy_l1_v1: solution does not exist because of sqarg<0 :', sqarg
     else :
         for v in sqarg :
-            if v<0 : print 'WARNING in funcy_l1: solution does not exist because of sqarg<0 :', sqarg
+            if v<0 : print 'WARNING in funcy_l1_v1: solution does not exist because of sqarg<0 :', sqarg
 
     sqapro = np.select([sqarg>0,], [sqarg,], default=0)
     #sign = 1 if bet>0 else -1
@@ -344,6 +390,21 @@ def qh_to_xy(qh, R) :
     xe = R * (cosa-1.)
     ye = R * sina
     return xe, ye
+
+##-----------------------------
+
+def recipnorm(x, y, z) :
+    """Returns normalizd reciprocal space coordinates (qx,qy,qz)
+    of the scattering vector q = (k'- k)/|k|,
+    and assuming that
+    - scattering point is a 3-d space origin, also center of the Ewald's sphere
+    - k' points from 3-d space origin to the point with coordinates x, y, z
+      (pixel coordinates relative to IP)
+    - scattering is elastic, no energy lost or gained, |k'|=|k|
+    - reciprocal space origin is in the intersection point of axes z and Ewald's sphere. 
+    """
+    L = np.sqrt(z*z + x*x + y*y) 
+    return x/L, y/L, z/L-1.
 
 ##-----------------------------
 ##---------- TESTS ------------
@@ -480,21 +541,25 @@ def test_plot_beta_l1(DoR=0.4292, sgnrt=-1.) :
     cmt = 'NEG' if sgnrt<0 else 'POS' #'-B -/+ sqrt(B*B-C)'
     cmt = '%s-DoR-%.3f' % (cmt, DoR)
 
-    y_000 = [funcy_l1(x, phi,   0, DoR, sgnrt) for x in xarr]
+    #fancy_plt = funcy_l1_v1
+    fancy_plt = funcy_l1_v0
 
-    y_m02 = [funcy_l1(x, phi,  -2, DoR, sgnrt) for x in xarr]
-    y_m05 = [funcy_l1(x, phi,  -5, DoR, sgnrt) for x in xarr]
-    y_m10 = [funcy_l1(x, phi, -10, DoR, sgnrt) for x in xarr]
-    y_m20 = [funcy_l1(x, phi, -20, DoR, sgnrt) for x in xarr]
-    y_m30 = [funcy_l1(x, phi, -30, DoR, sgnrt) for x in xarr]    
-    y_m40 = [funcy_l1(x, phi, -40, DoR, sgnrt) for x in xarr]    
-    y_m50 = [funcy_l1(x, phi, -50, DoR, sgnrt) for x in xarr]    
+    y_000 = [fancy_plt(x, phi,   0, DoR, sgnrt) for x in xarr]
 
-    y_p02 = [funcy_l1(x, phi,   2, DoR, sgnrt) for x in xarr]
-    y_p05 = [funcy_l1(x, phi,   5, DoR, sgnrt) for x in xarr]
-    y_p10 = [funcy_l1(x, phi,  10, DoR, sgnrt) for x in xarr]
-    y_p20 = [funcy_l1(x, phi,  20, DoR, sgnrt) for x in xarr]
-    y_p30 = [funcy_l1(x, phi,  25, DoR, sgnrt) for x in xarr]
+    y_m02 = [fancy_plt(x, phi,  -2, DoR, sgnrt) for x in xarr]
+    y_m05 = [fancy_plt(x, phi,  -5, DoR, sgnrt) for x in xarr]
+    y_m10 = [fancy_plt(x, phi, -10, DoR, sgnrt) for x in xarr]
+    y_m20 = [fancy_plt(x, phi, -20, DoR, sgnrt) for x in xarr]
+    y_m30 = [fancy_plt(x, phi, -30, DoR, sgnrt) for x in xarr]    
+    y_m40 = [fancy_plt(x, phi, -40, DoR, sgnrt) for x in xarr]    
+    #y_m50 = [fancy_plt(x, phi, -50, DoR, sgnrt) for x in xarr]    
+
+    y_p02 = [fancy_plt(x, phi,   2, DoR, sgnrt) for x in xarr]
+    y_p05 = [fancy_plt(x, phi,   5, DoR, sgnrt) for x in xarr]
+    y_p10 = [fancy_plt(x, phi,  10, DoR, sgnrt) for x in xarr]
+    y_p20 = [fancy_plt(x, phi,  20, DoR, sgnrt) for x in xarr]
+    y_p30 = [fancy_plt(x, phi,  30, DoR, sgnrt) for x in xarr]
+    y_p40 = [fancy_plt(x, phi,  40, DoR, sgnrt) for x in xarr]
     
     #fig2, ax2 = gg.plotGraph(xarr, y_m01, pfmt='k.', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80)) 
     fig2, ax2 = gg.plotGraph(xarr, y_000, pfmt='k-', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80), lw=2) 
@@ -512,15 +577,16 @@ def test_plot_beta_l1(DoR=0.4292, sgnrt=-1.) :
     ax2.plot(xarr, y_m20,'b.')
     ax2.plot(xarr, y_m30,'m.')
     ax2.plot(xarr, y_m40,'g.')
-    ax2.plot(xarr, y_m50,'c.')
+    #ax2.plot(xarr, y_m50,'c.')
 
-    ax2.plot(xarr, y_p10,'b-')
-    ax2.plot(xarr, y_p20,'m-')
-    ax2.plot(xarr, y_p30,'g-+')
+    ax2.plot(xarr, y_p10,'y-')
+    ax2.plot(xarr, y_p20,'b-')
+    ax2.plot(xarr, y_p30,'m-')
+    ax2.plot(xarr, y_p40,'g-+')
 
     ax2.set_xlabel('x', fontsize=14)
     ax2.set_ylabel('y', fontsize=14)
-    ax2.set_title('%s: phi=%.1f, beta=-50,-40,-30,-20,-10,0,10,20,25' % (cmt,phi), color='k', fontsize=20)
+    ax2.set_title('%s: phi=%.1f, beta=-40,-30,-20,-10,0,10,20,30,40' % (cmt,phi), color='k', fontsize=20)
 
     gg.savefig('test-plot-beta-l1-%s.png' % cmt)
     gg.show()
