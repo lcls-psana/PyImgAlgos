@@ -273,10 +273,10 @@ def funcy_l0(x, phi_deg, bet_deg) :
     t = sb/cb if cb else INFI
     s, c = (s/t, c/t) if t else (s*INFI, c*INFI)
 
-    D = c*c - 1 if math.fabs(c)!=1 else ZERO
+    denum = c*c - 1 if math.fabs(c)!=1 else ZERO
 
-    B = c*(x*s+1)/D
-    C = (x*x*(s*s-1) + 2*x*s)/D
+    B = c*(x*s+1)/denum
+    C = (x*x*(s*s-1) + 2*x*s)/denum
     sqarg = B*B-C
 
     if isinstance(sqarg, np.float64) :
@@ -291,8 +291,9 @@ def funcy_l0(x, phi_deg, bet_deg) :
 
 ##-----------------------------
 
-def funcy_l1_v0(x, phi_deg, bet_deg, DoR=0.474, sgnrt=1.) :
-    """Function for parameterization of y(x, phi, beta). v0: EQUATION FOR D/L=...
+def funcy_l1_v0(x, phi_deg, bet_deg, DoR=0.474, sgnrt=-1.) :
+    """DEPRICATED: D/L - is not a constant as it should be
+       Function for parameterization of y(x, phi, beta). v0: EQUATION FOR D/L=...
        of peaks in l=1 plane for fiber diffraction
        DoR = d/R ratio, where d is a distance between l=0 and l=1 on image,
        DoR = 433/913.27 - default constant
@@ -309,11 +310,11 @@ def funcy_l1_v0(x, phi_deg, bet_deg, DoR=0.474, sgnrt=1.) :
     t = sb/cb if cb else INFI
     s, c = s/t, c/t
     G = 1-DoR/sb if sb else INFI
-    D = c*c - 1 if math.fabs(c)!=1 else ZERO
+    denum = c*c - 1 if math.fabs(c)!=1 else ZERO
 
     # parameters of of y^2 + 2By + C = 0 
-    B = c*(x*s+G)/D
-    C = (x*x*(s*s-1) + 2*x*s*G + G*G - 1)/D
+    B = c*(x*s+G)/denum
+    C = (x*x*(s*s-1) + 2*x*s*G + G*G - 1)/denum
     sqarg = B*B-C
 
     if isinstance(sqarg, np.float64) :
@@ -331,13 +332,13 @@ def funcy_l1_v0(x, phi_deg, bet_deg, DoR=0.474, sgnrt=1.) :
 ##-----------------------------
 
 def funcy_l1_v1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=1.) :
-    """Function for parameterization of y(x, phi, beta)
+    """v0: EQUATION FOR D/R. Function for parameterization of y(x, phi, beta)
        of peaks in l=1 plane for fiber diffraction
        DoR = d/R ratio, where d is a distance between l=0 and l=1 on image,
        DoR = 392/913.27 - default
        R is sample to detector distance
        ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
-    """
+     """
     INFI, ZERO = 1e20, 1e-20
     phi, bet = math.radians(phi_deg), math.radians(bet_deg)
     sb, cb = math.sin(bet), math.cos(bet)
@@ -349,13 +350,16 @@ def funcy_l1_v1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=1.) :
         g = 1/G if G else INFI
         s, c = (g*s/t, g*c/t) if t else (g*s*INFI, g*c*INFI)
     else :
-        s, c = s/DoR, c/DoR
-    D = c*c - 1 if math.fabs(c)!=1 else ZERO
+        s, c = s*cb/DoR, c*cb/DoR
+    denum = c*c - 1 if math.fabs(c)!=1 else ZERO
 
     # parameters of of y^2 + 2By + C = 0 
-    B = c*(x*s+g)/D
-    C = (x*x*(s*s-1) + 2*g*x*s + g*g - 1)/D
+    B = c*(x*s+g)/denum
+    C = (x*x*(s*s-1) + 2*g*x*s + g*g - 1)/denum
     sqarg = B*B-C
+
+    #print 's:%8.3f  c:%8.3f  sb:%8.3f  cb:%8.3f  t:%8.3f  g:%8.3f  denum:%8.3f' % (s, c, sb, cb, t, g, denum),\
+    #      '  B:', B, '  C:', C, '  sqarg:', sqarg
 
     if isinstance(sqarg, np.float64) :
         if sqarg<0 : print 'WARNING in funcy_l1_v1: solution does not exist because of sqarg<0 :', sqarg
@@ -364,10 +368,11 @@ def funcy_l1_v1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=1.) :
             if v<0 : print 'WARNING in funcy_l1_v1: solution does not exist because of sqarg<0 :', sqarg
 
     sqapro = np.select([sqarg>0,], [sqarg,], default=0)
-    #sign = 1 if bet>0 else -1
+    #sgn = 1. if bet>-13.3 else -1.
     #return -B + sign*np.sqrt(sqapro)
     return -B + sgnrt * np.sqrt(sqapro)
-
+    #return -B + sgn * np.sqrt(sqapro)
+    #return -B - np.sign(B)*np.sqrt(sqapro)
 ##-----------------------------
 
 def funcy2(x, a, b, c) :
@@ -483,20 +488,20 @@ def test_plot_beta_l0() :
     phi = 0
     cmt = 'l0'
 
+
+    
     y_000 = [funcy_l0(x, phi,   0) for x in xarr]
-
-    y_m10 = [funcy_l0(x, phi, -10) for x in xarr]
-    y_m20 = [funcy_l0(x, phi, -20) for x in xarr]
-    y_m30 = [funcy_l0(x, phi, -30) for x in xarr]    
-    y_m40 = [funcy_l0(x, phi, -40) for x in xarr]    
-    y_m50 = [funcy_l0(x, phi, -48) for x in xarr]    
-
     y_p10 = [funcy_l0(x, phi,  10) for x in xarr]
     y_p20 = [funcy_l0(x, phi,  20) for x in xarr]
     y_p30 = [funcy_l0(x, phi,  30) for x in xarr]
     y_p40 = [funcy_l0(x, phi,  40) for x in xarr]
-    y_p50 = [funcy_l0(x, phi,  48) for x in xarr]
-    
+    y_p50 = [funcy_l0(x, phi,  50) for x in xarr] # 48
+    y_m10 = [funcy_l0(x, phi, -10) for x in xarr]
+    y_m20 = [funcy_l0(x, phi, -20) for x in xarr]
+    y_m30 = [funcy_l0(x, phi, -30) for x in xarr]    
+    y_m40 = [funcy_l0(x, phi, -40) for x in xarr]    
+    y_m50 = [funcy_l0(x, phi, -50) for x in xarr] # -48
+
     #fig2, ax2 = gg.plotGraph(xarr, y_m01, pfmt='k.', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80)) 
     fig2, ax2 = gg.plotGraph(xarr, y_000, pfmt='k-', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80), lw=2) 
 
@@ -509,61 +514,86 @@ def test_plot_beta_l0() :
     #k: black
     #w: white
 
-    ax2.plot(xarr, y_m10,'r.')
-    ax2.plot(xarr, y_m20,'y.')
-    ax2.plot(xarr, y_m30,'b.')
-    ax2.plot(xarr, y_m40,'m.')
-    ax2.plot(xarr, y_m50,'g+')
 
-    ax2.plot(xarr, y_p10,'r-')
-    ax2.plot(xarr, y_p20,'y-')
-    ax2.plot(xarr, y_p30,'b-')
-    ax2.plot(xarr, y_p40,'m-')
-    ax2.plot(xarr, y_p50,'g-x')
+    ax2.plot(xarr, y_p50,'g-x', label=' 50')
+    ax2.plot(xarr, y_p40,'m-',  label=' 40')
+    ax2.plot(xarr, y_p30,'b-',  label=' 30')
+    ax2.plot(xarr, y_p20,'y-',  label=' 20')
+    ax2.plot(xarr, y_p10,'r-',  label=' 10')
+    ax2.plot(xarr, y_000,'k-',  label='  0')
+    ax2.plot(xarr, y_m10,'r.',  label='-10')
+    ax2.plot(xarr, y_m20,'y.',  label='-20')
+    ax2.plot(xarr, y_m30,'b.',  label='-30')
+    ax2.plot(xarr, y_m40,'m.',  label='-40')
+    ax2.plot(xarr, y_m50,'g+',  label='-50')
+                                        
+    ax2.legend(loc='upper right')
 
     ax2.set_xlabel('x', fontsize=14)
     ax2.set_ylabel('y', fontsize=14)
-    ax2.set_title('%s: phi=%.1f, beta=-50,-40,-30,-20,-10,0,10,20,30,40,50' % (cmt,phi), color='k', fontsize=20)
+    ax2.set_title('%s: phi=%.1f, beta=[-50,50]' % (cmt,phi), color='k', fontsize=20)
 
     gg.savefig('test-plot-beta-l0.png')
     gg.show()
 
 ##-----------------------------
+    #b: blue
+    #g: green
+    #r: red
+    #c: cyan
+    #m: magenta
+    #y: yellow
+    #k: black
+    #w: white
 ##-----------------------------
 
-def test_plot_beta_l1(DoR=0.4292, sgnrt=-1.) :
+def test_plot_beta_l1(DoR=0.4292, sgnrt=1.) :
     print """Test plot for beta angle"""
 
     import pyimgalgos.GlobalGraphics as gg
 
     xarr = np.linspace(-2,2,50)
     phi = 0
-    cmt = 'NEG' if sgnrt<0 else 'POS' #'-B -/+ sqrt(B*B-C)'
+
+    fancy_plt = funcy_l1_v1
+    #fancy_plt = funcy_l1_v0
+
+    cmt = 'POS' if sgnrt > 0 else 'NEG' #'-B -/+ sqrt(B*B-C)'
     cmt = '%s-DoR-%.3f' % (cmt, DoR)
-
-    #fancy_plt = funcy_l1_v1
-    fancy_plt = funcy_l1_v0
-
-    y_000 = [fancy_plt(x, phi,   0, DoR, sgnrt) for x in xarr]
-
-    y_m02 = [fancy_plt(x, phi,  -2, DoR, sgnrt) for x in xarr]
-    y_m05 = [fancy_plt(x, phi,  -5, DoR, sgnrt) for x in xarr]
-    y_m10 = [fancy_plt(x, phi, -10, DoR, sgnrt) for x in xarr]
-    y_m20 = [fancy_plt(x, phi, -20, DoR, sgnrt) for x in xarr]
-    y_m30 = [fancy_plt(x, phi, -30, DoR, sgnrt) for x in xarr]    
-    y_m40 = [fancy_plt(x, phi, -40, DoR, sgnrt) for x in xarr]    
-    #y_m50 = [fancy_plt(x, phi, -50, DoR, sgnrt) for x in xarr]    
-
-    y_p02 = [fancy_plt(x, phi,   2, DoR, sgnrt) for x in xarr]
-    y_p05 = [fancy_plt(x, phi,   5, DoR, sgnrt) for x in xarr]
-    y_p10 = [fancy_plt(x, phi,  10, DoR, sgnrt) for x in xarr]
-    y_p20 = [fancy_plt(x, phi,  20, DoR, sgnrt) for x in xarr]
-    y_p30 = [fancy_plt(x, phi,  30, DoR, sgnrt) for x in xarr]
-    y_p40 = [fancy_plt(x, phi,  40, DoR, sgnrt) for x in xarr]
     
-    #fig2, ax2 = gg.plotGraph(xarr, y_m01, pfmt='k.', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80)) 
+    y_p10 = [fancy_plt(x, phi,  10,   DoR, sgnrt) for x in xarr]
+    y_000 = [fancy_plt(x, phi,   0,   DoR, sgnrt) for x in xarr]
+    y_m10 = [fancy_plt(x, phi, -10,   DoR, sgnrt) for x in xarr]
+    y_m13 = [fancy_plt(x, phi, -13,   DoR, sgnrt) for x in xarr]    
+    y_m15 = [fancy_plt(x, phi, -15,   DoR, sgnrt) for x in xarr]    
+    y_m20 = [fancy_plt(x, phi, -20,   DoR, sgnrt) for x in xarr]
+    y_m30 = [fancy_plt(x, phi, -30,   DoR, sgnrt) for x in xarr]
+    y_m35 = [fancy_plt(x, phi, -35,   DoR, sgnrt) for x in xarr]    
+    y_m40 = [fancy_plt(x, phi, -40,   DoR, sgnrt) for x in xarr]
+    
     fig2, ax2 = gg.plotGraph(xarr, y_000, pfmt='k-', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80), lw=2) 
+    ax2.plot(xarr, y_p10,'g-',  label=' 10')
+    ax2.plot(xarr, y_000,'k-',  label='  0')
+    ax2.plot(xarr, y_m10,'g.',  label='-10')
+    ax2.plot(xarr, y_m13,'r-.', label='-13')
+    ax2.plot(xarr, y_m15,'y.',  label='-14')
+    ax2.plot(xarr, y_m20,'r.',  label='-20')
+    ax2.plot(xarr, y_m30,'c.',  label='-30')
+    ax2.plot(xarr, y_m35,'m.',  label='-35')
+    ax2.plot(xarr, y_m40,'b+',  label='-40')
 
+    ax2.legend(loc='upper right')
+    
+    ax2.set_title('%s: phi=%.1f, beta=[-40,10]' % (cmt,phi), color='k', fontsize=20)
+
+    ax2.set_xlabel('x', fontsize=14)
+    ax2.set_ylabel('y', fontsize=14)
+
+    gg.savefig('test-plot-beta-l1-%s.png' % cmt)
+    gg.show()
+
+##-----------------------------
+##-----------------------------
     #b: blue
     #g: green
     #r: red
@@ -572,23 +602,76 @@ def test_plot_beta_l1(DoR=0.4292, sgnrt=-1.) :
     #y: yellow
     #k: black
     #w: white
+##-----------------------------
 
-    ax2.plot(xarr, y_m10,'y.')
-    ax2.plot(xarr, y_m20,'b.')
-    ax2.plot(xarr, y_m30,'m.')
-    ax2.plot(xarr, y_m40,'g.')
-    #ax2.plot(xarr, y_m50,'c.')
+def test_plot_beta_l1_zoom(DoR=0.4292, sgnrt=1.) :
+    print """Test plot for beta angle"""
 
-    ax2.plot(xarr, y_p10,'y-')
-    ax2.plot(xarr, y_p20,'b-')
-    ax2.plot(xarr, y_p30,'m-')
-    ax2.plot(xarr, y_p40,'g-+')
+    import pyimgalgos.GlobalGraphics as gg
+
+    phi = 0
+
+    fancy_plt = funcy_l1_v1
+    #fancy_plt = funcy_l1_v0
+
+    if sgnrt > 0 : 
+
+        cmt = 'POS' #'-B -/+ sqrt(B*B-C)'
+        cmt = '%s-DoR-%.3f' % (cmt, DoR)
+        
+        xarr = np.linspace(-0.29,0.29,60)
+
+        y_000 = [fancy_plt(x, phi,   0,   DoR, sgnrt) for x in xarr]
+        y_m05 = [fancy_plt(x, phi,  -5,   DoR, sgnrt) for x in xarr]
+        y_m09 = [fancy_plt(x, phi,  -9,   DoR, sgnrt) for x in xarr]
+        y_m13 = [fancy_plt(x, phi, -13.3, DoR, sgnrt) for x in xarr]    
+        y_m18 = [fancy_plt(x, phi, -18,   DoR, sgnrt) for x in xarr]
+        y_m20 = [fancy_plt(x, phi, -20,   DoR, sgnrt) for x in xarr]
+        
+        fig2, ax2 = gg.plotGraph(xarr, y_000, pfmt='k-', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80), lw=2) 
+        ax2.plot(xarr, y_000,'k-',  label='  0')
+        ax2.plot(xarr, y_m05,'g.',  label=' -5')
+        ax2.plot(xarr, y_m09,'y.',  label=' -9')
+        ax2.plot(xarr, y_m13,'r-.', label='-13')
+        ax2.plot(xarr, y_m18,'c.',  label='-18')
+        ax2.plot(xarr, y_m20,'b.',  label='-20')
+        
+        ax2.set_title('%s: phi=%.1f, beta=[-20,0]' % (cmt,phi), color='k', fontsize=20)
+        ax2.legend(loc='upper center')
+
+    if sgnrt < 0 : 
+
+        cmt = 'NEG' #'-B -/+ sqrt(B*B-C)'
+        cmt = '%s-DoR-%.3f' % (cmt, DoR)
+        
+        xarr = np.linspace(-1,1,50)
+
+        y_m20 = [fancy_plt(x, phi, -20,   DoR, sgnrt) for x in xarr]
+        y_m23 = [fancy_plt(x, phi, -23,   DoR, sgnrt) for x in xarr]
+        y_m25 = [fancy_plt(x, phi, -25,   DoR, sgnrt) for x in xarr]
+        y_m27 = [fancy_plt(x, phi, -27,   DoR, sgnrt) for x in xarr]
+        y_m30 = [fancy_plt(x, phi, -30,   DoR, sgnrt) for x in xarr]
+        y_m35 = [fancy_plt(x, phi, -35,   DoR, sgnrt) for x in xarr]
+        y_m40 = [fancy_plt(x, phi, -40,   DoR, sgnrt) for x in xarr]
+        y_m60 = [fancy_plt(x, phi, -60,   DoR, sgnrt) for x in xarr]
+        
+        fig2, ax2 = gg.plotGraph(xarr, y_m25, pfmt='k-', figsize=(10,5), window=(0.15, 0.10, 0.78, 0.80), lw=2) 
+        ax2.plot(xarr, y_m20,'g+-', label='-20')
+        ax2.plot(xarr, y_m23,'m-',  label='-23')
+        ax2.plot(xarr, y_m25,'k-',  label='-25')
+        ax2.plot(xarr, y_m27,'b.',  label='-27')
+        ax2.plot(xarr, y_m30,'y.',  label='-30')
+        ax2.plot(xarr, y_m35,'r.',  label='-35')
+        ax2.plot(xarr, y_m40,'c.',  label='-40')
+        ax2.plot(xarr, y_m60,'+',   label='-60')
+        
+        ax2.set_title('%s: phi=%.1f, beta=[-60,-20]' % (cmt,phi), color='k', fontsize=20)
+        ax2.legend(loc='lower right')
 
     ax2.set_xlabel('x', fontsize=14)
     ax2.set_ylabel('y', fontsize=14)
-    ax2.set_title('%s: phi=%.1f, beta=-40,-30,-20,-10,0,10,20,30,40' % (cmt,phi), color='k', fontsize=20)
 
-    gg.savefig('test-plot-beta-l1-%s.png' % cmt)
+    gg.savefig('test-plot-beta-l1-%s-zoomed.png' % cmt)
     gg.show()
 
 ##-----------------------------
@@ -623,13 +706,17 @@ if __name__ == "__main__" :
         test_fraser()
         sys.exit('Default test is completed')
 
+    DoR = 390/913.27
+
     print 'Test: %s' % sys.argv[1]
     if   sys.argv[1]=='1' : test_fraser()
     elif sys.argv[1]=='2' : test_plot_phi()
     elif sys.argv[1]=='3' : test_plot_beta()
-    elif sys.argv[1]=='4' : test_plot_beta_l1(DoR=392/913.27, sgnrt=+1.)
-    elif sys.argv[1]=='5' : test_plot_beta_l1(DoR=392/913.27, sgnrt=-1.)
+    elif sys.argv[1]=='4' : test_plot_beta_l1(DoR=DoR, sgnrt=+1.)
+    elif sys.argv[1]=='5' : test_plot_beta_l1(DoR=DoR, sgnrt=-1.)
     elif sys.argv[1]=='6' : test_plot_beta_l0()
+    elif sys.argv[1]=='7' : test_plot_beta_l1_zoom(DoR=DoR, sgnrt=+1.)
+    elif sys.argv[1]=='8' : test_plot_beta_l1_zoom(DoR=DoR, sgnrt=-1.)
     else :
         print 'Default test: test_fraser()'
         test_fraser()

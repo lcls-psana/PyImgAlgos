@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-62
+2016-04-29 Mikhail S. Dubrovin
+- FiberAngles.py - update fit functions and test plot methods
+
 Tag: V00-00-61
 2016-04-27 Mikhail S. Dubrovin
 - FiberAngles.py - update of method names, aliases, tests
