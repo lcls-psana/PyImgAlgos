@@ -78,7 +78,7 @@ class TDPeakRecord :
         sp.fields = line.rstrip('\n').split()
         nfields = len(sp.fields)
 
-        if nfields == 39 or nfields == 32:
+        if nfields == 32 or nfields == 39 :
             s_exp, s_run, s_date, s_time, s_time_sec, s_time_nsec, \
             s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot, \
             s_rcent, s_ccent, s_rsigma, s_csigma, s_rmin, s_rmax, s_cmin, s_cmax, \
@@ -95,7 +95,7 @@ class TDPeakRecord :
             sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
             sp.sonc = sp.peak_son()
             
-        elif nfields == 28: # r1 peak record: discarded s_rmin, s_rmax, s_cmin, s_cmax, + bkgd corrected amax, atot, son
+        elif nfields == 28 or nfields == 35 : # r1 peak record: discarded s_rmin, s_rmax, s_cmin, s_cmax, + bkgd corrected amax, atot, son
             s_exp, s_run, s_date, s_time, s_time_sec, s_time_nsec, \
             s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot, \
             s_rcent, s_ccent, s_rsigma, s_csigma, \
@@ -119,8 +119,8 @@ class TDPeakRecord :
         sp.empty = sp.empty_line()
 
         # get extended parameters for peak record with fit parameters
-        if nfields == 39 :
-            s_fit_phi, s_fit_beta, s_fit_phi_err, s_fit_beta_err, s_fit_chi2, s_fit_ndof, s_fit_prob = sp.fields[32:39]
+        if nfields == 35 or nfields == 39 :
+            s_fit_phi, s_fit_beta, s_fit_phi_err, s_fit_beta_err, s_fit_chi2, s_fit_ndof, s_fit_prob = sp.fields[nfields-7:nfields]
             sp.fit_phi, sp.fit_beta = float(s_fit_phi), float(s_fit_beta)
             sp.fit_phi_err, sp.fit_beta_err = float(s_fit_phi_err), float(s_fit_beta_err)
             sp.fit_chi2, sp.fit_ndof, sp.fit_prob = float(s_fit_chi2), int(s_fit_ndof), float(s_fit_prob)
