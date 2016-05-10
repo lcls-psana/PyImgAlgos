@@ -12,14 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
-Tag: V00-00-64
-2016-05-10 Mikhail S. Dubrovin
-- TDPeakRecord - fix support for peak record of different lengthes 28, 32, 35, 39
-- Graphics - flexible convinience wrapper for matplotlib 
-
 Tag: V00-00-63
-2016-05-06 Mikhail S. Dubrovin
-- TDPeakRecord - add support for peak record of length 35
+2016-05-10 Mikhail S. Dubrovin
+- TDPeakRecord - add support for peak record of different length 28, 32, 35, 39
+- Graphics - flexible convinience wrapper for matplotlib 
 	
 Tag: V00-00-62
 2016-04-29 Mikhail S. Dubrovin
