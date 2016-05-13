@@ -41,28 +41,56 @@ class TDMatchRecord(TDPeakRecord, TDNodeRecord) :
         """
         #sp.fields = line.rstrip('\n').split()
         #TDPeakRecord.__init__(sp, line)
-        TDNodeRecord.__init__(sp, line[284:])
 
         sp.pixel_size = pixel_size
-        sp.fields = line[:-1].split()
+        sp.fields_mr = line[:-1].split()
 
-        s_state, s_phi_fit, s_beta_fit, s_qh_fit, s_qv_fit, s_dqh_fit,\
-        s_exp, s_run, s_time_sec, s_time_nsec,\
-        s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot,\
-        s_rcent, s_ccent, s_rsigma, s_csigma, s_rmin, s_rmax, s_cmin, s_cmax,\
-        s_bkgd, s_rms, s_son, s_imrow, s_imcol, s_x, s_y, s_r, s_phi =\
-        sp.fields[0:36]
+        sp.nfields_mr = nfields = len(sp.fields_mr)
 
-        sp.state, sp.phi_fit, sp.beta_fit = s_state, float(s_phi_fit), float(s_beta_fit)
-        sp.qh_fit, sp.qv_fit, sp.dqh_fit = float(s_qh_fit), float(s_qv_fit), float(s_dqh_fit)
-        sp.exp, sp.run, sp.evnum, sp.reg = s_exp, int(s_run), int(s_evnum), s_reg
-        sp.tsec, sp.tnsec, sp.fid = int(s_time_sec), int(s_time_nsec), int(s_fid)
-        sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix = int(s_seg), int(s_row), int(s_col), float(s_amax), float(s_atot), int(s_npix)
-        sp.rcent, sp.ccent, sp.rsigma, sp.csigma = float(s_rcent), float(s_ccent), float(s_rsigma), float(s_csigma)
-        sp.rmin, sp.rmax, sp.cmin, sp.cmax = int(s_rmin), int(s_rmax), int(s_cmin), int(s_cmax)
-        sp.bkgd, sp.rms, sp.son = float(s_bkgd), float(s_rms), float(s_son)
-        sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
-        sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
+        if sp.nfields_mr == 47 :
+
+          TDNodeRecord.__init__(sp, line[284:])
+
+          s_state, s_phi_fit, s_beta_fit, s_qh_fit, s_qv_fit, s_dqh_fit,\
+          s_exp, s_run, s_time_sec, s_time_nsec,\
+          s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot,\
+          s_rcent, s_ccent, s_rsigma, s_csigma, s_rmin, s_rmax, s_cmin, s_cmax,\
+          s_bkgd, s_rms, s_son, s_imrow, s_imcol, s_x, s_y, s_r, s_phi =\
+          sp.fields_mr[0:36]
+
+          sp.state, sp.phi_fit, sp.beta_fit = s_state, float(s_phi_fit), float(s_beta_fit)
+          sp.qh_fit, sp.qv_fit, sp.dqh_fit = float(s_qh_fit), float(s_qv_fit), float(s_dqh_fit)
+          sp.exp, sp.run, sp.evnum, sp.reg = s_exp, int(s_run), int(s_evnum), s_reg
+          sp.tsec, sp.tnsec, sp.fid = int(s_time_sec), int(s_time_nsec), int(s_fid)
+          sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix = int(s_seg), int(s_row), int(s_col), float(s_amax), float(s_atot), int(s_npix)
+          sp.rcent, sp.ccent, sp.rsigma, sp.csigma = float(s_rcent), float(s_ccent), float(s_rsigma), float(s_csigma)
+          sp.rmin, sp.rmax, sp.cmin, sp.cmax = int(s_rmin), int(s_rmax), int(s_cmin), int(s_cmax)
+          sp.bkgd, sp.rms, sp.son = float(s_bkgd), float(s_rms), float(s_son)
+          sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
+          sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
+
+        if sp.nfields_mr == 43 :
+
+          TDNodeRecord.__init__(sp, line[262:])
+
+          s_state, s_phi_fit, s_beta_fit, s_qh_fit, s_qv_fit, s_dqh_fit,\
+          s_exp, s_run, s_time_sec, s_time_nsec,\
+          s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot,\
+          s_rcent, s_ccent, s_rsigma, s_csigma,\
+          s_bkgd, s_rms, s_son, s_imrow, s_imcol, s_x, s_y, s_r, s_phi =\
+          sp.fields_mr[0:32]
+          #s_rmin, s_rmax, s_cmin, s_cmax = '0','0','0','0' # fields removed from peak record
+
+          sp.state, sp.phi_fit, sp.beta_fit = s_state, float(s_phi_fit), float(s_beta_fit)
+          sp.qh_fit, sp.qv_fit, sp.dqh_fit = float(s_qh_fit), float(s_qv_fit), float(s_dqh_fit)
+          sp.exp, sp.run, sp.evnum, sp.reg = s_exp, int(s_run), int(s_evnum), s_reg
+          sp.tsec, sp.tnsec, sp.fid = int(s_time_sec), int(s_time_nsec), int(s_fid)
+          sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix = int(s_seg), int(s_row), int(s_col), float(s_amax), float(s_atot), int(s_npix)
+          sp.rcent, sp.ccent, sp.rsigma, sp.csigma = float(s_rcent), float(s_ccent), float(s_rsigma), float(s_csigma)
+          #sp.rmin, sp.rmax, sp.cmin, sp.cmax = int(s_rmin), int(s_rmax), int(s_cmin), int(s_cmax)
+          sp.bkgd, sp.rms, sp.son = float(s_bkgd), float(s_rms), float(s_son)
+          sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
+          sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
         
         sp.set_date_time(sp.tsec) #sp.date, sp.time = '2015-11-13', '16:00:00'
         sp.sonc = sp.peak_son()

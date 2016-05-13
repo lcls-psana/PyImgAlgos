@@ -76,7 +76,7 @@ class TDPeakRecord :
         sp.pixel_size = pixel_size
         
         sp.fields = line.rstrip('\n').split()
-        nfields = len(sp.fields)
+        sp.nfields = nfields = len(sp.fields)
 
         if nfields == 32 or nfields == 39 :
             s_exp, s_run, s_date, s_time, s_time_sec, s_time_nsec, \
@@ -131,12 +131,27 @@ class TDPeakRecord :
        #header = '# Exp     Run  Date       Time      time(sec)   time(nsec) fiduc'
        #addhdr = '  Evnum  Reg  Seg  Row  Col  Npix      Amax      Atot   rcent   ccent '+\
        #         'rsigma  csigma rmin rmax cmin cmax    bkgd     rms     son  imrow   imcol     x[um]     y[um]     r[um]  phi[deg]'
-       fmt = '%8s  %3d  %10s %8s  %10d  %9d  %6d'+\
-             ' %7d  %3s  %3d %4d %4d  %4d  %8.1f  %8.1f  %6.1f  %6.1f %6.2f  %6.2f'+\
-             ' %4d %4d %4d %4d  %6.2f  %6.2f  %6.2f'+\
-             ' %6d  %6d  %8.0f  %8.0f  %8.0f  %8.2f'
+
        z=0
-       return fmt % ('exp', z, 'date', 'time', z,z,z,z,'N/A',z,z,z,z,z,z,z,z,z,z, z,z,z,z,z,z,z,z,z,z, z,z,z)       
+
+       if sp.nfields == 32 :
+
+         print 'XXX: nfields = ', sp.nfields 
+
+
+         fmt = '%8s  %3d  %10s %8s  %10d  %9d  %6d'+\
+               ' %7d  %3s  %3d %4d %4d  %4d  %8.1f  %8.1f  %6.1f  %6.1f %6.2f  %6.2f'+\
+               ' %4d %4d %4d %4d  %6.2f  %6.2f  %6.2f'+\
+               ' %6d  %6d  %8.0f  %8.0f  %8.0f  %8.2f'
+         return fmt % ('exp', z, 'date', 'time', z,z,z,z,'N/A',z,z,z,z,z,z,z,z,z,z, z,z,z,z,z,z,z,z,z,z, z,z,z)       
+
+       else : #if sp.nfields == 28 : removed rmin rmax cmin cmax
+         fmt = '%8s  %3d  %10s %8s  %10d  %9d  %6d'+\
+               ' %7d  %3s  %3d %4d %4d  %4d  %8.1f  %8.1f  %6.1f  %6.1f %6.2f  %6.2f'+\
+               '  %6.2f  %6.2f  %6.2f'+\
+               ' %6d  %6d  %8.0f  %8.0f  %8.0f  %8.2f'
+         return fmt % ('exp', z, 'date', 'time', z,z,z,z,'N/A',z,z,z,z,z,z,z,z,z,z, z,z,z,z,z,z, z,z,z)       
+
 
 #------------------------------
 

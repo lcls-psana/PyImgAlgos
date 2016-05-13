@@ -44,9 +44,9 @@ class TDNodeRecord :
         # index   beta     omega   h  k  l     dr [1/A]   R(h,k,l)   qv [1/A]   qh [1/A]   P(omega)
              2    10.00     0.50   0  1  0     0.001197   0.038484  -0.000058   0.038418   0.047045
         """
-        sp.fields = line.rstrip('\n').split()
+        sp.fields_nr = line.rstrip('\n').split()
 
-        s_index, s_beta, s_omega, s_h, s_k, s_l, s_dr, s_R, s_qv, s_qh, s_P = sp.fields[0:11]
+        s_index, s_beta, s_omega, s_h, s_k, s_l, s_dr, s_R, s_qv, s_qh, s_P = sp.fields_nr[0:11]
         sp.index, sp.beta, sp.omega = int(s_index), float(s_beta), float(s_omega)
         sp.h, sp.k, sp.l = int(s_h), int(s_k), int(s_l)
         sp.dr, sp.R, sp.qv, sp.qh, sp.P = float(s_dr), float(s_R), float(s_qv), float(s_qh), float(s_P) 
