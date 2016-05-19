@@ -17,7 +17,7 @@ Usage::
          nbins = 100
          spec = NDArrSpectrum(range, nbins)
     # 2) for variable size bins:
-         bins = (v0, v1, v2, v4, v5, vN) # any number of bin edges
+         bins = (v0, v1, v2, ..., v<n-1>, n<n>) 
          spec = NDArrSpectrum(bins)
 
 
@@ -54,71 +54,108 @@ __version__ = "$Revision$"
 
 import sys
 import numpy as np
-from pyimgalgos.HBins import HBins
+
+#------------------------------
+#------------------------------
+
+def arr_bin_indexes(arr, vmin, vmax, nbins) :
+    """ Evaluates pixel intensity indexes for spectral histogram in case of equidistant nbins in the range [vmin, vmax].
+    """    
+    factor = float(nbins)/(vmax-vmin)
+    nbins1 = nbins-1
+    dtype = np.int32 if nbins>256 else np.int16
+    ind = np.array((arr-vmin)*factor, dtype = dtype)
+    return np.select((ind<0, ind>nbins1), (0, nbins1), default=ind)
+
+#------------------------------
+
+def arr_varbin_indexes(arr, edges) :
+    """ Evaluates pixel intensity indexes for spectral histogram in case of variable size bins.
+        For histogram with N bins: number of boarders is N+1, and indexes are in range [0,N-1].
+    """
+    nbins = len(edges)-1
+    dtype = np.int32 if nbins>256 else np.int16
+    conds = [arr<edge for edge in edges]
+    ivals  = np.array(range(len(edges)), dtype=dtype)
+    ivals -= 1 
+    ivals[0] = 0 # re-define index for underflow
+    return np.select(conds, ivals, default=nbins-1)
+
+#------------------------------
+
+BINS_EQUIDISTANT = 0
+BINS_VARSIZE     = 1
 
 #------------------------------
 
 class NDArrSpectrum :
     def __init__(self, edges, nbins=None, pbits=0) :
         """ Constructor
-        - edges - sequence of bin edges
-        - nbins - number of bins in spectrum, if None - edges are used
-        - pbits - print control bits; =0 - print nothing, 1 - object attributes.
+        @param edges - sequence of bin edges
+        @param nbins - number of bins in spectrum, if None - edges are used
+        @param pbits - print control bits; =0 - print nothing, 1 - object attributes.
         """
-        self.hbins = HBins(edges, nbins, vtype=np.float32)
+        self.vmin, self.vmax = min(edges), max(edges)
+        self.edges = edges
         self.pbits = pbits
-        self.is_inited = False
+        self.entry = 0
+
+        if nbins is None :
+            self.mode = BINS_VARSIZE
+            self.nbins = len(edges)-1
+            #sys.exit('ERROR in %s initialization: Variable size bin mode is not implemented yet!' % (__class__.__name__))
+        else :
+            self.mode = BINS_EQUIDISTANT
+            self.nbins = nbins
+
         if self.pbits : self.print_attrs()
 
 
     def print_attrs(self) :
-        """ Prints object essential attributes
+        """ Prints object attributes
         """
-        hb = self.hbins
         print 'Class %s object attributes:' % (self.__class__.__name__)
-        print 'Binning mode: %s, where True/False for equal/variable size bins' % (hb.equalbins())
-        print 'Number of bins: %d' % hb.nbins()
-        print 'Bin edges: %s' % str(hb.edges())
-        print 'vmin = %f\nvmax = %f' % (hb.vmin(), hb.vmax())
+        print 'Binning mode: %d, where 0/1 stands for equidistant/variable size bins' % (self.mode)
+        print 'Number of bins: %d' % self.nbins
+        print 'Bin edges: %s' % str(self.edges)
+        print 'vmin = %f\nvmax = %f' % (self.vmin, self.vmax)
         print 'pbits: %d' % (self.pbits)
-        #self.hbins.print_attrs()
-        #self.hbins.print_attrs_defined()
 
 
     def init_spectrum(self, nda) :
         """ Initialization of the spectral histogram array at 1-st entrance in fill(nda)
-            - nda - numpy n-d array with intensities for spectral histogram.
+            @param nda - numpy n-d array with intensities for spectral histogram.
         """         
         self.ashape = nda.shape
-        self.asize  = nda.size
-        self.hshape = (self.asize, self.hbins.nbins())
-        self.histarr = np.zeros(self.hshape, dtype=np.uint16) # huge size array
+        self.asize = 1
+        for d in self.ashape : self.asize *=d
+        self.hshape = (self.asize, self.nbins)
+        self.histarr = np.zeros(self.hshape, dtype=np.uint16)
         self.pix_inds = np.array(range(self.asize), dtype=np.uint32)
         if self.pbits & 1 :
             print 'n-d array shape = %s, size = %d, dtype = %s' % (str(self.ashape), self.asize, str(nda.dtype))
             print 'histogram shape = %s, size = %d, dtype = %s' % (str(self.hshape), self.histarr.size, str(self.histarr.dtype))
-        self.is_inited = True
 
 
     def fill(self, nda) :
         """ Fills n-d array spectrum histogram-array
-            - nda - numpy n-d array with intensities for spectral histogram.
+            @param nda - numpy n-d array with intensities for spectral histogram.
         """         
-        if not self.is_inited : self.init_spectrum(nda)
+        if not self.entry : self.init_spectrum(nda)
+        self.entry += 1
 
-        shape_in = nda.shape
-        if len(shape_in)>1 : nda.shape = (self.asize,) # reshape to 1-d
+        arr = nda.flatten() if len(nda.shape)>1 else nda
 
-        bin_inds = self.hbins.bin_indexes(nda, edgemode=0)
+        bin_inds = arr_bin_indexes(arr, self.vmin, self.vmax, self.nbins) if self.mode == BINS_EQUIDISTANT else \
+                   arr_varbin_indexes(arr, self.edges)
+
         self.histarr[self.pix_inds, bin_inds] += 1
-
-        if len(shape_in)>1 : nda.shape = shape_in # return original shape
 
 
     def spectrum(self) :
         """ Returns accumulated n-d array spectrum, histogram bin edges, and number of bins
         """ 
-        return self.histarr, self.hbins.edges(), self.hbins.nbins()
+        return self.histarr, self.edges, self.nbins
 
 #------------------------------
 #------------------------------

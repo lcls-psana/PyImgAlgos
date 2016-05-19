@@ -12,6 +12,11 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-65
+2016-05-19 Mikhail S. Dubrovin
+- NDArrSpectrum.py - use HBins, move old version to NDArrSpectrumV0.py
+- add examples/ex-NDArrSpectrum.py - to test time consumption to fill 100*32*185*388 histogram array
+
 Tag: V00-00-64
 2016-05-13 Mikhail S. Dubrovin
 - update TDMatchRecord, TDNodeRecord, TDPeakRecord to support shorter records
