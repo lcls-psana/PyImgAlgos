@@ -54,12 +54,22 @@ Usage::
     # ======================
     runnum, tstamp, tsec, fid = convertCheetahEventName('LCLS_2015_Feb22_r0169_022047_197f7', fmtts='%Y-%m-%dT%H:%M:%S')
 
+    table8x8 = table_from_cspad_ndarr(nda_cspad) 
+    nda_cspad = cspad_ndarr_from_table(table8x8)
+
+    # Save math
+    # =========
+    res = divide_protected(num, den, vsub_zero=0)
+
+    # Single line printed for np.array
+    # ================================
+    print_ndarr(nda, name='', first=0, last=5)
+
     # Save image in file
     # ==================
     image = random_standard()
     save_image_tiff(image, fname='image.tiff', verb=True) # 16-bit tiff
     save_image_file(image, fname='image.png', verb=True) # gif, pdf, eps, png, jpg, jpeg, tiff (8-bit only)
-
 
     # Create directory
     # ==================
@@ -387,12 +397,74 @@ def src_from_rc8x8(row, col) :
 
 #------------------------------
 
+def print_ndarr(nda, name='', first=0, last=5) :
+    if nda is None : print '%s: %s' % (name, nda)
+    elif isinstance(nda, tuple) : print_ndarr(np.array(nda), 'ndarray from tuple: %s' % name)
+    elif isinstance(nda, list)  : print_ndarr(np.array(nda), 'ndarray from list: %s' % name)
+    elif not isinstance(nda, np.ndarray) :
+                     print '%s: %s' % (name, type(nda))
+    else           : print '%s:  shape:%s  size:%d  dtype:%s %s...' % \
+         (name, str(nda.shape), nda.size, nda.dtype, nda.flatten()[first:last])
+
+#------------------------------
+
+def table_from_cspad_ndarr(nda_cspad) :
+    """returns table of 2x1s shaped as (8*185, 4*388) in style of Cheetah
+       generated from cspad array with size=(32*185*388) ordered as in data, shape does not matter. 
+    """
+    shape, size = (4, 8*185, 388), 4*8*185*388
+    if nda_cspad.size != size :
+        raise ValueError('Input array size: %d is not consistent with cspad size: %d' % (nda_cspad.size, size))
+    shape_in = nda_cspad.shape # preserve original shape
+    nda_cspad.shape = shape    # reshape to what we need
+    nda_out = np.hstack([nda_cspad[q,:] for q in range(shape[0])])
+    nda_cspad.shape = shape_in # restore original shape
+    return nda_out
+
+#------------------------------
+
+def cspad_ndarr_from_table(table8x8) :
+    """returns cspad array with shape=(32,185,388)
+       generated from table of 2x1s shaped as (8*185, 4*388) in style of Cheetah
+    """
+    quads, segs, rows, cols = (4,8,185,388)
+    size = quads * segs * rows * cols
+    shape8x8 = (segs*rows, quads*cols)
+
+    if table8x8.size != size :
+        raise ValueError('Input array size: %d is not consistent with cspad size: %d' % (table8x8.size, size))
+
+    if table8x8.shape != shape8x8:
+        raise ValueError('Input array shape: %s is not consistent with cspad 8x8 table shape: %s' % (table8x8.shape, shape8x8))
+
+    nda_out = np.array([table8x8[:,q*cols:(q+1)*cols] for q in range(quads)]) # shape:(4, 1480, 388)
+    nda_out.shape = (quads*segs, rows, cols)
+    return nda_out
+
+#------------------------------
+
+def divide_protected(num, den, vsub_zero=0) :
+    """Returns result of devision of numpy arrays num/den with substitution of value vsub_zero for zero den elements.
+    """
+    pro_num = np.select((den!=0,), (num,), default=vsub_zero)
+    pro_den = np.select((den!=0,), (den,), default=1)
+    return pro_num / pro_den
+
+#------------------------------
+
 def create_directory(dir) : 
     if os.path.exists(dir) :
         print 'Directory exists: %s' % dir
     else :
         os.makedirs(dir)
         print 'Directory created: %s' % dir
+
+#------------------------------
+"""Aliases"""
+
+table8x8_from_cspad_ndarr = table_from_cspad_ndarr
+cspad_ndarr_from_table8x8 = cspad_ndarr_from_table
+# See tests in Detector/examples/ex_ndarray_from_image.py
 
 ##-----------------------------
 ##-----------------------------

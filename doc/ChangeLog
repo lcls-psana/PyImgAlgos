@@ -12,6 +12,11 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-66
+2016-05-20 Mikhail S. Dubrovin
+- GlobalUtils.py - add methods divide_protected, cspad_ndarr_from_table, table_from_cspad_ndarr, print_ndarr
+- Graphics.py - update, add self-test
+	
 Tag: V00-00-65
 2016-05-19 Mikhail S. Dubrovin
 - use HBins in NDArrSpectrum.py, move old version to NDArrSpectrumV0.py (PSAS-178)
