@@ -23,7 +23,7 @@ Usage::
     yarr2 = funcy2(xarr, a, b, c)
 
     # Conversion methods
-    qx, qy, qz = recipnorm(x, y, z) # returns q/|k| components for 3-d point along k'.
+    qx, qy, qz = recipnorm(x, y, z) # returns q/fabs(k) components for 3-d point along k^prime.
 
     # Commands to test in the release directory: 
     # python ./pyimgalgos/src/FiberAngles.py <test-id>
@@ -66,12 +66,12 @@ def _fillimg(r,c,a) :
 
 def fraser_xyz(x, y, z, beta_deg, k=1.0) :
     """Do fraser transformation for of 3-d points given by x,y,z arrays for angle beta around x and
-    returns horizontal and vertical components of the scattering vector in units of k (eV or 1/A).
-    x,y-arrays representing image point coordinates, z-can be scalar - distance from sample to detector.
-    x, y, and z should be in the same units; ex.: number of pixels (109.92um) or [um], angle is in degrees.
-    Example: fraser_xy(x,y,909,10); (10 degrees at 909 pixel (100mm) distance)
+       returns horizontal and vertical components of the scattering vector in units of k (eV or 1/A).
+       x,y-arrays representing image point coordinates, z-can be scalar - distance from sample to detector.
+       x, y, and z should be in the same units; ex.: number of pixels (109.92um) or [um], angle is in degrees.
+       Example: fraser_xy(x,y,909,10); (10 degrees at 909 pixel (100mm) distance)
 
-    ASSUMPTION:
+       ASSUMPTION:
        - x,y,z    - [in] point coordinate arrays with originn in IP
        - beta_deg - [in] angle beta in degrees
        - k        - [in] scale factor, ex.: wave number in units of (eV or 1/A).
@@ -97,11 +97,11 @@ def fraser_xyz(x, y, z, beta_deg, k=1.0) :
 
 def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
     """Do fraser correction for an array at angle beta and distance L, given in
-    number of pixels (109.92um), angle is in degrees.
-    Example: fraser(array,10,909); (10 degrees at 100mm distance)
+       number of pixels (109.92um), angle is in degrees.
+       Example: fraser(array,10,909); (10 degrees at 100mm distance)
 
-    ASSUMPTION:
-    1. by default 2-d arr image center corresponds to (x,y) origin 
+       ASSUMPTION:
+       1. by default 2-d arr image center corresponds to (x,y) origin 
        - arr      - [in] 2-d image array
        - beta_deg - [in] angle beta in degrees
        - L        - [in] distance from sample to detector given in units of pixels (110um)
@@ -400,13 +400,13 @@ def qh_to_xy(qh, R) :
 
 def recipnorm(x, y, z) :
     """Returns normalizd reciprocal space coordinates (qx,qy,qz)
-    of the scattering vector q = (k'- k)/|k|,
-    and assuming that
-    - scattering point is a 3-d space origin, also center of the Ewald's sphere
-    - k' points from 3-d space origin to the point with coordinates x, y, z
-      (pixel coordinates relative to IP)
-    - scattering is elastic, no energy lost or gained, |k'|=|k|
-    - reciprocal space origin is in the intersection point of axes z and Ewald's sphere. 
+       of the scattering vector q = (k^prime- k)/abs(k),
+       and assuming that
+       - scattering point is a 3-d space origin, also center of the Ewalds sphere
+       - k points from 3-d space origin to the point with coordinates x, y, z
+       (pixel coordinates relative to IP)
+       - scattering is elastic, no energy lost or gained, abs(k^prime)=abs(k)
+       - reciprocal space origin is in the intersection point of axes z and Ewald's sphere. 
     """
     L = np.sqrt(z*z + x*x + y*y) 
     return x/L, y/L, z/L-1.

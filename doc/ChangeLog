@@ -12,6 +12,12 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-67
+2016-06-01 Mikhail S. Dubrovin
+- NDArrSpectrum, RadialBkgd, FiberAngles - fix auto-generated doc 
+- add HPolar - superclass for refactoring RadialBkgd
+- mv NDArrSpectrum to HSpectrum, leave NDArrSpectrum as an alias
+	
 Tag: V00-00-66
 2016-05-20 Mikhail S. Dubrovin
 - GlobalUtils.py - add methods divide_protected, cspad_ndarr_from_table, table_from_cspad_ndarr, print_ndarr

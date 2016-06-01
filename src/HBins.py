@@ -39,7 +39,11 @@ Usage::
     hb.print_attrs()
     hb.print_attrs_and_methods()
 
-@see :py:class:`pyimgalgos.HBins`
+@see :py:class:`pyimgalgos.HPolar`,
+:py:class:`pyimgalgos.HSpectrum`,
+:py:class:`pyimgalgos.NDArrSpectrum`,
+:py:class:`pyimgalgos.RadialBkgd`,
+`Radial background <https://confluence.slac.stanford.edu/display/PSDMInternal/Radial+background+subtraction+algorithm>`_.
 
 This software was developed for the SIT project.  If you use all or 
 part of it, please give an appropriate acknowledgment.
