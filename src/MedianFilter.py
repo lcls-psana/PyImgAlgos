@@ -1,23 +1,24 @@
-#!/usr/bin/env python
+####!/usr/bin/env python
 
 #--------------------------------
-"""MedianFilter - contains method median_filter_ndarr and associated code for self test.
+"""`pyimgalgos.MedianFilter.py` - contains method median_filter_ndarr and associated code for self test.
 
 Usage::
 
     # Import
-    # ==============
+    # ======
     from pyimgalgos.MedianFilter import median_filter_ndarr
 
     #nda = ... should be defined somehow, for example nda = det.calib(evt)
     rank=3
     nda_med = median_filter_ndarr(nda, rank)
 
-Command to test: python pyimgalgos/src/MedianFilter.py 3
-
 This software was developed for the SIT project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
+Command to test python pyimgalgos/src/MedianFilter.py 3
+
+Also see for details:
 http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.ndimage.filters.median_filter.html#scipy.ndimage.filters.median_filter
 
 Revision: $Revision$
@@ -27,6 +28,7 @@ Revision: $Revision$
 @author Mikhail S. Dubrovin
 
 """
+
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -49,7 +51,7 @@ def reshape_nda_to_3d(arr) :
 
 def footprint_ring(rank=3) :
     """Ring footprint for scipy.ndimage.filters.median_filter
-       rank : int - radial parameter, pixels within radius <=rank will be used to evaluate the median.
+       rank : int - radial parameter, pixels within radius less or equal rank will be used to evaluate the median.
     """
     r1 = rank+1
     shape_q = (r1,r1)
@@ -70,14 +72,13 @@ def footprint_ring(rank=3) :
 def median_filter_ndarr(nda_in, rank=3) :
     """returns 2-d or 3-d array with number of merged photons per pixel.
        
-       Parameters
-       ----------
-       nda_in : numpy.array - n-dimensional numpy array
-       rank   : int - radial parameter, pixels within radius <=rank will be used to evaluate the median.
+    Parameters
+    - nda_in : numpy.array - n-dimensional numpy array
+    - rank   : int - radial parameter, pixels within radius less or equal rank will be used to evaluate the median.
     
-       use scipy.ndimage.filters.median_filter(input, size=None, footprint=None, output=None, mode='reflect', cval=0.0, origin=0)
+    use scipy.ndimage.filters.median_filter(input, size=None, footprint=None, output=None, mode='reflect', cval=0.0, origin=0)
+    http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.ndimage.filters.median_filter.html#scipy.ndimage.filters.median_filter
     """
-    #http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.ndimage.filters.median_filter.html#scipy.ndimage.filters.median_filter
     shape_in = nda_in.shape
 
     ndim = len(shape_in)
@@ -112,7 +113,7 @@ def random_standard_ndarr(shape=(185,388), mu=50, sigma=10, dtype=np.float) :
 #------------------------------
 
 def slope_2darr(shape=(185,388), axis=0, dtype=np.float) :
-    """Returns n-d array monotonicly raising along x"""
+    """Returns n-d array monotonicly raising along axis=0 or 1"""
     imax,jmax = shape
     if axis==0 :
         arr1d = range(imax)
