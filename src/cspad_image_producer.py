@@ -1,9 +1,7 @@
 #------------------------------
 """User analysis module for cspad image reconstruction.
 
-@see class :py:class:`pyimgalgos.cspad_image_producer`
-
-This software was developed for the LCLS project.  If you use all or
+This software was developed for the LCLS project.  If you use all or 
 part of it, please give an appropriate acknowledgment.
 
 @version $Id$
@@ -40,16 +38,17 @@ import PyCSPadImage.CSPAD2x2CalibPars as calp2x2
 import PyCSPadImage.CSPAD2x2PixCoords as pixcoor2x2
 
 class cspad_image_producer(object) :
+    """Produces CSPAD image."""
 
     def __init__(self) :
         """Produces cspad image from DAQ input array and put it back in the evt store.        
-           Parameters are passed as strings from pyana.cfg configuration file.
-           
-           - source      string, address of Detector.Id:Device.ID
-           - calib_dir   string, path to calibration directory
-           - key_in      string, keyword for input array, shape=(4, 8, 185, 388) or (185, 388, 2)
-           - key_out     string, unique keyword for output image array
-           - print_bits  int, bit-word for verbosity control
+        Parameters are passed as strings from pyana.cfg configuration file.
+        
+        - source      string, address of Detector.Id:Device.ID
+        - calib_dir   string, path to calibration directory
+        - key_in      string, keyword for input array, shape=(4,8,185,388) or (185,388,2)
+        - key_out     string, unique keyword for output image array
+        - print_bits  int, bit-word for verbosity control
         """
 
         self.m_src        = self.configSrc('source', '*-*|Cspad-*')
@@ -92,8 +91,8 @@ class cspad_image_producer(object) :
     def event( self, evt, env ) :
         """This method is called for every L1Accept transition.
         
-           - evt - event data object
-           - env - environment object
+        - evt - event data object
+        - env - environment object
         """
         self.counter +=1
         self.arr = None
@@ -207,8 +206,7 @@ class cspad_image_producer(object) :
 
     def set_path_to_calib_types( self, env ) :
         """Sets m_path_ctypes - path to calibration types, if it does not defined in
-           user parameter calib_dir, for example:
-           /reg/d/psdm/mec/meca6113/calib/CsPad2x2::CalibV1/MecTargetChamber.0:Cspad2x2.1/
+        user parameter calib_dir.
         """
         str_src = str(self.m_src).split('DetInfo(')[1].split(')"')[0]
 

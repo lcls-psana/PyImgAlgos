@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-68
+2016-08-11 Mikhail S. Dubrovin
+- add MedianFilter.py (PSAS-178)
+	
 Tag: V00-00-67
 2016-06-01 Mikhail S. Dubrovin
 - NDArrSpectrum, RadialBkgd, FiberAngles - fix auto-generated doc 
