@@ -245,8 +245,8 @@ class HPolar() :
 
     def _flatten_(self, nda) :
         if len(nda.shape)>1 :
-            #nda = nda.flatten()
-            nda.shape = self.shapeflat
+            #nda.shape = self.shapeflat
+            return nda.flatten() # return flatten copy in order to preserve input array shape
         return nda
 
 

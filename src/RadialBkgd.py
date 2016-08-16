@@ -94,14 +94,20 @@ class RadialBkgd(HPolar) :
 
     def subtract_bkgd(self, ndarr) :
         """Returns 1-d numpy array of per-pixel background subtracted input data."""
-        nda = self._flatten_(ndarr)
-        return nda - self.pixel_avrg(nda)
+        shape = ndarr.shape
+        nda = ndarr.flatten()
+        nda -= self.pixel_avrg(nda)
+        nda.shape = shape
+        return nda
 
 
     def subtract_bkgd_interpol(self, ndarr, method='linear', verb=False) :
         """Returns 1-d numpy array of per-pixel interpolated-background subtracted input data."""
-        nda = self._flatten_(ndarr)
-        return nda - self.pixel_avrg_interpol(nda, method, verb)
+        shape = ndarr.shape
+        nda = ndarr.flatten()
+        nda -= self.pixel_avrg_interpol(nda, method, verb)
+        nda.shape = shape
+        return nda
 
 #------------------------------
 #------------------------------
