@@ -12,11 +12,14 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-71
+2016-10-28 Mikhail S. Dubrovin
+- NDArrGenerators - add methods add_ring, add_random_peaks and examples in examples/ex-NDArrGenerators.py
+	
 Tag: V00-00-70
 2016-08-16 Mikhail S. Dubrovin
 - RadialBkgd.py, HPolar.py - do not change shape of input n-d array (PSAS-178)
 	
-=======
 Tag: V00-00-69
 2016-08-11 Mikhail S. Dubrovin
 - move cspad_image_producer.py to src/cspad_image_producer.py-doc-problem (PSAS-178)

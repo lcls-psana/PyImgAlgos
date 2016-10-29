@@ -4,12 +4,15 @@ Created on Nov 23, 2015
 @author: Mikhail
 '''
 import numpy as np
+import math
+
 #-----------------------------
 
 def prod_of_elements(arr, dtype=np.int) :
     """Returns product of sequence elements
     """
     return np.prod(arr,axis=None,dtype=dtype)
+
 #-----------------------------
 
 def size_from_shape(shape) :
@@ -51,25 +54,31 @@ def reshape_to_3d(arr) :
 
 #-----------------------------
 
-def random_standard(shape=(40,60), mu=200, sigma=25) :
+def random_standard(shape=(40,60), mu=200, sigma=25, dtype=np.float) :
     """Returns numpy array of requested shape and type filled with normal distribution for mu and sigma.
     """
-    return mu + sigma*np.random.standard_normal(shape)
+    a = mu + sigma*np.random.standard_normal(shape)
+    return np.require(a, dtype)
 
 #-----------------------------
 
-def random_exponential(shape=(40,60), a0=100) :
+def random_exponential(shape=(40,60), a0=100, dtype=np.float) :
     """Returns numpy array of requested shape and type filled with exponential distribution for width a0.
     """
-    return a0*np.random.standard_exponential(size=shape)
+    a = a0*np.random.standard_exponential(size=shape)
+    return np.require(a, dtype) 
 
 #-----------------------------
 
-def random_1(shape=(40,60), dtype=np.float) :
+def random_one(shape=(40,60), dtype=np.float) :
     """Returns numpy array of requested shape and type filled with random numbers in the range [0,255].
     """
     a = np.random.random(shape)
     return np.require(a, dtype) 
+
+#-----------------------------
+
+random_1 = random_one
 
 #-----------------------------
 
@@ -109,6 +118,68 @@ def print_ndarr(nda, name='', first=0, last=5) :
     else: print '%s:  shape:%s  size:%d  dtype:%s %s...' % \
          (name, str(nda.shape), nda.size, nda.dtype, nda.flatten()[first:last])
 
+#-----------------------------
+
+def ring_intensity(r, r0, sigma) :
+    """returns numpy array with ring intensity distribution modulated by Gaussian(r-r0,sigma).
+       Parameters
+       ----------
+       r : np.array - numpy array of radius (i.e. radios for each pixel) 
+       r0 : float - radius of the ring
+       sigma : float - width of the ring
+    """
+    factor = 1/ (math.sqrt(2) * sigma)
+    rr = factor*(r-r0)
+    return np.exp(-rr*rr)
+
+#-----------------------------
+
+def add_ring(arr2d, amp=100, row=4.3, col=5.8, rad=100, sigma=3) :
+    """Adds peak Gaussian-shaped peak intensity to numpy array arr2d
+       Parameters
+       ----------
+       arr2d : np.array - 2-d numpy array 
+       amp : float - ring intensity
+       row : float - ring center row
+       col : float - ring center col
+       rad : float - ring mean radius
+       sigma : float - width of the peak
+    """
+    nsigma = 5
+    rmin = max(math.floor(row - rad - nsigma*sigma), 0)
+    cmin = max(math.floor(col - rad - nsigma*sigma), 0)
+    rmax = min(math.floor(row + rad + nsigma*sigma), arr2d.shape[0])
+    cmax = min(math.floor(col + rad + nsigma*sigma), arr2d.shape[1])
+    r = np.arange(rmin, rmax, 1, dtype = np.float32) - row
+    c = np.arange(cmin, cmax, 1, dtype = np.float32) - col
+    CG, RG = np.meshgrid(c, r)
+    R = np.sqrt(RG*RG+CG*CG)
+    arr2d[rmin:rmax,cmin:cmax] += amp * ring_intensity(R, rad, sigma)
+
+#-----------------------------
+
+def add_random_peaks(arr2d, npeaks=10, amean=100, arms=50, wmean=2, wrms=0.1) :
+    """Returns 2-d array with peaks.
+    """
+    shape=arr2d.shape
+
+    rand_uni = random_1(shape=(2, npeaks))
+    r0 = rand_uni[0,:]*shape[0]
+    c0 = rand_uni[1,:]*shape[1]
+    rand_std = random_standard(shape=(4,npeaks), mu=0, sigma=1)
+    a0    = amean + arms*rand_std[0,:] 
+    sigma = wmean + wrms*rand_std[0,:] 
+
+    peaks = zip(r0, c0, a0, sigma)
+
+    for r0, c0, a0, sigma in peaks :
+        add_ring(arr2d, amp=a0, row=r0, col=c0, rad=0, sigma=sigma)
+
+    return peaks
+
+#-----------------------------
+#-----------------------------
+#-----------------------------
 #-----------------------------
 #-----------------------------
 

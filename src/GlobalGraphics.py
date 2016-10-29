@@ -80,7 +80,7 @@ def plot_img(img, mode=None, amin=None, amax=None) :
 
 ##-----------------------------
 
-def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0) :  
+def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0, lw=2) :  
     """ Draws peaks on the top of image axes (axim)
         Plots peaks from array as circles in coordinates of image.
 
@@ -102,7 +102,7 @@ def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0) :
         if pbits & 2 : print ' x,y=',x,y        
         xyc = (y,x)
         r0  = 2+6*atot/anorm
-        circ = patches.Circle(xyc, radius=r0, linewidth=2, color=color, fill=False)
+        circ = patches.Circle(xyc, radius=r0, linewidth=lw, color=color, fill=False)
         axim.add_artist(circ)
 
 ##-----------------------------
