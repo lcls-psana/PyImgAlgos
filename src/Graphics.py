@@ -50,8 +50,7 @@ def move(x0=200,y0=100) :
 def add_axes(fig, axwin=(0.05, 0.03, 0.87, 0.93)) :
     """Add axes to figure from input list of windows.
     """
-    axes = fig.add_axes(axwin)
-    return axes
+    return fig.add_axes(axwin)
 
 #------------------------------
 

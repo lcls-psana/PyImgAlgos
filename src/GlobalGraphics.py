@@ -54,6 +54,36 @@ def fig_axes(figsize=(13,12), title='Image', dpi=80, \
 
 #------------------------------
 
+def fig_axim_axcb_imsh(figsize=(13,12), title='Image', dpi=80, \
+                       win_axim=(0.05,  0.03, 0.87, 0.93), \
+                       win_axcb=(0.923, 0.03, 0.02, 0.93),
+                       arr2d=np.zeros((10,10)), origin='upper') :
+    """ Creates and returns figure, axes for image and color bar, imshow object
+    """
+    fig  = plt.figure(figsize=figsize, dpi=dpi, facecolor='w', edgecolor='w', frameon=True)
+    axim = fig.add_axes(win_axim)
+    axcb = fig.add_axes(win_axcb)
+    fig.canvas.set_window_title(title)
+    imsh = axim.imshow(arr2d, interpolation='nearest', aspect='auto', origin=origin) 
+    return fig, axim, axcb, imsh
+
+#------------------------------
+
+def plot_imgcb(fig, axim, axcb, imsh, arr2d, amin=None, amax=None, origin='upper', title=None) :
+    if arr2d is None : return
+    if imsh is not None : imsh.set_data(arr2d)
+    else : imsh = axim.imshow(arr2d, interpolation='nearest', aspect='auto', origin=origin) 
+    ave = np.mean(arr2d) if amin is None and amax is None else None
+    rms = np.std(arr2d)  if amin is None and amax is None else None
+    #print 'img ave = %s, rms = %s' % (str(ave), str(rms))
+    cmin = amin if amin is not None else ave-1*rms if ave is not None else None
+    cmax = amax if amax is not None else ave+3*rms if ave is not None else None
+    if cmin is not None : imsh.set_clim(cmin, cmax)
+    colb = fig.colorbar(imsh, cax=axcb) # , orientation='horizontal')
+    if title is not None : fig.canvas.set_window_title(title)    
+
+#------------------------------
+
 def plot_img(img, mode=None, amin=None, amax=None) :
     
     fig, axim, axcb = store.fig, store.axim, store.axcb

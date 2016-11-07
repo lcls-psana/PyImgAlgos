@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-72
+2016-11-06 Mikhail S. Dubrovin
+- GlobalGraphics - add new methods fig_axim_axcb_imsh and plot_imgcb.
+
 Tag: V00-00-71
 2016-10-28 Mikhail S. Dubrovin
 - NDArrGenerators - add methods add_ring, add_random_peaks and examples in examples/ex-NDArrGenerators.py
