@@ -12,6 +12,9 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+2016-11-23 Jacob Scott and Christopher O'Grady
+- add new centroid_smoother code based on ideas from Philip Hart.
+
 Tag: V00-00-72
 2016-11-06 Mikhail S. Dubrovin
 - GlobalGraphics - add new methods fig_axim_axcb_imsh and plot_imgcb.
