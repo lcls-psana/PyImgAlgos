@@ -14,17 +14,24 @@ calib_type = 'photon_position'
 
 class CentroidSmootherCalib(object):
     '''
-
+    A calibration object that needs only to run once. Data and constants will
+    be saved to be used by the CentroidSmoother object.
     '''
     def __init__(self, nBins=100):
+        '''
+        Parameters: nBins - (Optional) The number of bins for the histogramming
+                            of the absolute distance from the center of the
+                            pixel for each centroid
+        '''
         self.nBins = nBins
         self.absDist = Histogram((self.nBins, 0.0, 0.5))
 
 
     def add(self, centroids):
         '''
-        Input: An array of the rows and columns of peak centroids in the shape
-               (x, 2) for x peaks.
+        Parameters: An array of floats of the rows and columns of peak
+                    centroids in the shape (x, 2) for x peaks.
+
         Computes, for each centroid, the absolute distance from the center of
         the pixel that the centroid is in. The values range from 0 to 0.5.
         '''
@@ -35,7 +42,15 @@ class CentroidSmootherCalib(object):
 
     def save(self, ds, det, rNumBegin, rNumEnd=None):
         '''
-
+        Parameters: ds - datasource as obtained via psana.DataSource()
+                    det - detector used as obtained via psana.Detector()
+                    rNumBegin - run number that the saved data begins with
+                    rNumEnd - (Optional) run number that the saved data
+                              ends with
+        
+        From the given parameters, saves the data that has been added by
+        add() along with the bins which are computed from the value for
+        nBins.
         '''
         cdir = ds.env().calibDir()
         src = str(det.name)
@@ -58,11 +73,16 @@ class CentroidSmootherCalib(object):
 
 class CentroidSmoother(object):
     '''
-    Parameters: ds - datasource as obtained via psana.DataSource()
-                det - detector used as obtained via psana.Detector()
-                rNum - run number of data
+    With the datasource, detector and run number, this object will fetch
+    the relevant data as saved by the CentroidSmootherCalib object and
+    read it in.
     '''
     def __init__(self, ds, det, rNum):
+        '''
+        Parameters: ds - datasource as obtained via psana.DataSource()
+                    det - detector used as obtained via psana.Detector()
+                    rNum - run number of data
+        '''
         cdir = ds.env().calibDir()
         src = str(det.name)
         fin = find_calib_file(cdir, src, calib_type, rNum)
@@ -75,11 +95,12 @@ class CentroidSmoother(object):
 
     def getSmoothedCentroids(self, offsets):
         '''
-        Input: An array of the rows and columns of peak centroids in the shape
-               (x, 2) for x peaks.
-        Output: An array of the rows and columns of the smoothed centroids in
-                the same shape as the input.
-        Given a list of centroids, this function smooths and returns them.
+        Parameters: An array of floats the rows and columns of peak centroids
+                    in the shape (x, 2) for x peaks.
+        Output: An array of floats of the rows and columns of the smoothed
+                centroids in the same shape as the input.
+
+        Given an array of centroids, this function smooths and returns them.
         '''
         fracOffsets = offsets - np.rint(offsets)
         fracROffsets, fracCOffsets = fracOffsets[:, 0], fracOffsets[:, 1]
@@ -141,11 +162,13 @@ if __name__ == "__main__":
 
     smoothCents = cs.getSmoothedCentroids(centroids)
 
-    ##*********************************************************************************##
 
-    smoothDist, edges = np.histogram(smoothCents.flatten(), bins=50, range=(-0.5, 0.5))
-    smoothRD, edgesR = np.histogram(smoothCents[:, 0], bins=50, range=(-0.5, 0.5))
-    smoothCD, edgesC = np.histogram(smoothCents[:, 1], bins=50, range=(-0.5, 0.5))
+    smoothDist, edges = np.histogram(smoothCents.flatten(),
+                                     bins=50, range=(-0.5, 0.5))
+    smoothRD, edgesR = np.histogram(smoothCents[:, 0],
+                                    bins=50, range=(-0.5, 0.5))
+    smoothCD, edgesC = np.histogram(smoothCents[:, 1],
+                                    bins=50, range=(-0.5, 0.5))
 
     plt.figure()
     plt.plot(calib.absDist.values)

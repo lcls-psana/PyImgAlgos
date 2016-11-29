@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-73
+2016-11-28 Jacob Scott and Christopher O'Grady
+- add comments.
+
 2016-11-23 Jacob Scott and Christopher O'Grady
 - add new centroid_smoother code based on ideas from Philip Hart.
 
