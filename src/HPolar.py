@@ -154,7 +154,8 @@ class HPolar() :
                np.logical_and(self.iphi > -1, self.iphi < npbins)
                )
 
-        if mask is not None : cond *= mask.flatten()
+        if mask is not None : 
+            cond = np.logical_and(cond, mask.astype(np.bool).flatten())
 
         self.iseq = np.select((cond,), (self.iphi*nrbins + self.irad,), ntbins).flatten()
 
