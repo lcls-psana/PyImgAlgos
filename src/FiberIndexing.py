@@ -131,14 +131,15 @@ def reciprocal_from_bravias(a1, a2, a3) :
 #------------------------------
 
 def lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
-            hmax=3, kmax=2, lmax=1, cdtype=np.float32):
+            hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
+            hmin=None, kmin=None, lmin=None) :
     """ returns n-d arrays of 3d coordinates or 2d(if lmax=0) for 3d lattice and Miller hkl indices
     """
     #print '\nIn %s' % sys._getframe().f_code.co_name
 
-    lst_h = range(-hmax, hmax+1)
-    lst_k = range(-kmax, kmax+1)
-    lst_l = range(-lmax, lmax+1)
+    lst_h = range(-hmax, hmax+1) if hmin is None else range(hmin, hmax+1)
+    lst_k = range(-kmax, kmax+1) if kmin is None else range(kmin, kmax+1)
+    lst_l = range(-lmax, lmax+1) if lmin is None else range(lmin, lmax+1)
     
     x1d = np.array([b1[0]*h for h in lst_h], dtype=cdtype)
     y1d = np.array([b1[1]*h for h in lst_h], dtype=cdtype)
@@ -304,16 +305,19 @@ def fill_row(dr, qv, qh, h, k, l, sigma_ql, sigma_qt, bpq) :
 
 def make_lookup_table(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
                       hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
-                      evald_rad=3, sigma_q=0.001, fout=None, bpq=None, bpomega=None, bpbeta=None) :
+                      evald_rad=3, sigma_q=0.001, fout=None, bpq=None, bpomega=None, bpbeta=None,\
+                      hmin=None, kmin=None, lmin=None) :
     """Depricated, see  make_lookup_table_v2 with sigma_ql, sigma_qt in stead of sigma_q
     """
-    return make_lookup_table_v2(b1, b2, b3, hmax, kmax, lmax, cdtype, evald_rad, sigma_q, sigma_q, fout, bpq, bpomega, bpbeta)
+    return make_lookup_table_v2(b1, b2, b3, hmax, kmax, lmax, cdtype, evald_rad, sigma_q, sigma_q,\
+                                fout, bpq, bpomega, bpbeta, hmin, kmin, lmin)
 
 #------------------------------
 
 def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
                       hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
-                      evald_rad=3, sigma_ql=0.001, sigma_qt=0.001, fout=None, bpq=None, bpomega=None, bpbeta=None) :
+                      evald_rad=3, sigma_ql=0.001, sigma_qt=0.001, fout=None, bpq=None, bpomega=None, bpbeta=None,\
+                      hmin=None, kmin=None, lmin=None) :
     """Makes lookup table - crystal lattice nodes information as a function of angle beta and omega, where
        beta  [deg] - fiber axis tilt,  
        omega [deg] - fiber rotation around axis,  
@@ -351,7 +355,7 @@ def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 
        Returns 2-d numpy array for image; summed for all beta probobility(omega vs. q_horizontal).
     """
-    x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
+    x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype, hmin, kmin, lmin)
 
     lut = np.zeros((bpomega.nbins, bpq.nbins), dtype=np.float32)
     
@@ -380,7 +384,8 @@ def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 #------------------------------
 
 def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
-                 hmax=3, kmax=2, lmax=1, cdtype=np.float32, fmt = '%10.6f') :
+                 hmax=3, kmax=2, lmax=1, cdtype=np.float32, fmt = '%10.6f',\
+                 hmin=None, kmin=None, lmin=None) :
 
     print '\nIn %s' % sys._getframe().f_code.co_name
     print 'reciprocal space primitive vectors:\n  b1 = (%s)\n  b2 = (%s)\n  b3 = (%s)' %\
@@ -388,7 +393,7 @@ def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
             ', '.join([fmt % v for v in b2]),\
             ', '.join([fmt % v for v in b3]))
 
-    x, y, z, rarr, harr, karr, larr = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
+    x, y, z, rarr, harr, karr, larr = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype, hmin, kmin, lmin)
 
     hklarr = zip(harr.flatten(), karr.flatten(), larr.flatten())
     dic_r_hkl = dict(zip(rarr.flatten(),hklarr))   
@@ -407,14 +412,15 @@ def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 #------------------------------
 
 def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
-                 hmax=3, kmax=2, lmax=1, cdtype=np.float32) :
+                 hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
+                 hmin=None, kmin=None, lmin=None) :
 
     from Detector.GlobalUtils import print_ndarr
 
     print '\nIn %s' % sys._getframe().f_code.co_name
     print '%s\nTest lattice with default parameters' % (80*'_')
 
-    x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
+    x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype, hmin, kmin, lmin)
 
     print_nda(h, 'h', fmt=' %3d')
     print_nda(k, 'k', fmt=' %3d')
@@ -442,7 +448,8 @@ def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 
 def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
                  hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
-                 evald_rad=0.5, qtol=0.01, prefix='', do_movie=False, delay=400) :
+                 evald_rad=0.5, qtol=0.01, prefix='', do_movie=False, delay=400,\
+                 hmin=None, kmin=None, lmin=None) :
     """Plots 2-d reciprocal space lattice, evald sphere,
        generates series of plots for rotated lattice and movie from these plots.
 
@@ -456,13 +463,18 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     print '\nIn %s' % sys._getframe().f_code.co_name
     print '%s\nTest lattice with default parameters' % (80*'_')
 
-    x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype)
+    x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype, hmin, kmin, lmin)
+
+    x.shape = (x.size,)
+    y.shape = (y.size,)
+    z.shape = (z.size,)
 
     xlimits = ylimits = (-0.3, 0.3) # plot limits in (1/A)
     #ylimits = (-0.4, 0.4) # plot limits in (1/A)
     #xlimits = (-0.5, 0.3) # plot limits in (1/A)
 
     fig, ax = gg.plotGraph(x,y, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.86), pfmt='bo')
+
     ax.set_xlim(xlimits)
     ax.set_ylim(ylimits)
     ax.set_xlabel('Reciprocal x ($1/\AA$)', fontsize=18)
@@ -551,6 +563,8 @@ def make_index_table(prefix='./v01-') :
     b, c = 1.466*a, 0.262*a              # Angstrom
     alpha, beta, gamma = 90, 90, 78.47   # 180 - 101.53 degree
     hmax, kmax, lmax = 4, 6, 0           # size of lattice to consider
+    #hmin, kmin, lmin =-4,-6, 0          # size of lattice to consider
+    hmin, kmin, lmin = None, None, None  # default [-hmax,hmax], [-kmax,kmax],
 
     a1, a2, a3 = triclinic_primitive_vectors(a, b, c, alpha, beta, gamma)
     b1, b2, b3 = reciprocal_from_bravias(a1, a2, a3)
@@ -573,9 +587,9 @@ def make_index_table(prefix='./v01-') :
 
     #for line in triclinic_primitive_vectors.__doc__.split('\n') : fout.write('\n# %s' % line)
 
-    test_lattice       (b1, b2, b3, hmax, kmax, lmax, cdtype=np.float32)
-    lattice_node_radius(b1, b2, b3, hmax, kmax, lmax, cdtype=np.float32)
-    lattice_node_radius(b1, b2, b3, hmax, kmax, 1,    cdtype=np.float32)
+    test_lattice       (b1, b2, b3, hmax, kmax, lmax, np.float32, hmin, kmin, lmin)
+    lattice_node_radius(b1, b2, b3, hmax, kmax, lmax, np.float32, '%10.6f', hmin, kmin, lmin)
+    lattice_node_radius(b1, b2, b3, hmax, kmax, 1,    np.float32, '%10.6f', hmin, kmin, lmin)
 
     #------------------------------
     #return
@@ -598,8 +612,8 @@ def make_index_table(prefix='./v01-') :
     str_beta = 'for-beta:%s' % (bpbeta.strrange)
      
     print '\n%s\nIndexing lookup table\n' % (91*'_')
-    lut  = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_ql, sigma_qt, fout, bpq, bpomega, bpbeta)
-    lut2 = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_ql, sigma_qt, fout, bpq, bpomega, bpbeta2)
+    lut  = make_lookup_table_v2(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_ql, sigma_qt, fout, bpq, bpomega, bpbeta, hmin, kmin, lmin)
+    lut2 = make_lookup_table_v2(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_ql, sigma_qt, fout, bpq, bpomega, bpbeta2, hmin, kmin, lmin)
 
     fout.close()
     print '\nIndexing lookup table is saved in the file: %s' % fname

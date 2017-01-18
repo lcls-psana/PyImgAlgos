@@ -12,10 +12,14 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-76
+2017-01-18 Mikhail S. Dubrovin
+- FiberIndexing.py - add parameters hmin, kmin, lmin to generate non-symmetric lattice.
+
 Tag: V00-00-75
 2017-1-5 David Schneider
 - latest version of numpy is more strict about *= and dtype's
-	
+
 Tag: V00-00-74
 2016-12-07 Jacob Scott and Christopher O'Grady
 - add cm_epix.py, a new common mode algorithm.
@@ -34,30 +38,30 @@ Tag: V00-00-72
 Tag: V00-00-71
 2016-10-28 Mikhail S. Dubrovin
 - NDArrGenerators - add methods add_ring, add_random_peaks and examples in examples/ex-NDArrGenerators.py
-	
+
 Tag: V00-00-70
 2016-08-16 Mikhail S. Dubrovin
 - RadialBkgd.py, HPolar.py - do not change shape of input n-d array (PSAS-178)
-	
+
 Tag: V00-00-69
 2016-08-11 Mikhail S. Dubrovin
 - move cspad_image_producer.py to src/cspad_image_producer.py-doc-problem (PSAS-178)
-	
+
 Tag: V00-00-68
 2016-08-11 Mikhail S. Dubrovin
 - add MedianFilter.py (PSAS-178)
-	
+
 Tag: V00-00-67
 2016-06-01 Mikhail S. Dubrovin
-- NDArrSpectrum, RadialBkgd, FiberAngles - fix auto-generated doc 
+- NDArrSpectrum, RadialBkgd, FiberAngles - fix auto-generated doc
 - add HPolar - superclass for refactoring RadialBkgd
 - mv NDArrSpectrum to HSpectrum, leave NDArrSpectrum as an alias
-	
+
 Tag: V00-00-66
 2016-05-20 Mikhail S. Dubrovin
 - GlobalUtils.py - add methods divide_protected, cspad_ndarr_from_table, table_from_cspad_ndarr, print_ndarr
 - Graphics.py - update, add self-test
-	
+
 Tag: V00-00-65
 2016-05-19 Mikhail S. Dubrovin
 - use HBins in NDArrSpectrum.py, move old version to NDArrSpectrumV0.py (PSAS-178)
@@ -86,7 +90,7 @@ Tag: V00-00-60
 - GlobalUtils.py - add method create_directory
 - FiberAngles.py - fix root selection in funcy_l0, update test_plot_beta_l0
 - TDPeakRecord.py - add support for 28-field peak record from rev.1 peakfinders
-	
+
 Tag: V00-00-59
 2016-04-15 Mikhail S. Dubrovin
 - add ex-RadialBkgd.py
@@ -95,23 +99,23 @@ Tag: V00-00-58
 2016-04-14 Mikhail S. Dubrovin
 - FiberAngles.py - add funcy_l0, funcy_l1, update self-test
 - GlobalGraphics.py - add linewidth parameter in plotGraph
-	
+
 Tag: V00-00-57
 2016-04-06 Mikhail S. Dubrovin
 - TDPeakRecord - extend for for peak record with fit info.
-	
+
 Tag: V00-00-56
 2016-04-05 Mikhail S. Dubrovin
 - GlobalUtils.py - add methods helping to demangle Cheerah records
 - add TDCheetahPeakRecord.py - work with comma-separated data
-- TDFileContainer.py - treat correctly comma-separated data, 
+- TDFileContainer.py - treat correctly comma-separated data,
 	               add "_" for member methods
 - TDGroup.py - update doc
-	
+
 Tag: V00-00-55
 2016-03-28 Mikhail S. Dubrovin
 - RadialBkgd.py - fix names of obj_radbins, print_* methods, add _flatten_(nda)
-	
+
 Tag: V00-00-54
 2016-03-24 Mikhail S. Dubrovin
 - RadialBkgd.py - fix interpolation issue with angular edges at non-360 degree.
@@ -147,11 +151,11 @@ Tag: V00-00-47
 Tag: V00-00-46
 2016-02-06 Mikhail S. Dubrovin
 - FiberAngles.py add qh_to_xy(qh, R)
-- FiberIndexing.py update method test_lattice, add plot_lattice with movie 
-	
+- FiberIndexing.py update method test_lattice, add plot_lattice with movie
+
 Tag: V00-00-45
 2016-02-05 Mikhail S. Dubrovin
-- HBins.py add bin_index and bin_indexes; GlobalGraphics.py add cmap parameter; FiberIndexing.py use sigma_ql, sigma_qt 
+- HBins.py add bin_index and bin_indexes; GlobalGraphics.py add cmap parameter; FiberIndexing.py use sigma_ql, sigma_qt
 
 Tag: V00-00-44
 2016-02-01 Mikhail S. Dubrovin
@@ -168,7 +172,7 @@ Tag: V00-00-42
 Tag: V00-00-41
 2015-11-18 Mikhail S. Dubrovin
 - FiberIndexing.py change interface to BinPars, update ex-FiberIndexing.py, TDMatchRecord (PSAS-178).
-	
+
 Tag: V00-00-40
 2015-11-16 Mikhail S. Dubrovin
 - update sphinx documentation for cspad_image_producer
@@ -260,20 +264,20 @@ Tag: V00-00-22
 Tag: V00-00-21
 2014-08-18 Mikhail S. Dubrovin
 - update src/TestImageGenerator.py
-	
+
 Tag: V00-00-20
 2014-08-08 Mikhail S. Dubrovin
-- move python modules from pyimgalgos to PSCalib for 
+- move python modules from pyimgalgos to PSCalib for
         GeometryObject.py, GeometryAccess.py
 	SegGeometry.py, SegGeometryStore.py ,SegGeometryCspad2x1V1.py
-	
+
 Tag: V00-00-19
 2014-06-27 Mikhail S. Dubrovin
 - in cspad_image_producer.py use default path to calibration directory if parameter "calib_dir" is empty
 
 Tag: V00-00-18
 2014-06-24 Mikhail S. Dubrovin
-- add ex_peaks_nda to test results of ImgAlgos.CSPadArrPeakFinder 
+- add ex_peaks_nda to test results of ImgAlgos.CSPadArrPeakFinder
 
 Tag: V00-00-17
 2014-06-24 Mikhail S. Dubrovin
@@ -294,7 +298,7 @@ Tag: V00-00-15
 - cspad_image_producer - fix minor problems with member data,
 	add warning that image can be reconstructed for full-size cspad(2x2) ndarrays)
 - copy correct SvnProps.py from CalibManager/src/SvnProps.py
-	
+
 2014-04-18 Mikhail S. Dubrovin
 - ALL modules psvn mktxtprop src/*.py
 	- edit all file headers
@@ -302,8 +306,8 @@ Tag: V00-00-15
 
 Tag: V00-00-14
 2014-03-28 Mikhail S. Dubrovin
-- in image_crop.py uncomment self.img2d.setflags(write=False) 
-	
+- in image_crop.py uncomment self.img2d.setflags(write=False)
+
 Tag: V00-00-13
 2014-03-27 Mikhail S. Dubrovin
 - in image_crop.py set self.img2d.setflags(write=False)
@@ -312,18 +316,18 @@ Tag: V00-00-13
 Tag: V00-00-12
 2014-03-26 Mikhail S. Dubrovin
 - add src/FastArrayTransformation.py
-	
+
 Tag: V00-00-11
 2014-03-06 Mikhail S. Dubrovin
 in image_save_in_file.py - cosmetic changes
-	
+
 Tag: V00-00-10
 2013-12-19 Mikhail S. Dubrovin
 in image_save_in_file implicitly convert tiff file to signed int16 tiff
 
 Tag: V00-00-09
 2013-12-18 Mikhail S. Dubrovin
-in image_save_in_file, image_crop.py, and cspad_image_producer add sources for env.fwkName() == "psana" 
+in image_save_in_file, image_crop.py, and cspad_image_producer add sources for env.fwkName() == "psana"
 
 Tag: V00-00-08
 2013-11-13 Mikhail S. Dubrovin
@@ -333,7 +337,7 @@ Tag: V00-00-07
 2013-11-12 Mikhail S. Dubrovin
 - in cspad_arr_producer.py - add/use dictionary of dtypes
 - in src/image_save_in_file.py - save 16-bit tiff file
-	
+
 Tag: V00-00-06
 2013-11-11 Mikhail S. Dubrovin
 - in cspad_arr_producer.py use pyana/psana dependent env.getConfig(...) method
@@ -341,30 +345,30 @@ Tag: V00-00-06
 Tag: V00-00-05
 2013-11-09 Mikhail S. Dubrovin
 - rename package py_img_algos to pyimgalgos
-	
+
 Tag: V00-00-04
 2013-11-06 Mikhail S. Dubrovin
-- cspad_arr_producer.py - commented sections in print 
+- cspad_arr_producer.py - commented sections in print
 	(which are not available in Cspad.ConfigV5)
 - image_save_in_file.py - add experiment in the output file name
 
 Tag: V00-00-03
 2013-10-22 Mikhail S. Dubrovin
 - fix a few minor things in order to make it consistent with description at confluence
-	
+
 Tag: V00-00-02
 2013-10-21 Mikhail S. Dubrovin
 - All modules work in pyana and psana frameworks
 - module src/cspad_arr_producer.py is modified in order to:
-  -- accounts for cspad configuration 
+  -- accounts for cspad configuration
   -- produce array for cspad and cspad2x2 depending on source parameter
 - module src/cspad_image_producer.py is modified in order to:
   -- produce images for cspad and cspad2x2 depending on input array shape
 - module src/image_save_in_file.py is modified in order to:
   -- save image in different formats, specified by the file name extension:
-  -- supported formats: txt, tiff, gif, pdf, eps, png, jpg, jpeg, npy (default), npz	
+  -- supported formats: txt, tiff, gif, pdf, eps, png, jpg, jpeg, npy (default), npz
 A       src/tahometer.py
-	
+
 
 Tag: V00-00-01
 2013-10-18 Mikhail S. Dubrovin
@@ -374,10 +378,10 @@ This package is created by Marcin's request for pyana
 A         src/cspad_arr_producer.py
 A         src/cspad_image_producer.py
 A         src/image_save_in_file.py
-	
+
 - just created this template file, this entry is an example of the change log
   entry
 - keep it brief and easy to read
-- always include author name and date of the change, provide CVS tag when 
+- always include author name and date of the change, provide CVS tag when
   appropriate
 
