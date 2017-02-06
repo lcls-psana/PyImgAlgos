@@ -28,11 +28,15 @@ Usage::
     halfbinw      = hb.halfbinw()      # returns np.array with half-bin widths of size nbins or scalar bin half-width for equal bins
     strrange      = hb.strrange(fmt)   # returns str of formatted vmin, vmax, nbins ex: 1-6-5
 
-    ind     = hb.bin_index(value, edgemode=0)      # returns bin index [0,nbins) for value. 
-    indarr  = hb.bin_indexes(valarr, edgemode=0)   # returns array of bin index [0,nbins) for array of values
+    ind     = hb.bin_index(value, edgemode=0)    # returns bin index [0,nbins) for value. 
+    indarr  = hb.bin_indexes(valarr, edgemode=0) # returns array of bin index [0,nbins) for array of values
+    hisarr  = hb.bin_count(valarr, edgemode=0)   # returns array of bin counts [0,nbins) for array of values (histogram value per bin)
     # edgemode - defines what to do with underflow overflow indexes;
     #          = 0 - use indexes  0 and nbins-1 for underflow overflow, respectively
     #          = 1 - use extended indexes -1 and nbins for underflow overflow, respectively
+
+    hb.set_bin_data(data, dtype=np.float) # adds bin data to the HBins object. data size should be equal to hb.nbins()
+    data = bin_data(dtype=np.float)       # returns numpy array of data associated with HBins object.
 
     # Print methods
     hb.print_attrs_defined()
@@ -286,6 +290,25 @@ class HBins() :
             return np.select(conds, inds, default=indmax)
 
 
+    def bin_count(self, arr) :
+        #indmin, indmax = self._set_limit_indexes(edgemode)
+        edgemode=0
+        indarr = self.bin_indexes(arr.flatten(), edgemode)
+        weights=None
+        return np.bincount(indarr, weights, self.nbins())
+
+
+    def set_bin_data(self, data, dtype=np.float) :
+        if len(data)!=self.nbins() :
+            self._bin_data = None
+            return
+        self._bin_data = np.array(data, dtype)
+
+
+    def bin_data(self, dtype=np.float) :
+        return self._bin_data.astype(dtype)
+        
+
     def strrange(self, fmt='%.0f-%.0f-%d') :
         """Returns string of range parameters"""
         if self._strrange is None :
@@ -346,6 +369,16 @@ def test(o, cmt='') :
     print 'equalbins',     o.equalbins()  
     o.print_attrs_defined()
     print '%s' % (80*'_')
+
+#------------------------------
+
+def test_bin_data(o, cmt='') :
+    print '%s\n%s' % (80*'_', cmt)
+    data = np.arange(o.nbins())
+    o.set_bin_data(data, dtype=np.int)
+    data_ret = o.bin_data(dtype=np.int)
+    print 'data saved    :', data
+    print 'data retrieved:', data_ret
     
 #------------------------------
 
@@ -386,5 +419,7 @@ if __name__ == "__main__" :
     test_bin_indexes(o1, vals, edgemode=1, cmt='Test for EQUAL BINS')
     test_bin_indexes(o2, vals, edgemode=0, cmt='Test for VARIABLE BINS')
     test_bin_indexes(o2, vals, edgemode=1, cmt='Test for VARIABLE BINS')
+
+    test_bin_data(o1, cmt='Test set_bin_data and bin_data methods')
 
 #------------------------------

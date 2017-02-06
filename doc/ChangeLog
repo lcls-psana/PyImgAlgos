@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-77
+2017-02-06 Mikhail S. Dubrovin
+- HBins.py - add methods bin_count, set_bin_data, bin_data
+
 Tag: V00-00-76
 2017-01-18 Mikhail S. Dubrovin
 - FiberIndexing.py - add parameters hmin, kmin, lmin to generate non-symmetric lattice.
