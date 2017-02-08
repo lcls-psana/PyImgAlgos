@@ -146,10 +146,10 @@ def add_ring(arr2d, amp=100, row=4.3, col=5.8, rad=100, sigma=3) :
        sigma : float - width of the peak
     """
     nsigma = 5
-    rmin = max(math.floor(row - rad - nsigma*sigma), 0)
-    cmin = max(math.floor(col - rad - nsigma*sigma), 0)
-    rmax = min(math.floor(row + rad + nsigma*sigma), arr2d.shape[0])
-    cmax = min(math.floor(col + rad + nsigma*sigma), arr2d.shape[1])
+    rmin = max(int(math.floor(row - rad - nsigma*sigma)), 0)
+    cmin = max(int(math.floor(col - rad - nsigma*sigma)), 0)
+    rmax = min(int(math.floor(row + rad + nsigma*sigma)), arr2d.shape[0])
+    cmax = min(int(math.floor(col + rad + nsigma*sigma)), arr2d.shape[1])
     r = np.arange(rmin, rmax, 1, dtype = np.float32) - row
     c = np.arange(cmin, cmax, 1, dtype = np.float32) - col
     CG, RG = np.meshgrid(c, r)

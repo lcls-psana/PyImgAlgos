@@ -248,7 +248,7 @@ class HBins() :
             if v<=self._edges[-1] : return indmax
             
         if self._equalbins :
-            return math.floor((v-self._edges[0])/self.binwidth())
+            return int(math.floor((v-self._edges[0])/self.binwidth()))
 
             
         if self._ascending :
