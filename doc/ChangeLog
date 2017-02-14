@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-79
+2017-02-14 Mikhail S. Dubrovin
+- add app/make-data-binary-file, examples/ex-make-data-hdf5-file.py, Entropy.py
+
 Tag: V00-00-78
 2017-02-07 Mikhail S. Dubrovin
 - continue development in conda
