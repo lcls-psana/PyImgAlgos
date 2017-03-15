@@ -207,7 +207,7 @@ def calc_phi(x1pix, y1pix, x2pix, y2pix, dist) :
     y2 = y2pix / dist	
     d1 = math.sqrt(x1*x1 + y1*y1 + 1.) - 1.
     d2 = math.sqrt(x2*x2 + y2*y2 + 1.) - 1.
-    return math.atan(-(y2*d1 - y1*d2) / (x2*d1 - x1*d2)) 
+    return math.atan((y2*d1 - y1*d2) / (x1*d2 - x2*d1)) 
 
 ##-----------------------------
 
@@ -220,41 +220,8 @@ def calc_beta(xpix, ypix, phi, dist) :
     """	
     x1 = xpix / dist
     y1 = ypix / dist
-    fac = 1. - math.sqrt(x1*x1 + y1*y1 + 1.)
-    return -math.atan((y1*math.cos(phi) + x1*math.sin(phi)) / fac)
-
-##-----------------------------
-# DEPRICATED DUE TO UPDATED FORMALISM
-def funcy_v0(x, phi_deg, bet_deg) :
-    """Function for parameterization of y(x, phi, beta)
-       of peaks in mediane plane for fiber diffraction
-       ATTENTION!: curve_fit assumes that x and returned y are numpy arrays.
-    """
-    phi, bet = math.radians(phi_deg), math.radians(bet_deg)
-    sb, cb = math.sin(bet), math.cos(bet)
-    t = sb/cb if cb else None
-    s, c  = math.sin(phi), math.cos(phi)
-    D = c*c - t*t
-    if D==0 :
-        print 'WARNING in funcy: D=0'
-        D = 1e-10
-
-    B = c*(x*s+t)/D
-    C = (2*t*x*s + x*x*(s-t)*(s+t))/D
-    sqarg = B*B-C
-    #if sqarg<0 :
-    #    print 'WARNING in funcy: solution of eqn does not exist because of sqarg<0 :', sqarg
-
-    sqapro = np.select([sqarg>=0,], [sqarg,], default=0)
-    sign = 1 if bet>0 else -1
-    return -B + sign*np.sqrt(sqapro)
-
-##-----------------------------
-
-def funcy(x, phi_deg, bet_deg) :
-    """DEPRICATED alias for funcy_l0(x, phi, beta)
-    """
-    return funcy_l0(x, phi_deg, bet_deg)
+    d = math.sqrt(1. + x1*x1 + y1*y1) - 1.
+    return math.atan((y1*math.cos(phi) + x1*math.sin(phi)) / d)
 
 ##-----------------------------
 
@@ -286,8 +253,13 @@ def funcy_l0(x, phi_deg, bet_deg) :
             if v<0 : print 'WARNING in funcy_l0: solution does not exist because of sqarg<0 :', sqarg
 
     sqapro = np.select([sqarg>0,], [sqarg,], default=0)
-    #sign = 1 if bet>0 else -1
     return -B + np.sign(B)*np.sqrt(sqapro)
+
+##-----------------------------
+
+# DEPRICATED methods alias for funcy_l0(x, phi, beta)
+funcy_v0 = funcy_l0
+funcy = funcy_l0
 
 ##-----------------------------
 

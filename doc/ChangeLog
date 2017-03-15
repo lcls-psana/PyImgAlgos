@@ -12,6 +12,10 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V00-00-80
+2017-03-15 Mikhail S. Dubrovin
+- FiberAngles.py - cleanup code
+
 Tag: V00-00-79
 2017-02-14 Mikhail S. Dubrovin
 - add app/make-data-binary-file, examples/ex-make-data-hdf5-file.py, Entropy.py
