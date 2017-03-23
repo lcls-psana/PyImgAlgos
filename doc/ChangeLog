@@ -12,6 +12,16 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+Tag: V01-00-01
+- switch to github
+- fix matplotlib problem with move method
+- fix numpy indexes (float->int)
+- TDPeakRecord add parameter egamma
+- modified: src/FiberAngles.py, src/GlobalGraphics.py, src/Graphics.py, src/TDPeakRecord.py
+- add src/Quaternion.py
+
+2017-03-15 Mikhail S. Dubrovin
+
 Tag: V00-00-80
 2017-03-15 Mikhail S. Dubrovin
 - FiberAngles.py - cleanup code

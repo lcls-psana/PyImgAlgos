@@ -134,7 +134,7 @@ def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
     s3rot = s2 * sinbeta + s3 * cosbeta
 
     s12rot = np.sqrt(np.square(s1rot) + np.square(s2rot))
-    s12rot[:,1:math.floor(sizex-xc)] *= -1
+    s12rot[:,1:int(math.floor(sizex-xc))] *= -1
 
     s12rot = np.ceil(s12rot * scale) # old factor: math.floor(sizex-xc))
     s3rot  = np.ceil(s3rot  * scale) # old factor: math.floor(sizey-yc))

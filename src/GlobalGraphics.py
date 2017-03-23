@@ -127,8 +127,9 @@ def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0, lw=2) :
     for rec in peaks :
         s, r, c, amax, atot, npix = rec[0:6]
         if pbits & 1 : print 's, r, c, amax, atot, npix=', s, r, c, amax, atot, npix
-        x=iX[int(s),int(r),int(c)]
-        y=iY[int(s),int(r),int(c)]
+        inds = (int(s),int(r),int(c))
+        x=iX[inds]
+        y=iY[inds]
         if pbits & 2 : print ' x,y=',x,y        
         xyc = (y,x)
         r0  = 2+6*atot/anorm
@@ -318,18 +319,19 @@ def save_fig(fig, fname='img.png', do_save=True, pbits=0377) :
 #--------------------------------
 
 def move(x0=200,y0=100) :
-    plt.get_current_fig_manager().window.geometry('+%d+%d' % (x0, y0))
+    plt.get_current_fig_manager().window.move(x0, y0)
 
 #--------------------------------
 
 def move_fig(fig, x0=200, y0=100) :
-    fig.canvas.manager.window.geometry('+%d+%d' % (x0, y0))
+    fig.canvas.manager.window.move(x0, y0)
 
 #--------------------------------
 
 def show(mode=None) :
     if mode is None : plt.ioff() # hold contraol at show() (connect to keyboard for controllable re-drawing)
     else            : plt.ion()  # do not hold control
+    plt.pause(0.0001) # hack to make it work... othervise show() does not work...
     plt.show()
 
 #----------------------------------------------

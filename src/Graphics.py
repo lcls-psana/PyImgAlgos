@@ -38,12 +38,14 @@ def figure(figsize=(13,12), title='Image', dpi=80, facecolor='w', edgecolor='w',
 #------------------------------
 
 def move_fig(fig, x0=200, y0=100) :
-    fig.canvas.manager.window.geometry('+%d+%d' % (x0, y0))
+    fig.canvas.manager.window.move(x0, y0)
+    #fig.canvas.manager.window.geometry('+%d+%d' % (x0, y0)) # in previous version of matplotlib
 
 #------------------------------
 
 def move(x0=200,y0=100) :
-    plt.get_current_fig_manager().window.geometry('+%d+%d' % (x0, y0))
+    plt.get_current_fig_manager().window.move(x0, y0)
+    #plt.get_current_fig_manager().window.geometry('+%d+%d' % (x0, y0))
 
 #------------------------------
 
@@ -67,8 +69,10 @@ def add_title_labels_to_axes(axes, title=None, xlabel=None, ylabel=None, fslab=1
 #------------------------------
 
 def show(mode=None) :
+    plt.hold(True)
     if mode is None : plt.ioff() # hold contraol at show() (connect to keyboard for controllable re-drawing)
     else            : plt.ion()  # do not hold control
+    plt.pause(0.001) # hack to make it work... othervise show() does not work...
     plt.show()
 
 #------------------------------
@@ -187,10 +191,9 @@ def test03() :
     mu, sigma = 200, 25
     fig = figure(figsize=(6,5), title='Test hist', dpi=80, facecolor='w', edgecolor='w', frameon=True, move=(100,10))
     axim = add_axes(fig, axwin=(0.10, 0.08, 0.85, 0.88))
-
     imsh = None
-
-    for i in range(100) :
+    for i in range(10) :
+       print 'Event %3d' % i
        img = random_standard((1000,1000), mu, sigma)
        #axim.cla()
        set_win_title(fig, 'Event %d' % i)
@@ -201,9 +204,9 @@ def test03() :
                   orientation='horizontal', cmap='jet') 
        else :
            imsh.set_data(img)
-
        show(mode=1)  # !!!!!!!!!!       
-       draw_fig(fig) # !!!!!!!!!!
+       #draw_fig(fig) # !!!!!!!!!!
+
     show()
 
 #------------------------------
@@ -218,13 +221,14 @@ def test04() :
     axhi = add_axes(fig, axwin=(0.10, 0.08, 0.85, 0.88))
 
     for i in range(10) :
+       print 'Event %3d' % i
        arr = random_standard((500,), mu, sigma)
        axhi.cla()
        set_win_title(fig, 'Event %d' % i)
        his = hist(axhi, arr, bins=100, amp_range=(mu-6*sigma,mu+6*sigma), weights=None, color=None, log=False)
 
-       draw(fig)    # !!!!!!!!!!
        show(mode=1) # !!!!!!!!!!
+       #draw(fig)    # !!!!!!!!!!
     show()
 
 #------------------------------
@@ -234,19 +238,20 @@ def test04() :
 
 def test_selected() :
 
-    import sys
+    import sys; global sys
 
     if len(sys.argv)==1   :
         print 'Use command > python %s <test-number [1-5]>' % sys.argv[0]
         sys.exit ('Add <test-number> in command line...')
 
-    elif sys.argv[1]=='1' : test01()
-    elif sys.argv[1]=='2' : test02()
-    elif sys.argv[1]=='3' : test03()
-    elif sys.argv[1]=='4' : test04()
-    else :
-        print 'Non-expected arguments: sys.argv=', sys.argv
-        sys.exit ('Check input parameters')
+    tname = sys.argv[1] if len(sys.argv) > 1 else '1'
+    print 50*'_', '\nTest %s' % tname
+    if   tname == '1': test01()
+    elif tname == '2': test02()
+    elif tname == '3': test03()
+    elif tname == '4': test04()
+    else : sys.exit('Test %s is not implemented' % tname)
+    sys.exit('End of Test %s' % tname)
 
 #------------------------------
 
