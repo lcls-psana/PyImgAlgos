@@ -192,20 +192,20 @@ def rotation(X, Y, angle_deg) :
 
 #------------------------------
 
-def radial_distance(X, Y, Z, evald_rad=0.5) :
+def q_components(X, Y, Z, evald_rad=0.5) :
     """For all defined nodes of the lattice returns
        dr - distance from evald sphere to the reciprocal lattice node,
        qv, qh - vertical, horizontal components of the momentum transfer vector.
-       NOTE: X, Y, Z, DX, L, dr, qv, qh, ql are the numpy arrays with shape=(2*hmax+1, 2*kmax+1, 2*lmax+1), evald_rad is a scalar
+       NOTE: X, Y, Z, DX, L, dr, qv, qh, ql, qy, ql are the numpy arrays with shape=(2*hmax+1, 2*kmax+1, 2*lmax+1), evald_rad is a scalar
     """
     DX = X + evald_rad
     L  = np.sqrt(DX*DX + Y*Y + Z*Z)
     dr = L - evald_rad
     qv = evald_rad * Z/L
     ql = evald_rad * (DX/L-1)
-    qy = evald_rad * Y/L
-    qh = np.sqrt(ql*ql + qy*qy) * np.select([Y<0], [-1], default=1) 
-    return dr, qv, qh
+    qt = evald_rad * Y/L
+    qh = np.sqrt(ql*ql + qt*qt) * np.select([Y<0], [-1], default=1) 
+    return dr, qv, qh, qt, ql
 
 #------------------------------
 
@@ -244,26 +244,26 @@ def print_omega_dr(omega_deg, dr, drmax=1) :
     
 #------------------------------
 
-def str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_ql) :
+def str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, qt, ql, h, k, l, sigma_ql) :
     """ Returns the record to save in look-up table or print.
     """
     drmax = 3 * sigma_ql
     factor = -1./(2*sigma_ql*sigma_ql)
     
     lst_drhkl = [e for e in zip(dr.flatten(), h.flatten(), k.flatten(), l.flatten(),\
-                                r.flatten(), qv.flatten(), qh.flatten()) if math.fabs(e[0])<drmax]       
+                                r.flatten(), qv.flatten(), qh.flatten(), qt.flatten(), ql.flatten()) if math.fabs(e[0])<drmax]       
     s = ''
 
     if len(lst_drhkl) > 1:  #because lst_drhkl always has a record (0.0, 0, 0, 0, 0.0, 0.0, 0.0)
         s = '# beta %.2f  omega %.2f degree' % (beta_deg, omega_deg)\
-          + '\n# index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]  P(omega)'
+          + '\n# index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]   qt[1/A]   ql[1/A]   P(omega)'
         for e in lst_drhkl :
             if e[1]==0 and e[2]==0 and e[3]==0 : continue
             d = math.fabs(e[0])
             if sigma_ql and d > drmax : continue
             prob = math.exp(factor*d*d)
-            s += '\n%6d  %7.2f %7.2f %3d %3d %3d %9.6f %9.6f %9.6f %9.6f %9.6f' %\
-                  (ind, beta_deg, omega_deg, e[1], e[2], e[3], e[0], e[4], e[5], e[6], prob)
+            s += '\n%6d  %7.2f %7.2f %3d %3d %3d %9.6f %9.6f %9.6f %9.6f %9.6f %9.6f  %9.6f' %\
+                  (ind, beta_deg, omega_deg, e[1], e[2], e[3], e[0], e[4], e[5], e[6], e[7], e[8], prob)
         return '%s\n\n' % s
     else : return '# beta %.2f  omega %.2f degree EMPTY\n' % (beta_deg, omega_deg)
     
@@ -322,13 +322,13 @@ def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
        beta  [deg] - fiber axis tilt,  
        omega [deg] - fiber rotation around axis,  
        For each crysal orientation (beta, gamma) lookup table contains info about lattice nodes
-       closest to the Evald's sphere::
+       closest to the Evald's sphere:
 
-           # beta 20.00  omega 178.50 degree
-           # index   beta     omega   h  k  l     dr [1/A]   R(h,k,l)   qv [1/A]   qh [1/A]   P(omega)
-             1078    20.00   178.50   1 -5  0     0.000262   0.211944  -0.016779   0.211221   0.964192
-             1078    20.00   178.50   0 -1  0     0.002470   0.038484   0.000343   0.038306   0.038686
-             1078    20.00   178.50   0  1  0     0.000582   0.038484  -0.000344  -0.038455   0.834544
+       # beta 0.00  omega 52.50 degree
+       # index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]   qt[1/A]   ql[1/A]   P(omega)
+          106     0.00   52.50  -2  -1   0 -0.002756  0.123157  0.000000 -0.123478 -0.122470 -0.015745   0.165321
+          106     0.00   52.50   1   1   0 -0.000249  0.072533  0.000000  0.072551  0.072347 -0.005436   0.985422
+          106     0.00   52.50   3   5   0  0.000687  0.273564  0.000000  0.273369  0.262250 -0.077171   0.894200
 
        where:
        index - orientation index (just an unique integer number)
@@ -337,6 +337,7 @@ def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
        dr [1/A] - distance between lattice node and Evald's sphere
        R(h,k,l) [1/A] - distance between nodes (h,k,l) and (0,0,0)
        qv, qh [1/A] - vertical and horizontal components of scattering vector q
+       qt, ql [1/A] - transverse (in horizontal plane) and longitudinal components of vector q
        P(omega) - un-normalized probability (<1) evaluated for dr(omega) using sigma_ql.
 
        File name is generated automatically with current time stamp like
@@ -371,9 +372,9 @@ def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
             xrot1, yrot1 = rotation(x, y, omega_deg)
             xrot2, zrot2 = rotation(xrot1, z, beta_deg)
         
-            dr, qv, qh = radial_distance(xrot2, yrot1, zrot2, evald_rad)
+            dr, qv, qh, qt, ql = q_components(xrot2, yrot1, zrot2, evald_rad)
         
-            txt = str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, h, k, l, sigma_ql)
+            txt = str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, qt, ql, h, k, l, sigma_ql)
             print txt,
             if fout is not None : fout.write(txt)
         
@@ -490,7 +491,7 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 
         xrot1, yrot1 = rotation(x, y, omega_deg)
         xrot2, zrot2 = rotation(xrot1, z, beta_deg)        
-        dr, qv, qh = radial_distance(xrot2, yrot1, zrot2, evald_rad)
+        dr, qv, qh, qt, ql = q_components(xrot2, yrot1, zrot2, evald_rad)
 
         xhit = [xr for dq,xr in zip(dr.flatten(), xrot2.flatten()) if math.fabs(dq)<qtol]
         yhit = [yr for dq,yr in zip(dr.flatten(), yrot1.flatten()) if math.fabs(dq)<qtol]

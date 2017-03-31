@@ -12,15 +12,23 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+
+Tag: V01-00-02
+2017-03-31 Mikhail S. Dubrovin
+- FiberIndexing: add qt, ql to saved lookup table
+	- radial_distance renamed to q_components and in addition returns qt, ql
+	- str_omega_drhkl - adds qt, ql to string
+- TDNodeRecord - accounts for qt, ql (also accepts old format)
+- Quaternion - add a few new methods
+
 Tag: V01-00-01
+2017-03-23 Mikhail S. Dubrovin
 - switch to github
 - fix matplotlib problem with move method
 - fix numpy indexes (float->int)
 - TDPeakRecord add parameter egamma
 - modified: src/FiberAngles.py, src/GlobalGraphics.py, src/Graphics.py, src/TDPeakRecord.py
 - add src/Quaternion.py
-
-2017-03-15 Mikhail S. Dubrovin
 
 Tag: V00-00-80
 2017-03-15 Mikhail S. Dubrovin

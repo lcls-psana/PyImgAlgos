@@ -2,8 +2,22 @@
 #------------------------------
 
 import numpy as np
-from math import sqrt
+from math import sqrt, sin, cos, radians, degrees, fabs, atan2
 
+ZERO_TOLERANCE = 1e-6
+
+#------------------------------
+
+def sin_cos(angle_deg) :
+    """Returns sin and cos of angle_deg
+    """
+    angle_rad = radians(angle_deg)
+    s, c = sin(angle_rad), cos(angle_rad)
+    if fabs(s) < ZERO_TOLERANCE : s = 0
+    if fabs(c) < ZERO_TOLERANCE : c = 0
+    return s, c
+
+#------------------------------
 #------------------------------
 
 class Quaternion :
@@ -13,8 +27,9 @@ class Quaternion :
         self.y = y
         self.z = z
 
-    def print_q(self) :
-        print 'Quaternion w, x, y, z: %.3f  %.3f  %.3f  %.3f' % (self.w, self.x, self.y, self.z)
+    def print_obj(self, cmt='Quaternion:', fmt='%7.3f') :
+        pfmt = '%s w, x, y, z:  %s  %s  %s  %s' % (cmt, fmt, fmt, fmt, fmt)
+        print pfmt % (self.w, self.x, self.y, self.z)
 
 #------------------------------
 
@@ -24,26 +39,93 @@ class Vector :
         self.v = self.y = y
         self.w = self.z = z
 
-    def print_v(self) :
-        print 'Vector: %.3f  %.3f  %.3f' % (self.u, self.v, self.w)
+    def print_obj(self, cmt='Vector:', fmt='%6.3f') :
+        pfmt = '%s %s  %s  %s' % (cmt, fmt, fmt, fmt)
+        print pfmt % (self.u, self.v, self.w)
 
 #------------------------------
 
 class Matrix :
-    def __init__(self, m00=1, m01=0, n02=0,\
-                       m10=0, m11=1, n12=0,\
-                       m20=0, m21=0, n22=1) :
-        self.m00, self.m01, self.n02 = m00, m01, n02
-        self.m10, self.m11, self.n12 = m10, m11, n12
-        self.m20, self.m21, self.n22 = m20, m21, n22
+    def __init__(self, m00=1, m01=0, m02=0,\
+                       m10=0, m11=1, m12=0,\
+                       m20=0, m21=0, m22=1) :
+        self.m00, self.m01, self.m02 = m00, m01, m02
+        self.m10, self.m11, self.m12 = m10, m11, m12
+        self.m20, self.m21, self.m22 = m20, m21, m22
 
-    def print_m(self) :
-        print 'Matrix:\n   %.3f  %.3f  %.3f\n   %.3f  %.3f  %.3f\n   %.3f  %.3f  %.3f'%\
-                 (self.m00, self.m01, self.n02,\
-                  self.m10, self.m11, self.n12,\
-                  self.m20, self.m21, self.n22)
+    def print_obj(self, cmt='Matrix:', fmt='%6.3f') :
+        pfmt = '%s\n  %s  %s  %s\n  %s  %s  %s\n  %s  %s  %s'%\
+               (cmt, fmt, fmt, fmt, fmt, fmt, fmt, fmt, fmt, fmt)
+        print pfmt %\
+                 (self.m00, self.m01, self.m02,\
+                  self.m10, self.m11, self.m12,\
+                  self.m20, self.m21, self.m22)
+
+    def product(self, A, B) :
+        self.m00 = A.m00*B.m00 + A.m01*B.m10 + A.m02*B.m20
+        self.m01 = A.m00*B.m01 + A.m01*B.m11 + A.m02*B.m21
+        self.m02 = A.m00*B.m02 + A.m01*B.m12 + A.m02*B.m22
+
+        self.m10 = A.m10*B.m00 + A.m11*B.m10 + A.m12*B.m20
+        self.m11 = A.m10*B.m01 + A.m11*B.m11 + A.m12*B.m21
+        self.m12 = A.m10*B.m02 + A.m11*B.m12 + A.m12*B.m22
+
+        self.m20 = A.m20*B.m00 + A.m21*B.m10 + A.m22*B.m20
+        self.m21 = A.m20*B.m01 + A.m21*B.m11 + A.m22*B.m21
+        self.m22 = A.m20*B.m02 + A.m21*B.m12 + A.m22*B.m22
+
+    def as_list(self) :
+        return [[self.m00, self.m01, self.m02],\
+                [self.m10, self.m11, self.m12],\
+                [self.m20, self.m21, self.m22]]
+
+    def np_matrix(self, dtype=np.double) :
+        return np.matrix(as_list, dtype, copy=True)
+
+    def set_from_np_matrix(self, npm) :
+        self.m00, self.m01, self.m02 = npm[0,0], npm[0,1], npm[0,2]
+        self.m10, self.m11, self.m12 = npm[1,0], npm[1,1], npm[1,2]
+        self.m20, self.m21, self.m22 = npm[2,0], npm[2,1], npm[2,2]
+
+    def rotation_matrix_x(self, angle_deg) :
+        s,c = sin_cos(angle_deg)
+        self.m00, self.m01, self.m02 = 1, 0, 0
+        self.m10, self.m11, self.m12 = 0, c,-s
+        self.m20, self.m21, self.m22 = 0, s, c
+
+    def rotation_matrix_y(self, angle_deg) :
+        s,c = sin_cos(angle_deg)
+        self.m00, self.m01, self.m02 = c, 0, s
+        self.m10, self.m11, self.m12 = 0, 1, 0
+        self.m20, self.m21, self.m22 =-s, 0, c
+
+    def rotation_matrix_z(self, angle_deg) :
+        s,c = sin_cos(angle_deg)
+        self.m00, self.m01, self.m02 = c,-s, 0
+        self.m10, self.m11, self.m12 = s, c, 0
+        self.m20, self.m21, self.m22 = 0, 0, 1
+
+    def rotation_matrix(self, alpha, beta, gamma) :
+        rotx = Matrix()
+        roty = Matrix()
+        rotz = Matrix()
+        rotzy= Matrix()
+        rotx.rotation_matrix_x(gamma)
+        roty.rotation_matrix_y(beta)
+        rotz.rotation_matrix_z(alpha)        
+        rotzy.product(rotz, roty)
+        #rotx.print_obj('X-rotation matrix:')
+        #roty.print_obj('Y-rotation matrix:')
+        #rotz.print_obj('Z-rotation matrix:')
+        #rotzy.print_obj('ZY-rotation matrix:')
+        self.product(rotzy, rotx)
 
 
+    def get_angles(self) :
+        ang_x = atan2(self.m21, self.m22)
+        ang_y = atan2(-self.m20, sqrt(self.m21*self.m21 + self.m22*self.m22))
+        ang_z = atan2(self.m10, self.m00)
+        return degrees(ang_x), degrees(ang_y), degrees(ang_z)
 
 #------------------------------
 
@@ -106,7 +188,6 @@ def quat_rot(v, q) :
                                                      
        Returns: rotated vector vrot            
     """
-
     t01 = q.w*q.x
     t02 = q.w*q.y
     t03 = q.w*q.z
@@ -133,39 +214,56 @@ def quat_rot(v, q) :
 
 #------------------------------
 
+def rotmatrix_from_quaternion(q) :
+    """q - quaternion                             
+                                                     
+       Evaluates rotation matrix from quaternion.   
+                                                     
+       Returns: rotation matrix as an object Matrix            
+    """
+    t01 = q.w*q.x
+    t02 = q.w*q.y
+    t03 = q.w*q.z
+    t11 = q.x*q.x
+    t12 = q.x*q.y
+    t13 = q.x*q.z
+    t22 = q.y*q.y
+    t23 = q.y*q.z
+    t33 = q.z*q.z
+    return Matrix(1 - 2*(t22 + t33),     2*(t12 - t03),     2*(t13 + t02),\
+                      2*(t12 + t03), 1 - 2*(t11 + t33),     2*(t23 - t01),\
+                      2*(t13 - t02),     2*(t23 + t01), 1 - 2*(t11 + t22))
+
+    # Matrix from Thomas White
+    #return Matrix(1 - 2*(t22 + t33),     2*(t12 + t03),     2*(t13 - t02),\
+    #                  2*(t12 - t03), 1 - 2*(t11 + t33),     2*(t01 + t23),\
+    #                  2*(t02 + t13),     2*(t23 - t01), 1 - 2*(t11 + t22))
+
+#------------------------------
+
 def quaternion_from_rotmatrix(m) :
     """m - 3-d rotation matrix, class Matrix 
 
        Evaluates quaternion from rotation matrix.
-       Implemented as in
-       https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2015/01/matrix-to-quat.pdf
-       http://www.desy.de/~twhite/crystfel/reference/CrystFEL-Quaternion.html
+       Implemented as
+       https://en.wikipedia.org/wiki/Rotation_matrix
 
-       Returns: 1 normalised quaternion.
+       Returns: normalised quaternion.
     """
-    t, q = Nome, None
+    Qxx, Qxy, Qxz = m.m00, m.m01, m.m02
+    Qyx, Qyy, Qyz = m.m10, m.m11, m.m12
+    Qzx, Qzy, Qzz = m.m20, m.m21, m.m22
 
-    if m.m22 < 0 :
-        if m.m00 > m.m11 : 
-            t = 1 + m.m00 - m.m11 - m.m22
-            q = Quaternion(t, m.m01+m.m10, m.m20+m.m02, m.m12-m.m21)
-    
-        else : 
-            t = 1 - m.m00 + m.m11 - m.m22
-            q = Quaternion(m.m01+m.m10, t, m.m12+m.m21, m.m20-m.m02)
-    
-    else:
-        if m.m00 < -m.m11:
-            t = 1 - m.m00 - m.m11 + m.m22
-            q = Quaternion(m.m20+m.m02, m.m12+m.m21, t, m.m01-m.m10)
-    
-        else:
-            t = 1 + m.m00 + m.m11 + m.m22
-            q = Quaternion(m.m12-m.m21, m.m20-m.m02, m.m01-m.m10, t)
-    
-    #q *= 0.5 / sqrt(t)
-    q = normalise_quaternion(q)
-    return q
+    t = Qxx+Qyy+Qzz
+    r = sqrt(1+t)
+    if fabs(r)<ZERO_TOLERANCE : r = ZERO_TOLERANCE
+    s = 0.5/r
+    w = 0.5*r
+    x = (Qzy-Qyz)*s
+    y = (Qxz-Qzx)*s
+    z = (Qyx-Qxy)*s
+
+    return Quaternion(w,x,y,z)
 
 #------------------------------
 #------------------------------
@@ -178,15 +276,76 @@ def test_quaternion(tname) :
     v1 = Vector(1,0,0)
     v2 = Vector(0,1,0)
     v3 = Vector(0,0,1)
-    v1.print_v()
-    v2.print_v()
-    v3.print_v()
+    v1.print_obj()
+    v2.print_obj()
+    v3.print_obj()
 
     q1 = Quaternion()
-    q1.print_q()
+    q1.print_obj()
 
     m1 = Matrix()
-    m1.print_m()
+    m1.print_obj()
+
+#------------------------------
+
+def test_rotation_matrix(tname) :
+    alpha, beta, gamma = 5, 5, 5 # angles degree
+    m = Matrix()
+    m.rotation_matrix(alpha, beta, gamma)
+    m.print_obj('R3-rotation matrix:')
+
+#------------------------------
+
+def test_quaternion_from_rotation_matrix(tname) :
+    #alpha, beta, gamma = 5, 5, 5 # angles degree
+    ax, ay, az =0, 90, 90 # angles degree
+
+    vfmt = '%9.6f'
+
+    print 'Inpurt angles around x,y,z:  %.2f  %.2f  %.2f' % (ax, ay, az)
+    m = Matrix()
+    m.rotation_matrix(az, ay, ax)
+    m.print_obj('R3-rotation matrix:', fmt=vfmt)
+    q = quaternion_from_rotmatrix(m)
+    q.print_obj('Associated with matrix quaternion:', fmt=vfmt)
+    mq = rotmatrix_from_quaternion(q)
+    mq.print_obj('R3-rotation matrix back from quaternion:', fmt=vfmt)
+    axo, ayo, azo = mq.get_angles()
+    print 'Output angles around x,y,z:  %.2f  %.2f  %.2f' % (axo, ayo, azo)
+
+#------------------------------
+
+def record_for_angles(ax, ay, az) :
+    print 'Angles around x,y,z:  %6.1f  %6.1f  %6.1f' % (ax, ay, az),
+    m = Matrix()
+    m.rotation_matrix(az, ay, ax)
+    q = quaternion_from_rotmatrix(m)
+    q.print_obj('  quaternion:', fmt='%9.6f')
+
+
+def test_quaternion_table(tname) :
+    ax, ay, az = 0, 0, 0
+    for ax in range(0, -180, -30) :
+        record_for_angles(ax, ay, az)
+
+    ax, ay, az = 0, 0, 0
+    for ay in range(0, 180, 30) :
+        record_for_angles(ax, ay, az)
+
+    ax, ay, az = 0, 0, 0
+    for az in range(0, 180, 30) :
+        record_for_angles(ax, ay, az)
+
+#------------------------------
+
+def test_quaternion_table_crystal(tname) :
+    ax, ay, az = 90, 0, 0
+    #ax, ay, az = 102, 0, 0
+    #ax, ay, az = 90, 10, 0
+    #ax, ay, az = 108, 3.5, 0
+    #for az in range(0, 180, 30) :
+    for az in range(0, 180, 1) :
+        record_for_angles(ax, ay, az)
 
 #------------------------------
 
@@ -195,7 +354,12 @@ if __name__ == "__main__" :
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
     print 50*'_', '\nTest %s:' % tname
 
-    test_quaternion(tname)
+    if   tname == '0' : test_quaternion(tname)
+    elif tname == '1' : test_rotation_matrix(tname)
+    elif tname == '2' : test_quaternion_from_rotation_matrix(tname)
+    elif tname == '3' : test_quaternion_table(tname)
+    elif tname == '4' : test_quaternion_table_crystal(tname)
+    else : sys.exit('Test %s is undefined' % tname)
 
     sys.exit('End of test %s' % tname)
 
