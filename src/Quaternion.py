@@ -27,9 +27,12 @@ class Quaternion :
         self.y = y
         self.z = z
 
-    def print_obj(self, cmt='Quaternion:', fmt='%7.3f') :
-        pfmt = '%s w, x, y, z:  %s  %s  %s  %s' % (cmt, fmt, fmt, fmt, fmt)
-        print pfmt % (self.w, self.x, self.y, self.z)
+    def str_obj(self, cmt='Quaternion w,x,y,z: ', fmt='%7.3f') :
+        pfmt = '%s%s  %s  %s  %s' % (cmt, fmt, fmt, fmt, fmt)
+        return pfmt % (self.w, self.x, self.y, self.z)
+
+    def print_obj(self, cmt='Quaternion w,x,y,z: ', fmt='%7.3f') :
+        print self.str_obj(cmt, fmt)
 
 #------------------------------
 
@@ -39,9 +42,12 @@ class Vector :
         self.v = self.y = y
         self.w = self.z = z
 
-    def print_obj(self, cmt='Vector:', fmt='%6.3f') :
-        pfmt = '%s %s  %s  %s' % (cmt, fmt, fmt, fmt)
-        print pfmt % (self.u, self.v, self.w)
+    def str_obj(self, cmt='Vector: ', fmt='%6.3f') :
+        pfmt = '%s%s  %s  %s' % (cmt, fmt, fmt, fmt)
+        return pfmt % (self.u, self.v, self.w)
+
+    def print_obj(self, cmt='Vector: ', fmt='%6.3f') :
+        print self.str_obj(cmt, fmt)
 
 #------------------------------
 
@@ -53,13 +59,16 @@ class Matrix :
         self.m10, self.m11, self.m12 = m10, m11, m12
         self.m20, self.m21, self.m22 = m20, m21, m22
 
-    def print_obj(self, cmt='Matrix:', fmt='%6.3f') :
-        pfmt = '%s\n  %s  %s  %s\n  %s  %s  %s\n  %s  %s  %s'%\
+    def str_obj(self, cmt='Matrix:\n', fmt='%6.3f') :
+        pfmt = '%s%s  %s  %s\n%s  %s  %s\n%s  %s  %s'%\
                (cmt, fmt, fmt, fmt, fmt, fmt, fmt, fmt, fmt, fmt)
-        print pfmt %\
+        return pfmt %\
                  (self.m00, self.m01, self.m02,\
                   self.m10, self.m11, self.m12,\
                   self.m20, self.m21, self.m22)
+
+    def print_obj(self, cmt='Matrix:\n', fmt='%6.3f') :
+        print self.str_obj(cmt, fmt)
 
     def product(self, A, B) :
         self.m00 = A.m00*B.m00 + A.m01*B.m10 + A.m02*B.m20
@@ -266,6 +275,28 @@ def quaternion_from_rotmatrix(m) :
     return Quaternion(w,x,y,z)
 
 #------------------------------
+
+def quaternion_for_angles(ax, ay, az) :
+    """Returns: quaternion for three input rotation angles [deg].
+    """
+    #print 'Angles around x,y,z:  %6.1f  %6.1f  %6.1f' % (ax, ay, az)
+    m = Matrix()
+    m.rotation_matrix(az, ay, ax)
+    return quaternion_from_rotmatrix(m)
+
+#------------------------------
+
+def record_for_angles(ax, ay, az) :
+    """Prints string like:
+       Angles around x,y,z:    72.0    -3.5   176.4   quaternion: w,x,y,z:   0.007459   0.043148   0.586445   0.808804
+    """
+    print 'Angles around x,y,z:  %6.1f  %6.1f  %6.1f' % (ax, ay, az),
+    m = Matrix()
+    m.rotation_matrix(az, ay, ax)
+    q = quaternion_from_rotmatrix(m)
+    q.print_obj('  quaternion:', fmt='%9.6f')
+
+#------------------------------
 #------------------------------
 #-----------  TEST  -----------
 #------------------------------
@@ -292,7 +323,7 @@ def test_rotation_matrix(tname) :
     alpha, beta, gamma = 5, 5, 5 # angles degree
     m = Matrix()
     m.rotation_matrix(alpha, beta, gamma)
-    m.print_obj('R3-rotation matrix:')
+    m.print_obj('R3-rotation matrix:\n')
 
 #------------------------------
 
@@ -305,23 +336,15 @@ def test_quaternion_from_rotation_matrix(tname) :
     print 'Inpurt angles around x,y,z:  %.2f  %.2f  %.2f' % (ax, ay, az)
     m = Matrix()
     m.rotation_matrix(az, ay, ax)
-    m.print_obj('R3-rotation matrix:', fmt=vfmt)
+    m.print_obj('R3-rotation matrix:\n', fmt=vfmt)
     q = quaternion_from_rotmatrix(m)
-    q.print_obj('Associated with matrix quaternion:', fmt=vfmt)
+    q.print_obj('Associated with matrix quaternion:\n', fmt=vfmt)
     mq = rotmatrix_from_quaternion(q)
-    mq.print_obj('R3-rotation matrix back from quaternion:', fmt=vfmt)
+    mq.print_obj('R3-rotation matrix back from quaternion:\n', fmt=vfmt)
     axo, ayo, azo = mq.get_angles()
     print 'Output angles around x,y,z:  %.2f  %.2f  %.2f' % (axo, ayo, azo)
 
 #------------------------------
-
-def record_for_angles(ax, ay, az) :
-    print 'Angles around x,y,z:  %6.1f  %6.1f  %6.1f' % (ax, ay, az),
-    m = Matrix()
-    m.rotation_matrix(az, ay, ax)
-    q = quaternion_from_rotmatrix(m)
-    q.print_obj('  quaternion:', fmt='%9.6f')
-
 
 def test_quaternion_table(tname) :
     ax, ay, az = 0, 0, 0
@@ -339,7 +362,11 @@ def test_quaternion_table(tname) :
 #------------------------------
 
 def test_quaternion_table_crystal(tname) :
-    ax, ay, az = 90, 0, 0
+    #ax, ay, az = 90, 0, 0
+    ax, ay, az = 90, -10, 0
+    #ax, ay, az = 90, -3.5, 0
+    #ax, ay, az = 72, -3.5, 0
+    #ax, ay, az = 108, 3.5, 0
     #ax, ay, az = 102, 0, 0
     #ax, ay, az = 90, 10, 0
     #ax, ay, az = 108, 3.5, 0

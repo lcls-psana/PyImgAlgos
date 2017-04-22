@@ -460,6 +460,37 @@ def create_directory(dir) :
         print 'Directory created: %s' % dir
 
 #------------------------------
+
+def print_command_line_parameters(parser) :
+    """Prints input arguments and optional parameters"""
+    (popts, pargs) = parser.parse_args()
+    args = pargs                             # list of positional arguments
+    opts = vars(popts)                       # dict of options
+    defs = vars(parser.get_default_values()) # dict of default options
+
+    print 'Command:\n ', ' '.join(sys.argv)+\
+          '\nArgument list: %s\nOptional parameters:\n' % str(args)+\
+          '  <key>      <value>              <default>'
+    for k,v in opts.items() :
+        print '  %s %s %s' % (k.ljust(10), str(v).ljust(20), str(defs[k]).ljust(20))
+
+#------------------------------
+
+def sigma_h(pk) :
+    if pk.seg in (0,1,4,5, 10,11,14,15, 16,17,20,21, 26,27,30,31) : return pk.rsigma 
+    return pk.csigma
+
+def sigma_v(pk) :
+    if pk.seg in (0,1,4,5, 10,11,14,15, 16,17,20,21, 26,27,30,31) : return pk.csigma 
+    return pk.rsigma
+
+def sigma_hov(pk) :
+    sh = sigma_h(pk)
+    sv = sigma_v(pk)
+    return sh/sv if sv>0 else 10
+
+#------------------------------
+#------------------------------
 """Aliases"""
 
 table8x8_from_cspad_ndarr = table_from_cspad_ndarr

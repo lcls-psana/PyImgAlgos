@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 
+Tag: V01-00-03
+2017-04-21 Mikhail S. Dubrovin
+- update for FDA GlobalUtils.py, Quaternion.py, add image_rotation.py
+
 Tag: V01-00-02
 2017-03-31 Mikhail S. Dubrovin
 - FiberIndexing: add qt, ql to saved lookup table
