@@ -96,20 +96,62 @@ def triclinic_primitive_vectors(a=18.36,  b=26.65, c=4.81,\
        By design, a1 vector for edge a is directed along x,
        a2 vector for edge b is in x-y plane, has (x,y,0) components only,
        a3 vector for edge c has (x,y,z) components.
-    """
-    alp,  bet,  gam  = math.radians(alpha), math.radians(beta), math.radians(gamma)
-    calp, cbet, cgam = math.cos(alp), math.cos(bet), math.cos(gam)
-    salp, sbet, sgam = math.sin(alp), math.sin(bet), math.sin(gam)
 
-    cx = -c*cbet
-    cy =  c*calp*sgam
-    cz = math.sqrt(c*c - cx*cx - cy*cy)
+       See geometry details in my logbook p.7-8.
+    """
+    alp, bet, gam  = math.radians(alpha), math.radians(beta), math.radians(gamma)
+    ca, cb, cg = math.cos(alp), math.cos(bet), math.cos(gam)
+    sa, sb, sg = math.sin(alp), math.sin(bet), math.sin(gam)
+
+    cx, cy, cz = 0, 0, c
+    if cb!=0 : 
+        tanphi = (ca/cb-cg)/sg
+        cx = c*cb
+        cy = cx*tanphi
+        cz = math.sqrt(c*c - cx*cx - cy*cy)
+    elif ca!=0 : # cb==0
+        cx = 0.
+        cy = c*ca/sg
+        cz = math.sqrt(c*c - cx*cx - cy*cy)
 
     a1 = (a, 0, 0)
-    a2 = (-b*cgam, b*sgam, 0)
+    a2 = (b*cg, b*sg, 0)
     a3 = (cx, cy, cz)
 
     return round_vzeros(a1), round_vzeros(a2), round_vzeros(a3)
+
+#------------------------------
+
+def parameters_of_primitive_vectors(a1, a2, a3) :
+    """Returns a, b, c, alpha, beta, gamma for three primitive vectors a1, a2, a3.
+    """
+    a = math.sqrt(np.dot(a1,a1))
+    b = math.sqrt(np.dot(a2,a2))
+    c = math.sqrt(np.dot(a3,a3))
+
+    ca = np.dot(a2,a3)/b/c
+    cb = np.dot(a1,a3)/a/c
+    cg = np.dot(a1,a2)/a/b
+
+    alp = math.degrees(math.acos(ca))
+    bet = math.degrees(math.acos(cb))
+    gam = math.degrees(math.acos(cg))
+
+    return a, b, c, alp, bet, gam
+
+#------------------------------
+
+def print_primitive_vectors(a1, a2, a3, fmt='%10.6f') :
+    """Prints three primitive vectors and their derived parameters.
+    """
+    print '\nIn %s' % sys._getframe().f_code.co_name
+    print 'primitive vectors:\n  a1 = (%s)\n  a2 = (%s)\n  a3 = (%s)' %\
+           (', '.join([fmt % v for v in a1]),\
+            ', '.join([fmt % v for v in a2]),\
+            ', '.join([fmt % v for v in a3]))
+    a, b, c, alp, bet, gam = parameters_of_primitive_vectors(a1, a2, a3)
+    print 'Derived parameters of primitive vectors:\n',\
+           'a=%.3f  b=%.3f  c=%.3f  alp=%.2f  bet=%.2f  gam=%.2f' % (a, b, c, alp, bet, gam)
 
 #------------------------------
 
@@ -196,7 +238,7 @@ def q_components(X, Y, Z, evald_rad=0.5) :
     """For all defined nodes of the lattice returns
        dr - distance from evald sphere to the reciprocal lattice node,
        qv, qh - vertical, horizontal components of the momentum transfer vector.
-       NOTE: X, Y, Z, DX, L, dr, qv, qh, ql, qy, ql are the numpy arrays with shape=(2*hmax+1, 2*kmax+1, 2*lmax+1), evald_rad is a scalar
+       NOTE: X, Y, Z, DX, L, dr, qv, qh, ql, qy, ql are the numpy arrays with shape=(2*lmax+1, 2*kmax+1, 2*hmax+1), evald_rad is a scalar
     """
     DX = X + evald_rad
     L  = np.sqrt(DX*DX + Y*Y + Z*Z)
@@ -450,7 +492,7 @@ def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
                  hmax=3, kmax=2, lmax=1, cdtype=np.float32,\
                  evald_rad=0.5, qtol=0.01, prefix='', do_movie=False, delay=400,\
-                 hmin=None, kmin=None, lmin=None) :
+                 hmin=None, kmin=None, lmin=None, title_add='') :
     """Plots 2-d reciprocal space lattice, evald sphere,
        generates series of plots for rotated lattice and movie from these plots.
 
@@ -474,7 +516,7 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     #ylimits = (-0.4, 0.4) # plot limits in (1/A)
     #xlimits = (-0.5, 0.3) # plot limits in (1/A)
 
-    fig, ax = gg.plotGraph(x,y, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.86), pfmt='bo')
+    fig, ax = gg.plotGraph(x,y, figsize=(8,7.5), window=(0.17, 0.10, 0.78, 0.84), pfmt='bo')
 
     ax.set_xlim(xlimits)
     ax.set_ylim(ylimits)
@@ -482,7 +524,7 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     ax.set_ylabel('Reciprocal y ($1/\AA$)', fontsize=18)
     gg.save_fig(fig, '%sreciprocal-space-lattice.png' % prefix, pbits=1)
 
-    lst_omega = range(0,180,2) if do_movie else range(0,13,11)
+    lst_omega = range(0,180,2) if do_movie else range(0,11,10)
     #lst_omega = range(0,180,5) if do_movie else range(0,13,11)
     #lst_omega = range(0,180,45) if do_movie else range(0,13,11)
 
@@ -503,21 +545,23 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
         ax.plot(xrot1, yrot1, 'yo')
         if len(xhit)>0 and len(yhit)>0 : ax.plot(xhit, yhit, 'bo')
 
-        ax.set_title('beta=%.0f  omega=%.0f' % (beta_deg, omega_deg), color='k', fontsize=20)
+        tit = 'beta=%.0f omega=%.0f' % (beta_deg, omega_deg)
+        if title_add : tit += ' %s' % (title_add)
+        ax.set_title(tit, color='k', fontsize=12)
         ax.set_xlabel('Reciprocal x ($1/\AA$)', fontsize=18)
         ax.set_ylabel('Reciprocal y ($1/\AA$)', fontsize=18)
         gg.drawCenter(ax, (-evald_rad,0), s=0.04, linewidth=2, color='k')
         gg.drawCircle(ax, (-evald_rad,0), evald_rad, linewidth=1, color='k', fill=False)
         fig.canvas.draw()
         gg.show('Do not hold!')
-        gg.save_fig(fig, '%sreciprocal-space-lattice-rotated-beta=%03d-omega=%03d.png'%\
+        gg.save_fig(fig, '%slattice-rotated-beta%03d-omega%03d.png'%\
                     (prefix, int(beta_deg), int(omega_deg)), pbits=1)
 
     if do_movie :
         import os
         #dir_movie = 'movie'
         #os.system('mkdir %s'% dir_movie)
-        cmd = 'convert -delay %f %sreciprocal-space-lattice-rotated-beta=*.png movie.gif' % (delay, prefix)
+        cmd = 'convert -delay %f %slattice-rotated-beta*.png movie.gif' % (delay, prefix)
         print 'Wait for completion of the command: %s' % cmd
         os.system(cmd)
         print 'DONE!'
@@ -654,9 +698,53 @@ def make_index_table(prefix='./v01-') :
     np.save(fname, qh_weight)
 
 #------------------------------
+
+def check_triclinic_primitive_vectors(a,b,c,alp,bet,gam,vrb=True) :
+    """1) prints input parameters of primitive vectors,
+       2) prints three primitive vectors and their reconstructed parameters,
+       3) reitrive parameters of primitive vectors,
+       4) compare with input and print results of comparison.
+    """
+    print 50*'_'
+    if vrb : print '\nIn %s' % (sys._getframe().f_code.co_name)
+    print 'Input parameters of primitive vectors:\n',\
+           'a=%.3f  b=%.3f  c=%.3f  alp=%.2f  bet=%.2f  gam=%.2f' % (a, b, c, alp, bet, gam)
+    a1, a2, a3 = triclinic_primitive_vectors(a,b,c,alp,bet,gam)
+    if vrb : print_primitive_vectors(a1, a2, a3, fmt='%10.6f')
+    ra, rb, rc, ralp, rbet, rgam = parameters_of_primitive_vectors(a1, a2, a3)
+    DIF=1e-10
+    fabs = math.fabs
+    if  fabs(a-ra) < DIF\
+    and fabs(b-rb) < DIF\
+    and fabs(c-rc) < DIF\
+    and fabs(alp-ralp) < DIF\
+    and fabs(bet-rbet) < DIF\
+    and fabs(gam-rgam) < DIF : print 'Test os OK'
+    else : print 'WARNING test is failed'
+
+#------------------------------
+
+def test_triclinic_primitive_vectors(vrb=True) :
+    check_triclinic_primitive_vectors(18, 26, 5, 90, 90,100, vrb)
+    check_triclinic_primitive_vectors(18, 26, 5, 90, 90, 80, vrb)
+    check_triclinic_primitive_vectors(18, 26, 5, 80, 90, 60, vrb)
+    check_triclinic_primitive_vectors(18, 26, 5, 80, 70, 90, vrb)
+    check_triclinic_primitive_vectors(18, 26, 5,100,100, 70, vrb)
+    check_triclinic_primitive_vectors(18, 26, 5,100, 90, 70, vrb)
+    check_triclinic_primitive_vectors(18, 26, 5,100,110, 90, vrb)
+    check_triclinic_primitive_vectors(18, 26, 5,100,110,120, vrb)
+
+#------------------------------
 #------------------------------
 
 if __name__ == "__main__" :
-    make_index_table()
+    import sys; global sys
+    tname = sys.argv[1] if len(sys.argv) > 1 else '0'
+    print 50*'_', '\nTest %s:' % tname
+
+    if   tname == '0' : make_index_table()
+    elif tname == '1' : test_triclinic_primitive_vectors()
+    elif tname == '2' : test_triclinic_primitive_vectors(vrb=False)
+    else : sys.exit('Test %s is undefined' % tname)
 
 #------------------------------

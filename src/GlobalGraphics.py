@@ -69,10 +69,10 @@ def fig_axim_axcb_imsh(figsize=(13,12), title='Image', dpi=80, \
 
 #------------------------------
 
-def plot_imgcb(fig, axim, axcb, imsh, arr2d, amin=None, amax=None, origin='upper', title=None) :
+def plot_imgcb(fig, axim, axcb, imsh, arr2d, amin=None, amax=None, origin='upper', title=None, cmap='inferno') :
     if arr2d is None : return
     if imsh is not None : imsh.set_data(arr2d)
-    else : imsh = axim.imshow(arr2d, interpolation='nearest', aspect='auto', origin=origin) 
+    else : imsh = axim.imshow(arr2d, interpolation='nearest', aspect='auto', origin=origin, cmap=cmap) 
     ave = np.mean(arr2d) if amin is None and amax is None else None
     rms = np.std(arr2d)  if amin is None and amax is None else None
     #print 'img ave = %s, rms = %s' % (str(ave), str(rms))
@@ -84,12 +84,12 @@ def plot_imgcb(fig, axim, axcb, imsh, arr2d, amin=None, amax=None, origin='upper
 
 #------------------------------
 
-def plot_img(img, mode=None, amin=None, amax=None) :
+def plot_img(img, mode=None, amin=None, amax=None, cmap='inferno') :
     
     fig, axim, axcb = store.fig, store.axim, store.axcb
 
     axim.cla()
-    imsh = axim.imshow(img, interpolation='nearest', aspect='auto', origin='upper') # extent=img_range)
+    imsh = axim.imshow(img, interpolation='nearest', aspect='auto', origin='upper', cmap=cmap) # extent=img_range)
     colb = fig.colorbar(imsh, cax=axcb) # , orientation='horizontal')
 
     ave = np.mean(img) if amin is not None or amax is not None else None
@@ -236,23 +236,26 @@ def plotImage(arr, img_range=None, amp_range=None, figsize=(12,5), title='Image'
 
 #--------------------------------
 
-def plotImageLarge(arr, img_range=None, amp_range=None, figsize=(12,10), title='Image', origin='upper', window=(0.05,  0.03, 0.94, 0.94), cmap='jet') : 
+def plotImageLarge(arr, img_range=None, amp_range=None, figsize=(12,10), title='Image', origin='upper', window=(0.05,  0.03, 0.94, 0.94), cmap='inferno') : 
     fig  = plt.figure(figsize=figsize, dpi=80, facecolor='w', edgecolor='w', frameon=True)
     axim = fig.add_axes(window)
     imsh = axim.imshow(arr, interpolation='nearest', aspect='auto', origin=origin, extent=img_range, cmap=cmap)
     colb = fig.colorbar(imsh, pad=0.005, fraction=0.09, shrink=1, aspect=40) # orientation=1
-    if amp_range is not None : imsh.set_clim(amp_range[0],amp_range[1])
+    if amp_range is not None : imsh.set_clim(amp_range[0], amp_range[1])
+    #else : 
+    #    ave, rms = arr.mean(), arr.std()
+    #    imsh.set_clim(ave-1*rms, ave+5*rms)
     fig.canvas.set_window_title(title)
     return axim
 
 #--------------------------------
 
-def plotImageAndSpectrum(arr, amp_range=None) : #range=(0,500)
+def plotImageAndSpectrum(arr, amp_range=None, cmap='inferno') : #range=(0,500)
     fig  = plt.figure(figsize=(15,5), dpi=80, facecolor='w', edgecolor='w', frameon=True)
     fig.canvas.set_window_title('Image And Spectrum ' + u'\u03C6')
 
     ax1   = plt.subplot2grid((10,10), (0,4), rowspan=10, colspan=6)
-    axim1 = ax1.imshow(arr, interpolation='nearest', aspect='auto') # , origin='lower' 
+    axim1 = ax1.imshow(arr, interpolation='nearest', aspect='auto', cmap=cmap) # , origin='lower' 
     colb1 = fig.colorbar(axim1, pad=0.01, fraction=0.1, shrink=1.00, aspect=20)
     if amp_range is not None : axim1.set_clim(amp_range[0], amp_range[1])
     plt.title('Image', color='b', fontsize=20)

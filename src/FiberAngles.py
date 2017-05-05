@@ -8,7 +8,10 @@ Usage::
     from pyimgalgos.FiberAngles import fraser, calc_phi, calc_beta, funcy
 
     # Fraser transformation:
-    s12rot, s3rot, reciparr = fraser(arr, beta_deg, L, center=None, oshape=(1500,1500))
+    s12rot, s3rot, fraser_img = fraser(arr, beta_deg, dist_pix, center=None, oshape=(1500,1500))
+
+    # HBins objects for Fraser transformation:
+    qh_hbins, qv_hbins = fraser_bins(fraser_img, dist_pix)
 
     # Evaluation of fiber tilt angles beta phi (in the image plane) (in transverse to image plane).
     phi  = calc_phi (x1, y1, x2, y2, dist)
@@ -24,6 +27,9 @@ Usage::
 
     # Conversion methods
     qx, qy, qz = recipnorm(x, y, z) # returns q/fabs(k) components for 3-d point along k^prime.
+
+    xe, ye = rqh_to_xy(re, qh) # Returns reciprocal (xe,ye) coordinates of the qh projection on Ewald sphere of radius re.
+    xe, ye, ze = rqhqv_to_xyz(re, qh, qv) # Returns reciprocal (xe,ye,ze) coordinates of the qh,qv projection on Ewald sphere of radius re.
 
     # Commands to test in the release directory: 
     # python ./pyimgalgos/src/FiberAngles.py <test-id>
@@ -65,8 +71,8 @@ def _fillimg(r,c,a) :
 ##-----------------------------
 
 def fraser_xyz(x, y, z, beta_deg, k=1.0) :
-    """Do fraser transformation for of 3-d points given by x,y,z arrays for angle beta around x and
-       returns horizontal and vertical components of the scattering vector in units of k (eV or 1/A).
+    """Do Fraser transformation for of 3-d points given by x,y,z arrays for angle beta around x and
+       returns horizontal and vertical components of the scattering vector in units of k (1(def)-relative or eV or 1/A).
        x,y-arrays representing image point coordinates, z-can be scalar - distance from sample to detector.
        x, y, and z should be in the same units; ex.: number of pixels (109.92um) or [um], angle is in degrees.
        Example: fraser_xy(x,y,909,10); (10 degrees at 909 pixel (100mm) distance)
@@ -95,8 +101,8 @@ def fraser_xyz(x, y, z, beta_deg, k=1.0) :
 
 ##-----------------------------
 
-def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
-    """Do fraser correction for an array at angle beta and distance L, given in
+def fraser(arr, beta_deg, z, center=None, oshape=(1500,1500)) :
+    """Do Fraser correction for an array at angle beta and sample-to-detector distance z, given in
        number of pixels (109.92um), angle is in degrees.
        Example: fraser(array,10,909); (10 degrees at 100mm distance)
 
@@ -104,15 +110,13 @@ def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
        1. by default 2-d arr image center corresponds to (x,y) origin 
        - arr      - [in] 2-d image array
        - beta_deg - [in] angle beta in degrees
-       - L        - [in] distance from sample to detector given in units of pixels (110um)
+       - z        - [in] distance from sample to detector given in units of pixel size (110um)
        - center   - [in] center (row,column) location on image, which will be used as (x,y) origin 
        - oshape   - [in] ouitput image shape
     """
 
     sizex = arr.shape[0]
     sizey = arr.shape[1]
-
-    scale = float(L)
 
     xc, yc = center if center is not None else (sizex/2, sizey/2) 
 
@@ -121,23 +125,25 @@ def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
 
     x,y = np.meshgrid(yarr, xarr) ### SWAPPED yarr, xarr to keep correct shape for grids
 
-    d = np.sqrt(x*x+y*y+L*L)
+    d = np.sqrt(x*x+y*y+z*z)
     s1 = x/d
-    s2 = L/d - 1
+    s2 = z/d - 1
     s3 = y/d
 
-    cosbeta = math.cos(math.radians(beta_deg))
-    sinbeta = math.sin(math.radians(beta_deg))
+    cb = math.cos(math.radians(beta_deg))
+    sb = math.sin(math.radians(beta_deg))
 
     s1rot = s1
-    s2rot = s2 * cosbeta - s3 * sinbeta
-    s3rot = s2 * sinbeta + s3 * cosbeta
+    s2rot = s2 * cb - s3 * sb
+    s3rot = s2 * sb + s3 * cb
 
     s12rot = np.sqrt(np.square(s1rot) + np.square(s2rot))
     s12rot[:,1:int(math.floor(sizex-xc))] *= -1
 
-    s12rot = np.ceil(s12rot * scale) # old factor: math.floor(sizex-xc))
-    s3rot  = np.ceil(s3rot  * scale) # old factor: math.floor(sizey-yc))
+    scale = float(z)
+
+    s12rot = np.ceil(s12rot * scale)
+    s3rot  = np.ceil(s3rot  * scale)
 
     orows, orows1 = oshape[0], oshape[0] - 1
     ocols, ocols1 = oshape[1], oshape[1] - 1
@@ -164,6 +170,24 @@ def fraser(arr, beta_deg, L, center=None, oshape=(1500,1500)) :
 
     return s12rot, s3rot, reciparr
 
+##-----------------------------
+
+def fraser_bins(fraser_img, dist_pix, dqv=0) :
+    """Returns horizontal and vertical HBins objects for pixels in units of k=1
+       Fraser imaging array, returned by method fraser(...).
+       Units: sample to detector distance dist_pix given in pixels, 
+              dqv - normalized offset for qv (for l=1 etc.)
+    """
+    from pyimgalgos.HBins import HBins
+
+    rows,cols = fraser_img.shape
+    # this is how Fraser's image pixel defined relative to the scale factor dist_pix
+    qhmax = 0.5*cols/dist_pix
+    qvmax = 0.5*rows/dist_pix
+    qh_bins = HBins((-qhmax, qhmax), cols, vtype=np.float32)
+    qv_bins = HBins((-qvmax+dqv, qvmax+dqv), rows, vtype=np.float32)
+    return qh_bins, qv_bins
+
 #------------------------------
 
 def rotation_cs(X, Y, C, S) :
@@ -184,12 +208,12 @@ def rotation(X, Y, angle_deg) :
 
 #------------------------------
 
-def rotation_phi_beta(x, y, L, phi_deg, beta_deg, scale) :
+def rotation_phi_beta(x, y, z, phi_deg, beta_deg, scale) :
     """Returns horizontal and vertical components of the scattering vector in units of scale (k)
-       x, y can be arrays, L-scalar in the same units, ex. scale = k[1/A] or in number of pixels etc.
+       x, y can be arrays, z-scalar in the same units, ex. scale = k[1/A] or in number of pixels etc.
     """
     xrot, yrot = rotation(np.array(x), np.array(y), phi_deg)
-    return fraser_xyz(xrot, yrot, L, beta_deg, scale)
+    return fraser_xyz(xrot, yrot, z, beta_deg, scale)
 
 ##-----------------------------
 
@@ -354,30 +378,63 @@ def funcy2(x, a, b, c) :
 
 ##-----------------------------
 
-def qh_to_xy(qh, R) :
-    """Returns reciprocal (xe,ye) coordinates of the qh projection on Evald sphere.
+def rqh_to_xz(re, qh) :
+    """Returns reciprocal (qxe,qze) coordinates of the qh projection on Ewald sphere of radius re.
+       re  - (float scalar) Ewald sphere radius (1/A)
        qh - (numpy array) horizontal component of q values (1/A)
-       R  - (float scalar) Evald sphere radius (1/A)
-       Assuming that center of the Evald sphere is in (-R,0); qh is oriented along y.
-       NOTE: qh, L, sina, cosa, xe, ye - are the numpy arrays of the same shape as qh
+       Assuming that
+            - reciprocal frame origin (0,0) is on Ewald sphere,  
+            - center of the Ewald sphere is in (-re,0), 
+       qh is a length of the Ewald sphere chorde from origin to the point with peak.
+       NOTE: qh, sina, cosa, qxe, qze - can be numpy arrays shaped as qh.
+       Returns: qxe, qze - coordinates of the point on Ewald sphere equivalent to q(re,qh);
+       Ewald sphere frame has an experiment/detector-like definition of axes;
+                qze - along the beam,
+                qxe - transverse to the beam in l=0 horizontal plane.
     """
-    L = np.sqrt(R*R + qh*qh) 
-    sina = qh/L
-    cosa = R/L
-    xe = R * (cosa-1.)
-    ye = R * sina
-    return xe, ye
+    sina = qh/(2*re)
+    sqa = 1.-sina*sina
+    sqapro = np.select([sqa>0,], [sqa,], default=0)
+    cosa = np.sqrt(sqapro)
+    #qxe, qze =  qh*cosa, -qh*sina
+    return  qh*cosa, -qh*sina
+
+##-----------------------------
+
+def rqhqv_to_xyz(re, qh, qv) :
+    """Returns reciprocal (xe,ye,ze) coordinates of the q(re,qh,qv) projections on Ewald sphere frame.
+       Reciprocal frame has origin on Ewald sphere and experiment/detector-like definition of axes;
+       ze - along the beam,
+       xe, ye - transverse to the beam in horizontal and vertical plane, respectively.
+       Need in this method for l=1 or other 3-d cases.
+    """
+    qh2 = qh*qh
+    qv2 = qv*qv
+    qze = -(qh2+qv2)/(2*re)
+    sqa = qh2 - qze*qze
+    sqapro = np.select([sqa>0,], [sqa,], default=0)
+    qxe = np.sqrt(sqapro)*np.sign(qh)
+    qye = qv
+    return  qxe, qye, qze
+
+##-----------------------------
+
+def qh_to_xy(qh, R) :
+    """Alias to DEPRICATED method with swaped parameters.
+    """
+    qxe, qze = rqh_to_xz(R, qh)
+    return qze, qxe
 
 ##-----------------------------
 
 def recipnorm(x, y, z) :
     """Returns normalizd reciprocal space coordinates (qx,qy,qz)
-       of the scattering vector q = (k^prime- k)/abs(k),
+       of the scattering vector q = (k^prime - k)/abs(k),
        and assuming that
        - scattering point is a 3-d space origin, also center of the Ewalds sphere
        - k points from 3-d space origin to the point with coordinates x, y, z
        (pixel coordinates relative to IP)
-       - scattering is elastic, no energy lost or gained, abs(k^prime)=abs(k)
+       - scattering is elastic, no energy loss or gained, abs(k^prime)=abs(k)
        - reciprocal space origin is in the intersection point of axes z and Ewald's sphere. 
     """
     L = np.sqrt(z*z + x*x + y*y) 

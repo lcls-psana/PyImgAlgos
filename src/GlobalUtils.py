@@ -452,7 +452,8 @@ def divide_protected(num, den, vsub_zero=0) :
 
 #------------------------------
 
-def create_directory(dir) : 
+def create_directory(dir) :
+    if dir=='' or (dir is None) : return
     if os.path.exists(dir) :
         print 'Directory exists: %s' % dir
     else :

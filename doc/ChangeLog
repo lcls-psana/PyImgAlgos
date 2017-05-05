@@ -13,6 +13,14 @@ reverse time order.
 
 =======
 
+Tag: V01-00-04
+2017-05-05 Mikhail S. Dubrovin
+- update for FDA:
+  src/FiberAngles.py
+  src/FiberIndexing.py
+  src/GlobalGraphics.py
+  src/GlobalUtils.py
+
 Tag: V01-00-03
 2017-04-21 Mikhail S. Dubrovin
 - update for FDA GlobalUtils.py, Quaternion.py, add image_rotation.py
