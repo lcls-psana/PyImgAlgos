@@ -83,12 +83,12 @@ class PeakStore :
 
 ##-----------------------------
 
-    def set_file_name(self, prefix=None) :
+    def set_file_name(self, prefix=None, fmt='%Y-%m-%d') : # fmt='%Y-%m-%dT%H:%M:%S'
         """Sets the name of the file with peak info
         """
         self.prefix = prefix        
         if prefix is None : prefix='peaks'
-        tstamp = strftime('%Y-%m-%dT%H:%M:%S', localtime())
+        tstamp = strftime(fmt, localtime())
         self.fname = '%s-%s-r%04d-%s.txt' % (self.prefix, self.exp, self.runnum, tstamp)
  
 ##-----------------------------
