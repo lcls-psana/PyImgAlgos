@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 
+Tag: V01-00-05
+2017-05-24 Mikhail S. Dubrovin
+- update TDPeakRecord.py for additional parameter Nsplit
+
 Tag: V01-00-04
 2017-05-05 Mikhail S. Dubrovin
 - update for FDA:

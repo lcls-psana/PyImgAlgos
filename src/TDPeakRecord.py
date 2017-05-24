@@ -33,6 +33,7 @@ Usage::
     # pk.dphi000
     # pk.dphi180
     # pk.line
+    # pk.nsplit
 
     # get evaluated parameters
     # pk.peak_signal()
@@ -78,12 +79,12 @@ class TDPeakRecord :
         sp.fields = line.rstrip('\n').split()
         sp.nfields = nfields = len(sp.fields)
 
-        if nfields in (28,29,35,36) : # r1 peak record: discarded s_rmin, s_rmax, s_cmin, s_cmax, + bkgd corrected amax, atot, son
+        if nfields in (29,30,36,37) : # r1 peak record: discarded s_rmin, s_rmax, s_cmin, s_cmax, + bkgd corrected amax, atot, son
             s_exp, s_run, s_date, s_time, s_time_sec, s_time_nsec,\
             s_fid, s_evnum, s_reg, s_seg, s_row, s_col, s_npix, s_amax, s_atot,\
             s_rcent, s_ccent, s_rsigma, s_csigma,\
-            s_bkgd, s_rms, s_son, s_imrow, s_imcol, s_x, s_y, s_r, s_phi=\
-            sp.fields[0:28]
+            s_bkgd, s_rms, s_son, s_imrow, s_imcol, s_x, s_y, s_r, s_phi, s_egamma=\
+            sp.fields[0:29]
 
             sp.exp, sp.run, sp.evnum, sp.reg = s_exp, int(s_run), int(s_evnum), s_reg
             sp.date, sp.time, sp.tsec, sp.tnsec, sp.fid = s_date, s_time, int(s_time_sec), int(s_time_nsec), int(s_fid)
@@ -94,7 +95,8 @@ class TDPeakRecord :
             sp.imrow, sp.imcol = int(s_imrow), int(s_imcol)
             sp.x, sp.y, sp.r, sp.phi = float(s_x), float(s_y), float(s_r)/sp.pixel_size, float(s_phi)
             sp.sonc = sp.son
-            
+            sp.egamma = float(s_egamma)            
+
         sp.dphi000 = sp.phi
         sp.dphi180 = sp.phi - 180 if sp.phi>-90 else sp.phi + 180 # +360-180
 
@@ -102,11 +104,11 @@ class TDPeakRecord :
         sp.empty = sp.empty_line()
 
         # get extended parameters for peak record with fit parameters
-        if nfields in (29,36) :
-            s_egamma = sp.fields[28]
-            sp.egamma = float(s_egamma)
+        if nfields in (30,37) :
+            s_nsplit = sp.fields[29]
+            sp.nsplit = int(s_nsplit)
 
-        if nfields in (35,36) :
+        if nfields in (36,37) :
             s_fit_phi, s_fit_beta, s_fit_phi_err, s_fit_beta_err, s_fit_chi2, s_fit_ndof, s_fit_prob = sp.fields[nfields-7:nfields]
             sp.fit_phi, sp.fit_beta = float(s_fit_phi), float(s_fit_beta)
             sp.fit_phi_err, sp.fit_beta_err = float(s_fit_phi_err), float(s_fit_beta_err)
@@ -121,7 +123,7 @@ class TDPeakRecord :
 
        z=0
 
-       if sp.nfields == 32 :
+       if sp.nfields == 33 :
 
          print 'XXX: nfields = ', sp.nfields 
 
@@ -129,15 +131,15 @@ class TDPeakRecord :
          fmt = '%8s  %3d  %10s %8s  %10d  %9d  %6d'+\
                ' %7d  %3s  %3d %4d %4d  %4d  %8.1f  %8.1f  %6.1f  %6.1f %6.2f  %6.2f'+\
                ' %4d %4d %4d %4d  %6.2f  %6.2f  %6.2f'+\
-               ' %6d  %6d  %8.0f  %8.0f  %8.0f  %8.2f'
-         return fmt % ('exp', z, 'date', 'time', z,z,z,z,'N/A',z,z,z,z,z,z,z,z,z,z, z,z,z,z,z,z,z,z,z,z, z,z,z)       
+               ' %6d  %6d  %8.0f  %8.0f  %8.0f  %8.2f  %3d'
+         return fmt % ('exp', z, 'date', 'time', z,z,z,z,'N/A',z,z,z,z,z,z,z,z,z,z, z,z,z,z,z,z,z,z,z,z, z,z,z,z)       
 
-       else : #if sp.nfields == 29 : removed rmin rmax cmin cmax
+       else : #if sp.nfields == 30 : removed rmin rmax cmin cmax
          fmt = '%8s  %3d  %10s %8s  %10d  %9d  %6d'+\
                ' %7d  %3s  %3d %4d %4d  %4d  %8.1f  %8.1f  %6.1f  %6.1f %6.2f  %6.2f'+\
                '  %6.2f  %6.2f  %6.2f'+\
-               ' %6d  %6d  %8.0f  %8.0f  %8.0f  %8.2f  %9.3f'
-         return fmt % ('exp', z, 'date', 'time', z,z,z,z,'N/A',z,z,z,z,z,z,z,z,z,z, z,z,z,z,z,z, z,z,z,z)       
+               ' %6d  %6d  %8.0f  %8.0f  %8.0f  %8.2f  %9.3f  %3d'
+         return fmt % ('exp', z, 'date', 'time', z,z,z,z,'N/A',z,z,z,z,z,z,z,z,z,z, z,z,z,z,z,z, z,z,z,z,z)       
 
 
 #------------------------------
@@ -196,7 +198,37 @@ class TDPeakRecord :
 #-----------  TEST  -------------
 #--------------------------------
 
+def test_tdpeakrecord() :
+    from pyimgalgos.TDFileContainer import TDFileContainer
+    from pyimgalgos.TDPeakRecord    import TDPeakRecord
+    import sys
+
+    fname = sys.argv[1] if len(sys.argv) > 1 else 'peaks-cxif5315-r0169-2017-05-24.txt'
+
+    fc = TDFileContainer(fname, indhdr='Evnum', objtype=TDPeakRecord) #, pbits=256)
+    fc.print_content(nlines=20)
+
+    return
+
+    counter = 0
+    for evnum in fc.group_num_iterator() :
+        
+        counter += 1
+        if counter > 10 : break
+
+        event = fc.next()
+        lst_peaks = event.get_objs()
+
+        print '%s Event# %6d %s' % (4*'_', evnum, 4*'_')
+        #print '%s\n %s\n%s\n%s' % (71*'_', sp.fc.hdr[:70], lst_peaks[0].line[:71], sp.fc.hdr[72:])
+
+        for peak in lst_peaks :
+            #print peak.line.rstrip('\n')[73:]
+            print peak.line
+
+#--------------------------------
+
 if __name__ == "__main__" :
-    pass
+    test_tdpeakrecord()
 
 #--------------------------------
