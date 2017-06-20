@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 
+Tag: V01-00-06
+2017-06-20 Mikhail S. Dubrovin
+- add ex-hist1d.py, ex-test-bincount.pym, ex-test-select.py
+
 Tag: V01-00-05
 2017-05-24 Mikhail S. Dubrovin
 - update TDPeakRecord.py for additional parameter Nsplit
