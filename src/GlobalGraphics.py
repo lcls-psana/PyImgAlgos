@@ -127,12 +127,12 @@ def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0, lw=2) :
     for rec in peaks :
         s, r, c, amax, atot, npix = rec[0:6]
         if pbits & 1 : print 's, r, c, amax, atot, npix=', s, r, c, amax, atot, npix
-        inds = (int(s),int(r),int(c))
+        inds = (int(s),int(r),int(c)) if iX.ndim>2 else (int(r),int(c))
         x=iX[inds]
         y=iY[inds]
         if pbits & 2 : print ' x,y=',x,y        
         xyc = (y,x)
-        r0  = 2+6*atot/anorm
+        r0  = 2+3*atot/anorm
         circ = patches.Circle(xyc, radius=r0, linewidth=lw, color=color, fill=False)
         axim.add_artist(circ)
 

@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 
+Tag: V01-00-07
+2017-08-15 Mikhail S. Dubrovin
+- GlobalGraphics.plot_peaks_on_img - fix indexing for n-dim arrays
+
 Tag: V01-00-06
 2017-06-20 Mikhail S. Dubrovin
 - add ex-hist1d.py, ex-test-bincount.pym, ex-test-select.py
