@@ -123,7 +123,7 @@ def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0, lw=2) :
     """
     if peaks is None : return
 
-    anorm = np.average(peaks,axis=0)[4] if len(peaks)>1 else peaks[0][4] if peaks.size>0 else 100    
+    #anorm = np.average(peaks,axis=0)[4] if len(peaks)>1 else peaks[0][4] if peaks.size>0 else 100    
     for rec in peaks :
         s, r, c, amax, atot, npix = rec[0:6]
         if pbits & 1 : print 's, r, c, amax, atot, npix=', s, r, c, amax, atot, npix
@@ -132,7 +132,8 @@ def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0, lw=2) :
         y=iY[inds]
         if pbits & 2 : print ' x,y=',x,y        
         xyc = (y,x)
-        r0  = 2+3*atot/anorm
+        #r0  = 2+3*atot/anorm
+        r0  = 5
         circ = patches.Circle(xyc, radius=r0, linewidth=lw, color=color, fill=False)
         axim.add_artist(circ)
 

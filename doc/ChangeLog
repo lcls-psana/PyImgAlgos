@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 
+Tag: V01-00-08
+2017-08-18 Mikhail S. Dubrovin
+- GlobalGraphics.plot_peaks_on_img - use constant radius ring around peak.
+
 Tag: V01-00-07
 2017-08-15 Mikhail S. Dubrovin
 - GlobalGraphics.plot_peaks_on_img - fix indexing for n-dim arrays
