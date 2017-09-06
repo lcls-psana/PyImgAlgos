@@ -1,10 +1,10 @@
-.. Detector-doc documentation master file, created by
+.. pyimgalgos-doc documentation master file, created by
    sphinx-quickstart on Thu Aug 24 12:05:12 2017.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Detector documentation
-======================
+pyimgalgos documentation
+========================
 
 .. toctree::
    :maxdepth: 2
