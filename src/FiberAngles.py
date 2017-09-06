@@ -174,9 +174,9 @@ def fraser(arr, beta_deg, z, center=None, oshape=(1500,1500)) :
 
 def fraser_bins(fraser_img, dist_pix, dqv=0) :
     """Returns horizontal and vertical HBins objects for pixels in units of k=1
-       Fraser imaging array, returned by method fraser(...).
-       Units: sample to detector distance dist_pix given in pixels, 
-              dqv - normalized offset for qv (for l=1 etc.)
+    Fraser imaging array, returned by method fraser(...).
+    Units: sample to detector distance dist_pix given in pixels, 
+    dqv - normalized offset for qv (for l=1 etc.)
     """
     from pyimgalgos.HBins import HBins
 
@@ -380,17 +380,21 @@ def funcy2(x, a, b, c) :
 
 def rqh_to_xz(re, qh) :
     """Returns reciprocal (qxe,qze) coordinates of the qh projection on Ewald sphere of radius re.
-       re  - (float scalar) Ewald sphere radius (1/A)
-       qh - (numpy array) horizontal component of q values (1/A)
-       Assuming that
-            - reciprocal frame origin (0,0) is on Ewald sphere,  
-            - center of the Ewald sphere is in (-re,0), 
+
+    Parameters
+
+      - re - (float scalar) Ewald sphere radius (1/A)
+      - qh - (numpy array) horizontal component of q values (1/A)
+
+    Assumption: 
+       reciprocal frame origin (0,0) is on Ewald sphere,  
+       center of the Ewald sphere is in (-re,0), 
        qh is a length of the Ewald sphere chorde from origin to the point with peak.
        NOTE: qh, sina, cosa, qxe, qze - can be numpy arrays shaped as qh.
        Returns: qxe, qze - coordinates of the point on Ewald sphere equivalent to q(re,qh);
        Ewald sphere frame has an experiment/detector-like definition of axes;
-                qze - along the beam,
-                qxe - transverse to the beam in l=0 horizontal plane.
+       - qze - along the beam,
+       - qxe - transverse to the beam in l=0 horizontal plane.
     """
     sina = qh/(2*re)
     sqa = 1.-sina*sina

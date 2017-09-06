@@ -11,102 +11,97 @@ pyimgalgos documentation
 
 ..   :caption: Contents:
 
-.. automodule:: FiberAngles.py
+.. automodule:: FiberAngles
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: FiberIndexing.py
+.. automodule:: FiberIndexing
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: GlobalGraphics.py
+.. automodule:: GlobalGraphics
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: GlobalUtils.py
+.. automodule:: GlobalUtils
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: Graphics.py
+.. automodule:: Graphics
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: HBins.py
+.. automodule:: HBins
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: HPolar.py
+.. automodule:: HPolar
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: HSpectrum.py
+.. automodule:: HSpectrum
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: NDArrGenerators.py
+.. automodule:: NDArrGenerators
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: PeakData.py
+.. automodule:: PeakData
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: PeakStore.py
+.. automodule:: PeakStore
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: Quaternion.py
+.. automodule:: Quaternion
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: Entropy.py
+.. automodule:: Entropy
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: TDFileContainer.py
+.. automodule:: TDFileContainer
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: TDGroup.py
+.. automodule:: TDGroup
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: TDMatchRecord.py
+.. automodule:: TDMatchRecord
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: TDNodeRecord.py
+.. automodule:: TDNodeRecord
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: TDPeakRecord.py
+.. automodule:: TDPeakRecord
    :members:
    :show-inheritance:
    :special-members:
 
-.. automodule:: TDCheetahPeakRecord.py
-   :members:
-   :show-inheritance:
-   :special-members:
-
-.. automodule:: 
+.. automodule:: TDCheetahPeakRecord
    :members:
    :show-inheritance:
    :special-members:

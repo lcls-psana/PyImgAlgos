@@ -366,21 +366,22 @@ def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
        For each crysal orientation (beta, gamma) lookup table contains info about lattice nodes
        closest to the Evald's sphere:
 
-       # beta 0.00  omega 52.50 degree
-       # index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]   qt[1/A]   ql[1/A]   P(omega)
-          106     0.00   52.50  -2  -1   0 -0.002756  0.123157  0.000000 -0.123478 -0.122470 -0.015745   0.165321
-          106     0.00   52.50   1   1   0 -0.000249  0.072533  0.000000  0.072551  0.072347 -0.005436   0.985422
-          106     0.00   52.50   3   5   0  0.000687  0.273564  0.000000  0.273369  0.262250 -0.077171   0.894200
+       * # beta 0.00  omega 52.50 degree
+       * # index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]   qt[1/A]   ql[1/A]   P(omega)
+       *   106     0.00   52.50  -2  -1   0 -0.002756  0.123157  0.000000 -0.123478 -0.122470 -0.015745   0.165321
+       *   106     0.00   52.50   1   1   0 -0.000249  0.072533  0.000000  0.072551  0.072347 -0.005436   0.985422
+       *   106     0.00   52.50   3   5   0  0.000687  0.273564  0.000000  0.273369  0.262250 -0.077171   0.894200
 
        where:
-       index - orientation index (just an unique integer number)
-       beta, omega [deg] - crystal orientation angles,
-       h, k, l - Miller indeces
-       dr [1/A] - distance between lattice node and Evald's sphere
-       R(h,k,l) [1/A] - distance between nodes (h,k,l) and (0,0,0)
-       qv, qh [1/A] - vertical and horizontal components of scattering vector q
-       qt, ql [1/A] - transverse (in horizontal plane) and longitudinal components of vector q
-       P(omega) - un-normalized probability (<1) evaluated for dr(omega) using sigma_ql.
+
+       - index - orientation index (just an unique integer number)
+       - beta, omega [deg] - crystal orientation angles,
+       - h, k, l - Miller indeces
+       - dr [1/A] - distance between lattice node and Evald's sphere
+       - R(h,k,l) [1/A] - distance between nodes (h,k,l) and (0,0,0)
+       - qv, qh [1/A] - vertical and horizontal components of scattering vector q
+       - qt, ql [1/A] - transverse (in horizontal plane) and longitudinal components of vector q
+       - P(omega) - un-normalized probability (<1) evaluated for dr(omega) using sigma_ql.
 
        File name is generated automatically with current time stamp like
        lut-cxif5315-r0169-2015-10-23T14:58:36.txt
