@@ -43,8 +43,6 @@ Usage::
     hb.print_attrs()
     hb.print_attrs_and_methods()
 
-
-@author Mikhail S. Dubrovin
 See:
   - :py:class:`HBins`
   - :py:class:`HPolar`

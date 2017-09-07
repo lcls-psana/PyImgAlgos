@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 ##-----------------------------
-"""`GlobalUtils.py` contains collection of global utilities with a single call algorithms.
+""":py:class:`GlobalUtils` contains collection of global utilities with a single call algorithms.
 
 Usage::
 
@@ -80,21 +80,13 @@ Usage::
     # is implemented for test numbers from 1 to 9. Command example
     # python pyimgalgos/src/GlobalUtils.py 1
 
-@see :py:class:`pyimgalgos.GlobalUtils`
+See :py:class:`GlobalUtils`
 
 This software was developed for the SIT project.  If you use all or 
 part of it, please give an appropriate acknowledgment.
 
-@version $Id$
-
-@author Mikhail S. Dubrovin
+Author Mikhail S. Dubrovin
 """
-
-##-----------------------------
-#  Module's version from CVS --
-##-----------------------------
-__version__ = "$Revision$"
-# $Source$
 
 ##-----------------------------
 
@@ -249,11 +241,14 @@ def subtract_bkgd(data, bkgd, mask=None, winds=None, pbits=0) :
        Shapes of data, bkgd, and mask numpy arrays should be the same.
        Each window is specified by 5 parameters: (segment, rowmin, rowmax, colmin, colmax)
        For 2-d arrays segment index is not used, but still 5 parameters needs to be specified.
-       @param data - numpy array for data.
-       @param bkgd - numpy array for background.
-       @param mask - numpy array for mask.
-       @param winds - list of windows, each window is a sequence of 5 parameters.     
-       @param pbits - print control bits; =0 - print nothing, !=0 - normalization factor.
+
+       Parameters
+
+       - data - numpy array for data.
+       - bkgd - numpy array for background.
+       - mask - numpy array for mask.
+       - winds - list of windows, each window is a sequence of 5 parameters.     
+       - pbits - print control bits; =0 - print nothing, !=0 - normalization factor.
     """
     mdata = data if mask is None else data*mask
     mbkgd = bkgd if mask is None else bkgd*mask

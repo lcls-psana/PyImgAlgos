@@ -51,6 +51,16 @@ pyimgalgos documentation
    :show-inheritance:
    :special-members:
 
+.. automodule:: NDArrSpectrum
+   :members:
+   :show-inheritance:
+   :special-members:
+
+.. automodule:: RadialBkgd
+   :members:
+   :show-inheritance:
+   :special-members:
+
 .. automodule:: NDArrGenerators
    :members:
    :show-inheritance:
