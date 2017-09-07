@@ -1,14 +1,12 @@
 #!/usr/bin/env python
-
-#--------------------------------
-""":py:class:`HSpectrum` - support creation of spectral histogram for arbitrary shaped numpy array.
+#------------------------------
+""":py:class:`HSpectrum` - spectral histogram for arbitrary shaped numpy array.
 
 Usage::
 
     # Import
     # ==============
     from pyimgalgos.HSpectrum import HSpectrum
-
 
     # Initialization
     # ==============
@@ -21,38 +19,33 @@ Usage::
     bins = (v0, v1, v2, v4, v5, vN) # any number of bin edges
     spec = HSpectrum(bins)
 
-
     # Fill spectrum
     # ==============
     # nda = ... (get it for each event somehow)
     spec.fill(nda)
 
-
     # Get spectrum
     # ==============
     histarr, edges, nbins = spec.spectrum()
-
 
     # Optional
     # ==============
     spec.print_attrs()
 
-@see :py:class:`pyimgalgos.HBins`,
-:py:class:`pyimgalgos.HPolar`
+See:
+  - :py:class:`HBins`
+  - :py:class:`HPolar`
+  - :py:class:`HSpectrum`
+  - :py:class:`NDArrSpectrum`
+  - :py:class:`RadialBkgd`
+  - `Radial background <https://confluence.slac.stanford.edu/display/PSDMInternal/Radial+background+subtraction+algorithm>`_.
 
 This software was developed for the SIT project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
-Revision: $Revision$
-
-@version $Id$
-
-@author Mikhail S. Dubrovin
-
+Author: Mikhail Dubrovin
 """
-#--------------------------------
-__version__ = "$Revision$"
-#--------------------------------
+#------------------------------
 
 import sys
 import numpy as np

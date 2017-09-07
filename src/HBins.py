@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""`HBins.py` histogram-style bin parameters holder
+""":py:class:`HBins` histogram-style bin parameters holder
 
 Usage::
 
@@ -43,23 +43,21 @@ Usage::
     hb.print_attrs()
     hb.print_attrs_and_methods()
 
-@see :py:class:`pyimgalgos.HPolar`,
-:py:class:`pyimgalgos.HSpectrum`,
-:py:class:`pyimgalgos.NDArrSpectrum`,
-:py:class:`pyimgalgos.RadialBkgd`,
-`Radial background <https://confluence.slac.stanford.edu/display/PSDMInternal/Radial+background+subtraction+algorithm>`_.
-
-This software was developed for the SIT project.  If you use all or 
-part of it, please give an appropriate acknowledgment.
-
-@version $Id$
-
-Created on 2016-01-15
 
 @author Mikhail S. Dubrovin
+See:
+  - :py:class:`HBins`
+  - :py:class:`HPolar`
+  - :py:class:`HSpectrum`
+  - :py:class:`NDArrSpectrum`
+  - :py:class:`RadialBkgd`
+  - `Radial background <https://confluence.slac.stanford.edu/display/PSDMInternal/Radial+background+subtraction+algorithm>`_.
+
+This software was developed for the SIT project.
+If you use all or part of it, please give an appropriate acknowledgment.
+
+Created on 2016-01-15 by Mikhail Dubrovin
 """
-#------------------------------
-__version__ = "$Revision$"
 #------------------------------
 
 import math
