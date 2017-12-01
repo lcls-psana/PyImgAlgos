@@ -1,7 +1,8 @@
 #!@PYTHON@
 ####!/usr/bin/env python
 #------------------------------
-""":py:class:`Graphics` wrapping methods for matplotlib.
+""":py:class:`Graphics` wrapping methods for matplotlib
+=======================================================
 
 Usage::
 
@@ -44,11 +45,12 @@ See:
   - :py:class:`NDArrSpectrum`
   - :py:class:`RadialBkgd`
   - `Radial background <https://confluence.slac.stanford.edu/display/PSDMInternal/Radial+background+subtraction+algorithm>`_.
+  - `matplotlib <https://matplotlib.org/contents.html>`_.
 
 This software was developed for the SIT project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
-Created by Mikhail Dubrovin
+Created in 2015 by Mikhail Dubrovin
 """
 #------------------------------
 import numpy as np

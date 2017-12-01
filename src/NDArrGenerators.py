@@ -2,7 +2,8 @@
 ####!/usr/bin/env python
 #------------------------------
 """
-:py:class:`NDArrGenerators` wrapping methods for numpy random array generators.
+:py:class:`NDArrGenerators` wrapping methods for numpy random array generators
+==============================================================================
 
 Usage::
 
@@ -31,7 +32,9 @@ Usage::
 See:
   - :py:class:`Graphics`
   - :py:class:`GlobalGraphics`
+  - :py:class:`NDArrGenerators`
   - `numpy.random.rand <https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.random.rand.html>`_.
+  - `matplotlib <https://matplotlib.org/contents.html>`_.
 
 This software was developed for the SIT project.
 If you use all or part of it, please give an appropriate acknowledgment.

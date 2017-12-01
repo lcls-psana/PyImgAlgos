@@ -2,7 +2,8 @@
 ####!/usr/bin/env python
 #------------------------------
 """
-:py:class:`GlobalGraphics` Collection of global graphical methods.
+:py:class:`GlobalGraphics` Collection of global graphical methods
+=================================================================
 
 Usage::
 
@@ -39,6 +40,12 @@ Usage::
     gg.move(x0=200,y0=100)
     gg.move_fig(fig, x0=200, y0=100)
     gg.show(mode=None)
+
+See:
+  - :py:class:`Graphics`
+  - :py:class:`GlobalGraphics`
+  - :py:class:`NDArrGenerators`
+  - `matplotlib <https://matplotlib.org/contents.html>`_.
 
 This software was developed for the SIT project.  If you use all or 
 part of it, please give an appropriate acknowledgment.
