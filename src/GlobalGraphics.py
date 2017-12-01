@@ -1,20 +1,50 @@
+#!@PYTHON@
+####!/usr/bin/env python
 #------------------------------
-"""Collection of global graphical methods.
+"""
+:py:class:`GlobalGraphics` Collection of global graphical methods.
+
+Usage::
+
+    import pyimgalgos.GlobalGraphics as gg
+
+    # Methods
+
+    fig, axim, axcb = gg.fig_axes(figsize=(13,12), title='Image', dpi=80, win_axim=(0.05, 0.03, 0.87, 0.93), win_axcb=(0.923, 0.03, 0.02, 0.93))
+    fig, axim, axcb, imsh = gg.fig_axim_axcb_imsh(figsize=(13,12), title='Image', dpi=80, win_axim=(0.05, 0.03, 0.87, 0.93),
+                            win_axcb=(0.923, 0.03, 0.02, 0.93), arr2d=np.zeros((10,10)), origin='upper')
+    gg.plot_imgcb(fig, axim, axcb, imsh, arr2d, amin=None, amax=None, origin='upper', title=None, cmap='inferno')
+    gg.plot_img(img, mode=None, amin=None, amax=None, cmap='inferno')
+    gg.plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0, lw=2)
+    size = gg.size_of_shape(shape=(2,3,8))
+    arr = gg.getArrangedImage(shape=(40,60))
+    arr = gg.getRandomImage(mu=200, sigma=25, shape=(40,60))
+    hi = gg.getImageAs2DHist(iX,iY,W=None)
+    img = gg.getImageFromIndexArrays(iX,iY,W=None)
+    fig, axhi, hi = gg.plotHistogram(arr, amp_range=None, figsize=(6,6), bins=None, title='', window=(0.15, 0.10, 0.78, 0.82))
+    fig, axhi, hi = gg.hist1d(arr, bins=None, amp_range=None, weights=None, color=None, show_stat=True,
+                              log=False, figsize=(6,5), axwin=(0.15, 0.12, 0.78, 0.80), title=None, 
+                              xlabel=None, ylabel=None, titwin=None)
+    axim = gg.plotImageLarge(arr, img_range=None, amp_range=None, figsize=(12,10), title='Image', origin='upper', 
+                             window=(0.05, 0.03, 0.94, 0.94), cmap='inferno')
+    gg.plotImageAndSpectrum(arr, amp_range=None, cmap='inferno') 
+    fig, ax = gg.plotGraph(x,y, figsize=(5,10), window=(0.15, 0.10, 0.78, 0.86), pfmt='b-', lw=1)
+    gg.drawCircle(axes, xy0, radius, linewidth=1, color='w', fill=False)
+    gg.drawCircle(axes, xy0, radius, linewidth=1, color='w', fill=False)
+    gg.drawCenter(axes, xy0, s=10, linewidth=1, color='w')
+    gg.drawLine(axes, xarr, yarr, s=10, linewidth=1, color='w')
+    gg.drawRectangle(axes, xy, width, height, linewidth=1, color='w')
+    gg.save(fname='img.png', do_save=True, pbits=0377)
+    gg.save_fig(fig, fname='img.png', do_save=True, pbits=0377)
+    gg.move(x0=200,y0=100)
+    gg.move_fig(fig, x0=200, y0=100)
+    gg.show(mode=None)
 
 This software was developed for the SIT project.  If you use all or 
 part of it, please give an appropriate acknowledgment.
 
-@version $Id$
-
-@author Mikhail S. Dubrovin
+Created in 2015 by Mikhail Dubrovin
 """
-
-#------------------------------
-#  Module's version from CVS --
-#------------------------------
-__version__ = "$Revision$"
-# $Source$
-
 #--------------------------------
 
 import sys
@@ -30,14 +60,13 @@ import matplotlib.patches as patches
 from CalibManager.PlotImgSpeWidget import add_stat_text
 
 #------------------------------
+
 class Storage :
     def __init__(self) :
         pass
 
 #------------------------------
 store = Storage() # singleton
-#------------------------------
-
 #------------------------------
 
 def fig_axes(figsize=(13,12), title='Image', dpi=80, \
@@ -54,9 +83,9 @@ def fig_axes(figsize=(13,12), title='Image', dpi=80, \
 
 #------------------------------
 
-def fig_axim_axcb_imsh(figsize=(13,12), title='Image', dpi=80, \
-                       win_axim=(0.05,  0.03, 0.87, 0.93), \
-                       win_axcb=(0.923, 0.03, 0.02, 0.93),
+def fig_axim_axcb_imsh(figsize=(13,12), title='Image', dpi=80,\
+                       win_axim=(0.05,  0.03, 0.87, 0.93),\
+                       win_axcb=(0.923, 0.03, 0.02, 0.93),\
                        arr2d=np.zeros((10,10)), origin='upper') :
     """ Creates and returns figure, axes for image and color bar, imshow object
     """
@@ -114,12 +143,12 @@ def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0, lw=2) :
     """ Draws peaks on the top of image axes (axim)
         Plots peaks from array as circles in coordinates of image.
 
-        @param peaks - 2-d list/tuple of peaks; first 6 values in each peak record should be (s, r, c, amax, atot, npix)  
-        @param axim - image axes
-        @param iX - array of x-coordinate indexes for all pixels addressed as [s, r, c] - segment, row, column
-        @param iX - array of y-coordinate indexes for all pixels addressed as [s, r, c] - segment, row, column
-        @param color - peak-ring color
-        @param pbits - verbosity; print 0 - nothing, +1 - peak parameters, +2 - x, y peak coordinate indexes
+        - peaks - 2-d list/tuple of peaks; first 6 values in each peak record should be (s, r, c, amax, atot, npix)  
+        - axim - image axes
+        - iX - array of x-coordinate indexes for all pixels addressed as [s, r, c] - segment, row, column
+        - iX - array of y-coordinate indexes for all pixels addressed as [s, r, c] - segment, row, column
+        - color - peak-ring color
+        - pbits - verbosity; print 0 - nothing, +1 - peak parameters, +2 - x, y peak coordinate indexes
     """
     if peaks is None : return
 
@@ -197,8 +226,8 @@ def plotHistogram(arr, amp_range=None, figsize=(6,6), bins=None, title='', windo
 
 #--------------------------------
 
-def hist1d(arr, bins=None, amp_range=None, weights=None, color=None, show_stat=True, log=False, \
-           figsize=(6,5), axwin=(0.15, 0.12, 0.78, 0.80), \
+def hist1d(arr, bins=None, amp_range=None, weights=None, color=None, show_stat=True, log=False,\
+           figsize=(6,5), axwin=(0.15, 0.12, 0.78, 0.80),\
            title=None, xlabel=None, ylabel=None, titwin=None) :
     """Makes historgam from input array of values (arr), which are sorted in number of bins (bins) in the range (amp_range=(amin,amax))
     """

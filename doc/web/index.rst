@@ -21,6 +21,11 @@ pyimgalgos documentation
    :show-inheritance:
    :special-members:
 
+.. automodule:: NDArrGenerators
+   :members:
+   :show-inheritance:
+   :special-members:
+
 .. automodule:: GlobalGraphics
    :members:
    :show-inheritance:
@@ -57,11 +62,6 @@ pyimgalgos documentation
    :special-members:
 
 .. automodule:: RadialBkgd
-   :members:
-   :show-inheritance:
-   :special-members:
-
-.. automodule:: NDArrGenerators
    :members:
    :show-inheritance:
    :special-members:

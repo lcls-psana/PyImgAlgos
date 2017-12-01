@@ -1,8 +1,43 @@
-'''
-Created on Nov 23, 2015
+#!@PYTHON@
+####!/usr/bin/env python
+#------------------------------
+"""
+:py:class:`NDArrGenerators` wrapping methods for numpy random array generators.
 
-@author: Mikhail
-'''
+Usage::
+
+    import pyimgalgos.NDArrGenerators as ag
+
+    # Methods
+
+    v = ag.prod_of_elements(arr, dtype=np.int)
+    size = ag.size_from_shape() # use nda.size()
+
+    shape = ag.shape_as_2d(sh)
+    shape = ag.shape_as_3d(sh)
+    arr2d = ag.reshape_to_2d(nda)
+    arr3d = ag.reshape_to_3d(nda)
+    nda = ag.random_standard(shape=(40,60), mu=200, sigma=25, dtype=np.float)
+    nda = ag.random_exponential(shape=(40,60), a0=100, dtype=np.float)
+    nda = ag.random_one(shape=(40,60), dtype=np.float)
+    nda = ag.random_256(shape=(40,60), dtype=np.uint8)
+    nda = ag.random_xffffffff(shape=(40,60), dtype=np.uint32, add=0xff000000)
+    nda = ag.aranged_array(shape=(40,60), dtype=np.uint32)
+    ag.print_ndarr(nda, name='', first=0, last=5)
+    nda = ag.ring_intensity(r, r0, sigma)
+    ag.add_ring(arr2d, amp=100, row=4.3, col=5.8, rad=100, sigma=3)
+    peaks = ag.add_random_peaks(arr2d, npeaks=10, amean=100, arms=50, wmean=2, wrms=0.1)
+
+See:
+  - :py:class:`Graphics`
+  - :py:class:`GlobalGraphics`
+  - `numpy.random.rand <https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.random.rand.html>`_.
+
+This software was developed for the SIT project.
+If you use all or part of it, please give an appropriate acknowledgment.
+
+Created on Nov 23, 2015 by Mikhail Dubrovin
+"""
 import numpy as np
 import math
 
