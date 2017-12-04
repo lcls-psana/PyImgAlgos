@@ -65,7 +65,7 @@ See:
   - :py:class:`HPolar`
   - :py:class:`HSpectrum`
   - :py:class:`RadialBkgd`
-  - `matplotlib <https://confluence.slac.stanford.edu/display/PSDMInternal/Analysis+of+data+for+cxif5315>`_.
+  - `Analysis of data for cxif5315 <https://confluence.slac.stanford.edu/display/PSDMInternal/Analysis+of+data+for+cxif5315>`_.
 
 Created in 2015 by Mikhail Dubrovin
 """
