@@ -1,0 +1,811 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>GlobalUtils &#8212; pyimgalgos-doc 1 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">pyimgalgos-doc 1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for GlobalUtils</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">##-----------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:py:class:`GlobalUtils` contains collection of global utilities with a single call algorithms</span>
+<span class="sd">=============================================================================================</span>
+
+<span class="sd">Usage::</span>
+
+<span class="sd">    # Import</span>
+<span class="sd">    # ==============</span>
+<span class="sd">    from pyimgalgos.GlobalUtils import subtract_bkgd, mask_from_windows #, ...</span>
+<span class="sd">    from pyimgalgos.NDArrGenerators import random_standard_array</span>
+
+<span class="sd">    # Background subtraction</span>
+<span class="sd">    # ======================</span>
+<span class="sd">    # Example for cspad, assuming all nda_*.shape = (32,185,388)</span>
+<span class="sd">    winds_bkgd = [ (s, 10, 100, 270, 370) for s in (4,12,20,28)] # use part of segments 4,12,20, and 28 to subtract bkgd</span>
+<span class="sd">    nda = subtract_bkgd(nda_data, nda_bkgd, mask=nda_mask, winds=winds_bkgd, pbits=0)</span>
+
+<span class="sd">    # Operations with numpy array shape</span>
+<span class="sd">    # =================================</span>
+<span class="sd">    shape = (32,185,388)</span>
+<span class="sd">    size = size_from_shape(shape) # returns 32*185*388   </span>
+<span class="sd">    shape_2d = shape_as_2d(shape) # returns (32*185,388)</span>
+<span class="sd">    arr_2d = reshape_to_2d(nda)   # returns re-shaped ndarray</span>
+
+<span class="sd">    shape = (4,8,185,388)</span>
+<span class="sd">    shape_3d = shape_as_3d(shape) # returns (32,185,388)</span>
+<span class="sd">    arr_3d = reshape_to_3d(nda)   # returns re-shaped ndarray</span>
+
+<span class="sd">    # Make mask n-d numpy array using shape and windows</span>
+<span class="sd">    # =================================================</span>
+<span class="sd">    shape = (2,185,388)</span>
+<span class="sd">    w = 1</span>
+<span class="sd">    winds = [(s, w, 185-w, w, 388-w) for s in (0,1)]</span>
+<span class="sd">    mask = mask_from_windows(shape, winds)</span>
+
+<span class="sd">    # Make mask as 2,3-d numpy array for a few(width) rows/cols of pixels </span>
+<span class="sd">    # ===================================================================</span>
+<span class="sd">    mask2d = mask_2darr_edges(shape=(185,388), width=2)</span>
+<span class="sd">    mask3d = mask_3darr_edges(shape=(32,185,388), width=5)</span>
+
+<span class="sd">    # Make mask of local maximal intensity pixels in x-y (ignoring diagonals)</span>
+<span class="sd">    # ===================================================================</span>
+<span class="sd">    # works for 2-d and 3-d arrays only - reshape if needed.</span>
+
+<span class="sd">    data = random_standard_array(shape=(32,185,388), mu=0, sigma=10)</span>
+
+<span class="sd">    mask_xy_max = locxymax(data, order=1, mode=&#39;clip&#39;)</span>
+
+<span class="sd">    # Get string with time stamp, ex: 2016-01-26T10:40:53</span>
+<span class="sd">    # ===================================================================</span>
+<span class="sd">    ts = str_tstamp(fmt=&#39;%Y-%m-%dT%H:%M:%S&#39;, time_sec=None)</span>
+
+<span class="sd">    # Converters for Cheetah</span>
+<span class="sd">    # ======================</span>
+<span class="sd">    runnum, tstamp, tsec, fid = convertCheetahEventName(&#39;LCLS_2015_Feb22_r0169_022047_197f7&#39;, fmtts=&#39;%Y-%m-%dT%H:%M:%S&#39;)</span>
+
+<span class="sd">    table8x8 = table_from_cspad_ndarr(nda_cspad) </span>
+<span class="sd">    nda_cspad = cspad_ndarr_from_table(table8x8)</span>
+
+<span class="sd">    nda_32x185x388 = cspad_psana_from_cctbx(nda_64x185x194)</span>
+<span class="sd">    nda_64x185x194 = cspad_cctbx_from_psana(nda_32x185x388)</span>
+<span class="sd">    cross_check_cspad_psana_cctbx(nda_32x185x388, nda_64x185x194)</span>
+
+<span class="sd">    # Safe math</span>
+<span class="sd">    # =========</span>
+<span class="sd">    res = divide_protected(num, den, vsub_zero=0)</span>
+
+<span class="sd">    # Single line printed for np.array</span>
+<span class="sd">    # ================================</span>
+<span class="sd">    print_ndarr(nda, name=&#39;&#39;, first=0, last=5)</span>
+
+<span class="sd">    # Save image in file</span>
+<span class="sd">    # ==================</span>
+<span class="sd">    image = random_standard()</span>
+<span class="sd">    save_image_tiff(image, fname=&#39;image.tiff&#39;, verb=True) # 16-bit tiff</span>
+<span class="sd">    save_image_file(image, fname=&#39;image.png&#39;, verb=True) # gif, pdf, eps, png, jpg, jpeg, tiff (8-bit only)</span>
+
+<span class="sd">    # Create directory</span>
+<span class="sd">    # ==================</span>
+<span class="sd">    create_directory(&#39;work-dir&#39;)</span>
+
+<span class="sd">    # Test</span>
+<span class="sd">    # ======================</span>
+<span class="sd">    # is implemented for test numbers from 1 to 9. Command example</span>
+<span class="sd">    # python pyimgalgos/src/GlobalUtils.py 1</span>
+
+<span class="sd">See :py:class:`GlobalUtils`</span>
+
+<span class="sd">This software was developed for the SIT project.</span>
+<span class="sd">If you use all or part of it, please give an appropriate acknowledgment.</span>
+
+<span class="sd">Created by Mikhail Dubrovin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">argrelmax</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span><span class="p">,</span> <span class="n">strptime</span><span class="p">,</span> <span class="n">strftime</span><span class="p">,</span> <span class="n">localtime</span><span class="p">,</span> <span class="n">mktime</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="Storage"><a class="viewcode-back" href="../index.html#GlobalUtils.Storage">[docs]</a><span class="k">class</span> <span class="nc">Storage</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Store for shared parameters.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Image</span>     <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scim</span>      <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span>      <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">localtime</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strftime</span>  <span class="o">=</span> <span class="kc">None</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="n">sp</span> <span class="o">=</span> <span class="n">Storage</span><span class="p">()</span>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="size_from_shape"><a class="viewcode-back" href="../index.html#GlobalUtils.size_from_shape">[docs]</a><span class="k">def</span> <span class="nf">size_from_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns size from the shape sequence </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">size</span><span class="o">=</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">shape</span> <span class="p">:</span> <span class="n">size</span><span class="o">*=</span><span class="n">d</span>
+    <span class="k">return</span> <span class="n">size</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="shape_as_2d"><a class="viewcode-back" href="../index.html#GlobalUtils.shape_as_2d">[docs]</a><span class="k">def</span> <span class="nf">shape_as_2d</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns 2-d shape for n-d shape if n&gt;2, otherwise returns unchanged shape.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">3</span> <span class="p">:</span> <span class="k">return</span> <span class="n">sh</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">size_from_shape</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span><span class="o">/</span><span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="shape_as_3d"><a class="viewcode-back" href="../index.html#GlobalUtils.shape_as_3d">[docs]</a><span class="k">def</span> <span class="nf">shape_as_3d</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns 3-d shape for n-d shape if n&gt;3, otherwise returns unchanged shape.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">4</span> <span class="p">:</span> <span class="k">return</span> <span class="n">sh</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">size_from_shape</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span><span class="o">/</span><span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="reshape_to_2d"><a class="viewcode-back" href="../index.html#GlobalUtils.reshape_to_2d">[docs]</a><span class="k">def</span> <span class="nf">reshape_to_2d</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns n-d re-shaped to 2-d</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">arr</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape_as_2d</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="reshape_to_3d"><a class="viewcode-back" href="../index.html#GlobalUtils.reshape_to_3d">[docs]</a><span class="k">def</span> <span class="nf">reshape_to_3d</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns n-d re-shaped to 3-d</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">arr</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape_as_3d</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="mask_2darr_edges"><a class="viewcode-back" href="../index.html#GlobalUtils.mask_2darr_edges">[docs]</a><span class="k">def</span> <span class="nf">mask_2darr_edges</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns mask with masked width rows/colunms of edge pixels for 2-d numpy array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">shape</span><span class="p">,</span> <span class="n">width</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">w</span><span class="p">:</span><span class="o">-</span><span class="n">w</span><span class="p">,</span><span class="n">w</span><span class="p">:</span><span class="o">-</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">w</span><span class="p">,</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">w</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mask</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="mask_3darr_edges"><a class="viewcode-back" href="../index.html#GlobalUtils.mask_3darr_edges">[docs]</a><span class="k">def</span> <span class="nf">mask_3darr_edges</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns mask with masked width rows/colunms of edge pixels for 3-d numpy array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">shape</span><span class="p">,</span> <span class="n">width</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="n">mask</span><span class="p">[:,</span><span class="n">w</span><span class="p">:</span><span class="o">-</span><span class="n">w</span><span class="p">,</span><span class="n">w</span><span class="p">:</span><span class="o">-</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">w</span><span class="p">,</span><span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">w</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mask</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="mask_from_windows"><a class="viewcode-back" href="../index.html#GlobalUtils.mask_from_windows">[docs]</a><span class="k">def</span> <span class="nf">mask_from_windows</span><span class="p">(</span><span class="n">ashape</span><span class="o">=</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">),</span> <span class="n">winds</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Makes mask as 2-d or 3-d numpy array defined by the shape with ones in windows.</span>
+<span class="sd">       N-d shape for N&gt;3 is converted to 3-d.</span>
+<span class="sd">       @param shape - shape of the output numpy array with mask.</span>
+<span class="sd">       @param winds - list of windows, each window is a sequence of 5 parameters (segment, rowmin, rowmax, colmin, colmax)     </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ashape</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="n">ndim</span><span class="o">&lt;</span><span class="mi">2</span> <span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;ERROR in mask_from_windows(...):&#39;</span><span class="p">,</span>\
+              <span class="s1">&#39; Wrong number of dimensions </span><span class="si">%d</span><span class="s1"> in the shape=</span><span class="si">%s</span><span class="s1"> parameter. Allowed ndim&gt;1.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">ashape</span> <span class="k">if</span> <span class="n">ndim</span><span class="o">&lt;</span><span class="mi">4</span> <span class="k">else</span> <span class="n">shape_as_3d</span><span class="p">(</span><span class="n">ashape</span><span class="p">)</span>
+
+    <span class="n">seg1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span> <span class="c1"># shaped as last two dimensions</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="p">:</span>
+        <span class="k">for</span> <span class="n">seg</span><span class="p">,</span><span class="n">rmin</span><span class="p">,</span><span class="n">rmax</span><span class="p">,</span><span class="n">cmin</span><span class="p">,</span><span class="n">cmax</span> <span class="ow">in</span> <span class="n">winds</span> <span class="p">:</span> <span class="n">mask</span><span class="p">[</span><span class="n">rmin</span><span class="p">:</span><span class="n">rmax</span><span class="p">,</span><span class="n">cmin</span><span class="p">:</span><span class="n">cmax</span><span class="p">]</span> <span class="o">=</span>  <span class="n">seg1</span><span class="p">[</span><span class="n">rmin</span><span class="p">:</span><span class="n">rmax</span><span class="p">,</span><span class="n">cmin</span><span class="p">:</span><span class="n">cmax</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">mask</span>
+
+    <span class="k">elif</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="p">:</span>
+        <span class="k">for</span> <span class="n">seg</span><span class="p">,</span><span class="n">rmin</span><span class="p">,</span><span class="n">rmax</span><span class="p">,</span><span class="n">cmin</span><span class="p">,</span><span class="n">cmax</span> <span class="ow">in</span> <span class="n">winds</span> <span class="p">:</span> <span class="n">mask</span><span class="p">[</span><span class="n">seg</span><span class="p">,</span><span class="n">rmin</span><span class="p">:</span><span class="n">rmax</span><span class="p">,</span><span class="n">cmin</span><span class="p">:</span><span class="n">cmax</span><span class="p">]</span> <span class="o">=</span>  <span class="n">seg1</span><span class="p">[</span><span class="n">rmin</span><span class="p">:</span><span class="n">rmax</span><span class="p">,</span><span class="n">cmin</span><span class="p">:</span><span class="n">cmax</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">mask</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="list_of_windarr"><a class="viewcode-back" href="../index.html#GlobalUtils.list_of_windarr">[docs]</a><span class="k">def</span> <span class="nf">list_of_windarr</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">winds</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Converts 2-d or 3-d numpy array in the list of 2-d numpy arrays for windows</span>
+<span class="sd">       @param nda - input 2-d or 3-d numpy array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="c1">#print &#39;len(nda.shape): &#39;, ndim</span>
+
+    <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">nda</span><span class="p">]</span> <span class="k">if</span> <span class="n">winds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> \
+               <span class="p">[</span><span class="n">nda</span><span class="p">[</span><span class="n">rmin</span><span class="p">:</span><span class="n">rmax</span><span class="p">,</span> <span class="n">cmin</span><span class="p">:</span><span class="n">cmax</span><span class="p">]</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">cmin</span><span class="p">,</span> <span class="n">cmax</span><span class="p">)</span> <span class="ow">in</span> <span class="n">winds</span><span class="p">]</span>
+
+    <span class="k">elif</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">nda</span><span class="p">[</span><span class="n">s</span><span class="p">,:,:]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="k">if</span> <span class="n">winds</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> \
+               <span class="p">[</span><span class="n">nda</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">rmin</span><span class="p">:</span><span class="n">rmax</span><span class="p">,</span> <span class="n">cmin</span><span class="p">:</span><span class="n">cmax</span><span class="p">]</span> <span class="k">for</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="n">cmin</span><span class="p">,</span> <span class="n">cmax</span><span class="p">)</span> <span class="ow">in</span> <span class="n">winds</span><span class="p">]</span>
+
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;ERROR in list_of_windarr (with winds): Unexpected number of n-d array dimensions: ndim = </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ndim</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="mean_of_listwarr"><a class="viewcode-back" href="../index.html#GlobalUtils.mean_of_listwarr">[docs]</a><span class="k">def</span> <span class="nf">mean_of_listwarr</span><span class="p">(</span><span class="n">lst_warr</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates the mean value of the list of 2-d arrays.</span>
+<span class="sd">       @lst_warr - list of numpy arrays to evaluate per pixel mean intensity value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s1</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span> 
+    <span class="k">for</span> <span class="n">warr</span> <span class="ow">in</span> <span class="n">lst_warr</span> <span class="p">:</span>
+        <span class="n">sa</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">warr</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">s1</span> <span class="o">+=</span> <span class="n">warr</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">return</span> <span class="n">sa</span><span class="o">/</span><span class="n">s1</span> <span class="k">if</span> <span class="n">s1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="subtract_bkgd"><a class="viewcode-back" href="../index.html#GlobalUtils.subtract_bkgd">[docs]</a><span class="k">def</span> <span class="nf">subtract_bkgd</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bkgd</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">winds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pbits</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Subtracts numpy array of bkgd from data using normalization in windows for good pixels in mask.</span>
+<span class="sd">       Shapes of data, bkgd, and mask numpy arrays should be the same.</span>
+<span class="sd">       Each window is specified by 5 parameters: (segment, rowmin, rowmax, colmin, colmax)</span>
+<span class="sd">       For 2-d arrays segment index is not used, but still 5 parameters needs to be specified.</span>
+
+<span class="sd">       Parameters</span>
+
+<span class="sd">       - data - numpy array for data.</span>
+<span class="sd">       - bkgd - numpy array for background.</span>
+<span class="sd">       - mask - numpy array for mask.</span>
+<span class="sd">       - winds - list of windows, each window is a sequence of 5 parameters.     </span>
+<span class="sd">       - pbits - print control bits; =0 - print nothing, !=0 - normalization factor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mdata</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data</span><span class="o">*</span><span class="n">mask</span>
+    <span class="n">mbkgd</span> <span class="o">=</span> <span class="n">bkgd</span> <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">bkgd</span><span class="o">*</span><span class="n">mask</span>
+
+    <span class="n">lwdata</span> <span class="o">=</span> <span class="n">list_of_windarr</span><span class="p">(</span><span class="n">mdata</span><span class="p">,</span> <span class="n">winds</span><span class="p">)</span>
+    <span class="n">lwbkgd</span> <span class="o">=</span> <span class="n">list_of_windarr</span><span class="p">(</span><span class="n">mbkgd</span><span class="p">,</span> <span class="n">winds</span><span class="p">)</span>
+    
+    <span class="n">mean_data</span> <span class="o">=</span> <span class="n">mean_of_listwarr</span><span class="p">(</span><span class="n">lwdata</span><span class="p">)</span>
+    <span class="n">mean_bkgd</span> <span class="o">=</span> <span class="n">mean_of_listwarr</span><span class="p">(</span><span class="n">lwbkgd</span><span class="p">)</span>
+
+    <span class="n">frac</span> <span class="o">=</span> <span class="n">mean_data</span><span class="o">/</span><span class="n">mean_bkgd</span>
+    <span class="k">if</span> <span class="n">pbits</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;subtract_bkgd, fraction = </span><span class="si">%10.6f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">frac</span>
+
+    <span class="k">return</span> <span class="n">data</span> <span class="o">-</span> <span class="n">bkgd</span><span class="o">*</span><span class="n">frac</span></div>
+
+
+
+<span class="c1">##-----------------------------</span>
+<span class="c1"># See: http://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.argrelmax.html#scipy.signal.argrelmax</span>
+
+<div class="viewcode-block" id="locxymax"><a class="viewcode-back" href="../index.html#GlobalUtils.locxymax">[docs]</a><span class="k">def</span> <span class="nf">locxymax</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;clip&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;For 2-d or 3-d numpy array finds mask of local maxima in x and y axes (diagonals are ignored) </span>
+<span class="sd">       using scipy.signal.argrelmax and return their product.</span>
+
+<span class="sd">       @param nda - input ndarray</span>
+<span class="sd">       @param order - range to search for local maxima along each dimension</span>
+<span class="sd">       @param mode - parameter of scipy.signal.argrelmax of how to treat the boarder</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">size</span>  <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ndim</span><span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">ndim</span><span class="o">&gt;</span><span class="mi">3</span> <span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;ERROR: locxymax nda shape </span><span class="si">%s</span><span class="s1"> should be 2-d or 3-d&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">ext_cols</span> <span class="o">=</span> <span class="n">argrelmax</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    <span class="n">ext_rows</span> <span class="o">=</span> <span class="n">argrelmax</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+    
+    <span class="n">indc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ext_cols</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="n">indr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ext_rows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+
+    <span class="n">msk_ext_cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+    <span class="n">msk_ext_rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="p">:</span>
+        <span class="n">icr</span> <span class="o">=</span> <span class="n">indc</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> 
+        <span class="n">icc</span> <span class="o">=</span> <span class="n">indc</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
+        <span class="n">irr</span> <span class="o">=</span> <span class="n">indr</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
+        <span class="n">irc</span> <span class="o">=</span> <span class="n">indr</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
+
+        <span class="n">msk_ext_cols</span><span class="p">[</span><span class="n">icr</span><span class="p">,</span><span class="n">icc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">msk_ext_rows</span><span class="p">[</span><span class="n">irr</span><span class="p">,</span><span class="n">irc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">elif</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="p">:</span>
+        <span class="n">ics</span> <span class="o">=</span> <span class="n">indc</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> 
+        <span class="n">icr</span> <span class="o">=</span> <span class="n">indc</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> 
+        <span class="n">icc</span> <span class="o">=</span> <span class="n">indc</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span>
+        <span class="n">irs</span> <span class="o">=</span> <span class="n">indr</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span>
+        <span class="n">irr</span> <span class="o">=</span> <span class="n">indr</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span>
+        <span class="n">irc</span> <span class="o">=</span> <span class="n">indr</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span>
+
+        <span class="n">msk_ext_cols</span><span class="p">[</span><span class="n">ics</span><span class="p">,</span><span class="n">icr</span><span class="p">,</span><span class="n">icc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">msk_ext_rows</span><span class="p">[</span><span class="n">irs</span><span class="p">,</span><span class="n">irr</span><span class="p">,</span><span class="n">irc</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1">#print &#39;nda.size:&#39;,   nda.size</span>
+    <span class="c1">#print &#39;indc.shape:&#39;, indc.shape</span>
+    <span class="c1">#print &#39;indr.shape:&#39;, indr.shape</span>
+    
+    <span class="k">return</span> <span class="n">msk_ext_rows</span> <span class="o">*</span> <span class="n">msk_ext_cols</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="str_tstamp"><a class="viewcode-back" href="../index.html#GlobalUtils.str_tstamp">[docs]</a><span class="k">def</span> <span class="nf">str_tstamp</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">time_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns string timestamp for specified format and time in sec or current time by default</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">localtime</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">:</span> <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">localtime</span><span class="p">,</span> <span class="n">strftime</span><span class="p">;</span> <span class="n">sp</span><span class="o">.</span><span class="n">localtime</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">strftime</span> <span class="o">=</span> <span class="n">localtime</span><span class="p">,</span> <span class="n">strftime</span>
+
+    <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">sp</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">time_sec</span><span class="p">))</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="save_image_tiff"><a class="viewcode-back" href="../index.html#GlobalUtils.save_image_tiff">[docs]</a><span class="k">def</span> <span class="nf">save_image_tiff</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;image.tiff&#39;</span><span class="p">,</span> <span class="n">verb</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Saves image in 16-bit tiff file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">Image</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">:</span> <span class="kn">import</span> <span class="nn">Image</span><span class="p">;</span> <span class="n">sp</span><span class="o">.</span><span class="n">Image</span><span class="o">=</span><span class="n">Image</span>
+
+    <span class="k">if</span> <span class="n">verb</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;Save image in file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fname</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">))</span>
+    <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span></div>
+
+<span class="c1">##-----------------------------</span>
+
+<div class="viewcode-block" id="save_image_file"><a class="viewcode-back" href="../index.html#GlobalUtils.save_image_file">[docs]</a><span class="k">def</span> <span class="nf">save_image_file</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;image.png&#39;</span><span class="p">,</span> <span class="n">verb</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Saves files with type by extension gif, pdf, eps, png, jpg, jpeg, tiff (8-bit only),</span>
+<span class="sd">       or txt for any other type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">scim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">:</span> <span class="kn">import</span> <span class="nn">scipy.misc</span> <span class="k">as</span> <span class="nn">scim</span><span class="p">;</span> <span class="n">sp</span><span class="o">.</span><span class="n">scim</span><span class="o">=</span><span class="n">scim</span> 
+
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;.gif&#39;</span><span class="p">,</span> <span class="s1">&#39;.pdf&#39;</span><span class="p">,</span> <span class="s1">&#39;.eps&#39;</span><span class="p">,</span> <span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;.jpeg&#39;</span><span class="p">,</span> <span class="s1">&#39;.tiff&#39;</span><span class="p">]</span> <span class="p">:</span> 
+        <span class="k">if</span> <span class="n">verb</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;Save image in file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fname</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">scim</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span> 
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="k">if</span> <span class="n">verb</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;Non-supported file extension. Save image in text file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fname</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%8.1f</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+        <span class="c1">#raise IOError(&#39;Unknown file type in extension %s&#39; % fname)</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="convertCheetahEventName"><a class="viewcode-back" href="../index.html#GlobalUtils.convertCheetahEventName">[docs]</a><span class="k">def</span> <span class="nf">convertCheetahEventName</span><span class="p">(</span><span class="n">evname</span><span class="p">,</span> <span class="n">fmtts</span><span class="o">=</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Converts Cheetah event name like &#39;LCLS_2015_Feb22_r0169_022047_197f7&#39;</span>
+<span class="sd">       and returns runnum, tstamp, tsec, fid = 169, &#39;2015-02-22T02:20:47&#39;, &lt;tsec&gt;, 197f7</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">evname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">6</span> <span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cheetah event name has unexpected structure (ex: &#39;</span>\
+                         <span class="s1">&#39;LCLS_2015_Feb22_r0169_022047_197f7) </span><span class="se">\n</span><span class="s1"> number of fields is not 6: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">evname</span><span class="p">)</span>
+
+    <span class="n">s_factory</span><span class="p">,</span> <span class="n">s_year</span><span class="p">,</span> <span class="n">s_mon_day</span><span class="p">,</span> <span class="n">s_run</span><span class="p">,</span> <span class="n">s_time</span><span class="p">,</span> <span class="n">s_fid</span> <span class="o">=</span> <span class="n">fields</span>
+    
+    <span class="c1">#fid    = int(s_fid, 16)</span>
+    <span class="n">runnum</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">s_run</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+    <span class="n">struct</span> <span class="o">=</span> <span class="n">strptime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">s_year</span><span class="p">,</span> <span class="n">s_mon_day</span><span class="p">,</span> <span class="n">s_time</span><span class="p">),</span> <span class="s1">&#39;%Y-%b</span><span class="si">%d</span><span class="s1">-%H%M%S&#39;</span><span class="p">)</span>
+    <span class="n">tsec</span>   <span class="o">=</span> <span class="n">mktime</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+    <span class="n">tstamp</span> <span class="o">=</span> <span class="n">strftime</span><span class="p">(</span><span class="n">fmtts</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="n">tsec</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">runnum</span><span class="p">,</span> <span class="n">tstamp</span><span class="p">,</span> <span class="n">tsec</span><span class="p">,</span> <span class="n">s_fid</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="src_from_rc8x8"><a class="viewcode-back" href="../index.html#GlobalUtils.src_from_rc8x8">[docs]</a><span class="k">def</span> <span class="nf">src_from_rc8x8</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Converts Cheetah 8x8 ASICs table row and column to seg, row, col coordinates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qsegs</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">185</span><span class="p">,</span> <span class="mi">388</span><span class="p">)</span> 
+    <span class="n">quad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">col</span><span class="o">/</span><span class="n">cols</span><span class="p">)</span> <span class="c1"># [0,3]</span>
+    <span class="n">qseg</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">row</span><span class="o">/</span><span class="n">rows</span><span class="p">)</span> <span class="c1"># [0,7]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">qsegs</span><span class="o">*</span><span class="n">quad</span> <span class="o">+</span> <span class="n">qseg</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">col</span><span class="o">%</span><span class="n">cols</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">fmod</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">row</span><span class="o">%</span><span class="n">rows</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">fmod</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">print_ndarr</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="p">:</span>
+    <span class="k">if</span> <span class="n">nda</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">nda</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="p">:</span> <span class="n">print_ndarr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span> <span class="s1">&#39;ndarray from tuple: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>  <span class="p">:</span> <span class="n">print_ndarr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span> <span class="s1">&#39;ndarray from list: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="p">:</span>
+                     <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">nda</span><span class="p">))</span>
+    <span class="k">else</span>           <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:  shape:</span><span class="si">%s</span><span class="s1">  size:</span><span class="si">%d</span><span class="s1">  dtype:</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">...&#39;</span> <span class="o">%</span> \
+         <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">nda</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">nda</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="n">first</span><span class="p">:</span><span class="n">last</span><span class="p">])</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="table_from_cspad_ndarr"><a class="viewcode-back" href="../index.html#GlobalUtils.table_from_cspad_ndarr">[docs]</a><span class="k">def</span> <span class="nf">table_from_cspad_ndarr</span><span class="p">(</span><span class="n">nda_cspad</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;returns table of 2x1s shaped as (8*185, 4*388) in style of Cheetah</span>
+<span class="sd">       generated from cspad array with size=(32*185*388) ordered as in data, shape does not matter. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shape</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="o">*</span><span class="mi">185</span><span class="p">,</span> <span class="mi">388</span><span class="p">),</span> <span class="mi">4</span><span class="o">*</span><span class="mi">8</span><span class="o">*</span><span class="mi">185</span><span class="o">*</span><span class="mi">388</span>
+    <span class="k">if</span> <span class="n">nda_cspad</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">size</span> <span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input array size: </span><span class="si">%d</span><span class="s1"> is not consistent with cspad size: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nda_cspad</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+    <span class="n">shape_in</span> <span class="o">=</span> <span class="n">nda_cspad</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># preserve original shape</span>
+    <span class="n">nda_cspad</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>    <span class="c1"># reshape to what we need</span>
+    <span class="n">nda_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">nda_cspad</span><span class="p">[</span><span class="n">q</span><span class="p">,:]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span>
+    <span class="n">nda_cspad</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape_in</span> <span class="c1"># restore original shape</span>
+    <span class="k">return</span> <span class="n">nda_out</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="cspad_ndarr_from_table"><a class="viewcode-back" href="../index.html#GlobalUtils.cspad_ndarr_from_table">[docs]</a><span class="k">def</span> <span class="nf">cspad_ndarr_from_table</span><span class="p">(</span><span class="n">table8x8</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;returns cspad array with shape=(32,185,388)</span>
+<span class="sd">       generated from table of 2x1s shaped as (8*185, 4*388) in style of Cheetah</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">quads</span><span class="p">,</span> <span class="n">segs</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">)</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">quads</span> <span class="o">*</span> <span class="n">segs</span> <span class="o">*</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span>
+    <span class="n">shape8x8</span> <span class="o">=</span> <span class="p">(</span><span class="n">segs</span><span class="o">*</span><span class="n">rows</span><span class="p">,</span> <span class="n">quads</span><span class="o">*</span><span class="n">cols</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">table8x8</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">size</span> <span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input array size: </span><span class="si">%d</span><span class="s1"> is not consistent with cspad size: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">table8x8</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">table8x8</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape8x8</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input array shape: </span><span class="si">%s</span><span class="s1"> is not consistent with cspad 8x8 table shape: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">table8x8</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape8x8</span><span class="p">))</span>
+
+    <span class="n">nda_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">table8x8</span><span class="p">[:,</span><span class="n">q</span><span class="o">*</span><span class="n">cols</span><span class="p">:(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">cols</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">quads</span><span class="p">)])</span> <span class="c1"># shape:(4, 1480, 388)</span>
+    <span class="n">nda_out</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">quads</span><span class="o">*</span><span class="n">segs</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nda_out</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="cspad_psana_from_cctbx"><a class="viewcode-back" href="../index.html#GlobalUtils.cspad_psana_from_cctbx">[docs]</a><span class="k">def</span> <span class="nf">cspad_psana_from_cctbx</span><span class="p">(</span><span class="n">nda_in</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;returns cspad array (32, 185, 388) from cctbx array of ASICs (64, 185, 194)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">asics</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">colsh</span> <span class="o">=</span> <span class="n">shape_in</span> <span class="o">=</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">194</span><span class="p">)</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">asics</span> <span class="o">*</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">colsh</span>
+    <span class="n">segs</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">asics</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">colsh</span><span class="o">*</span><span class="mi">2</span>
+    
+    <span class="k">if</span> <span class="n">nda_in</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">size</span> <span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input array size: </span><span class="si">%d</span><span class="s1"> is not consistent with cspad size: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nda_in</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">nda_in</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape_in</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input array shape: </span><span class="si">%s</span><span class="s1"> is not consistent with cspad 8x8 table shape: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nda_in</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_in</span><span class="p">))</span>
+
+    <span class="n">nda_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">segs</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">nda_in</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">segs</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">a</span><span class="o">=</span><span class="n">s</span><span class="o">*</span><span class="mi">2</span> <span class="c1"># ASIC[0] in segment</span>
+        <span class="n">nda_out</span><span class="p">[</span><span class="n">s</span><span class="p">,:,</span><span class="mi">0</span><span class="p">:</span><span class="n">colsh</span><span class="p">]</span>    <span class="o">=</span> <span class="n">nda_in</span><span class="p">[</span><span class="n">a</span><span class="p">,:,:]</span>
+        <span class="n">nda_out</span><span class="p">[</span><span class="n">s</span><span class="p">,:,</span><span class="n">colsh</span><span class="p">:</span><span class="n">cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">nda_in</span><span class="p">[</span><span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="p">,:,:]</span>
+
+    <span class="k">return</span> <span class="n">nda_out</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="cspad_cctbx_from_psana"><a class="viewcode-back" href="../index.html#GlobalUtils.cspad_cctbx_from_psana">[docs]</a><span class="k">def</span> <span class="nf">cspad_cctbx_from_psana</span><span class="p">(</span><span class="n">nda_in</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;returns cctbx array of ASICs (64, 185, 194) from cspad array (32, 185, 388)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">segs</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">shape_in</span> <span class="o">=</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">)</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">segs</span> <span class="o">*</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span>
+    <span class="n">colsh</span> <span class="o">=</span> <span class="n">cols</span><span class="o">/</span><span class="mi">2</span>
+
+    <span class="k">if</span> <span class="n">nda_in</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="n">size</span> <span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input array size: </span><span class="si">%d</span><span class="s1"> is not consistent with cspad size: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nda_in</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">nda_in</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">shape_in</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Input array shape: </span><span class="si">%s</span><span class="s1"> is not consistent with cspad shape: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nda_in</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_in</span><span class="p">))</span>
+
+    <span class="n">nda_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">segs</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">nda_in</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">segs</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">a</span><span class="o">=</span><span class="n">s</span><span class="o">*</span><span class="mi">2</span> <span class="c1"># ASIC[0] in segment</span>
+        <span class="n">nda_out</span><span class="p">[</span><span class="n">a</span><span class="p">,:,:]</span>   <span class="o">=</span> <span class="n">nda_in</span><span class="p">[</span><span class="n">s</span><span class="p">,:,</span><span class="mi">0</span><span class="p">:</span><span class="n">colsh</span><span class="p">]</span>
+        <span class="n">nda_out</span><span class="p">[</span><span class="n">a</span><span class="o">+</span><span class="mi">1</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">nda_in</span><span class="p">[</span><span class="n">s</span><span class="p">,:,</span><span class="n">colsh</span><span class="p">:</span><span class="n">cols</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">nda_out</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="cross_check_cspad_psana_cctbx"><a class="viewcode-back" href="../index.html#GlobalUtils.cross_check_cspad_psana_cctbx">[docs]</a><span class="k">def</span> <span class="nf">cross_check_cspad_psana_cctbx</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">arr</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Apply two-way conversions between psana and cctbx cspad arrays and compare.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">nda_c</span> <span class="o">=</span> <span class="n">cspad_psana_from_cctbx</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="n">dt1</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0_sec</span>
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">arr_c</span> <span class="o">=</span> <span class="n">cspad_cctbx_from_psana</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span>
+    <span class="n">dt2</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0_sec</span>
+    <span class="nb">print</span> <span class="s1">&#39;psana ndarray is equal to converted from cctbx: </span><span class="si">%s</span><span class="s1">, time = </span><span class="si">%.6f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">nda_c</span><span class="p">),</span> <span class="n">dt1</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;cctbx ndarray is equal to converted from psana: </span><span class="si">%s</span><span class="s1">, time = </span><span class="si">%.6f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">arr_c</span><span class="p">),</span> <span class="n">dt2</span><span class="p">)</span></div>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="divide_protected"><a class="viewcode-back" href="../index.html#GlobalUtils.divide_protected">[docs]</a><span class="k">def</span> <span class="nf">divide_protected</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">den</span><span class="p">,</span> <span class="n">vsub_zero</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns result of devision of numpy arrays num/den with substitution of value vsub_zero for zero den elements.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pro_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">((</span><span class="n">den</span><span class="o">!=</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="n">num</span><span class="p">,),</span> <span class="n">default</span><span class="o">=</span><span class="n">vsub_zero</span><span class="p">)</span>
+    <span class="n">pro_den</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">((</span><span class="n">den</span><span class="o">!=</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="n">den</span><span class="p">,),</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pro_num</span> <span class="o">/</span> <span class="n">pro_den</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">create_directory</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span> <span class="p">:</span>
+    <span class="k">if</span> <span class="nb">dir</span><span class="o">==</span><span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span> <span class="k">return</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span> <span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;Directory exists: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">dir</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="s1">&#39;Directory created: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">dir</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="print_command_line_parameters"><a class="viewcode-back" href="../index.html#GlobalUtils.print_command_line_parameters">[docs]</a><span class="k">def</span> <span class="nf">print_command_line_parameters</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Prints input arguments and optional parameters&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">popts</span><span class="p">,</span> <span class="n">pargs</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">pargs</span>                             <span class="c1"># list of positional arguments</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">popts</span><span class="p">)</span>                       <span class="c1"># dict of options</span>
+    <span class="n">defs</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">get_default_values</span><span class="p">())</span> <span class="c1"># dict of default options</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;Command:</span><span class="se">\n</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span><span class="o">+</span>\
+          <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Argument list: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">Optional parameters:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">+</span>\
+          <span class="s1">&#39;  &lt;key&gt;      &lt;value&gt;              &lt;default&gt;&#39;</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;  </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">defs</span><span class="p">[</span><span class="n">k</span><span class="p">])</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">sigma_h</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span> <span class="p">:</span>
+    <span class="k">if</span> <span class="n">pk</span><span class="o">.</span><span class="n">seg</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span><span class="mi">27</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">31</span><span class="p">)</span> <span class="p">:</span> <span class="k">return</span> <span class="n">pk</span><span class="o">.</span><span class="n">rsigma</span> 
+    <span class="k">return</span> <span class="n">pk</span><span class="o">.</span><span class="n">csigma</span>
+
+<span class="k">def</span> <span class="nf">sigma_v</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span> <span class="p">:</span>
+    <span class="k">if</span> <span class="n">pk</span><span class="o">.</span><span class="n">seg</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span><span class="mi">27</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">31</span><span class="p">)</span> <span class="p">:</span> <span class="k">return</span> <span class="n">pk</span><span class="o">.</span><span class="n">csigma</span> 
+    <span class="k">return</span> <span class="n">pk</span><span class="o">.</span><span class="n">rsigma</span>
+
+<span class="k">def</span> <span class="nf">sigma_hov</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span> <span class="p">:</span>
+    <span class="n">sh</span> <span class="o">=</span> <span class="n">sigma_h</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span>
+    <span class="n">sv</span> <span class="o">=</span> <span class="n">sigma_v</span><span class="p">(</span><span class="n">pk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sh</span><span class="o">/</span><span class="n">sv</span> <span class="k">if</span> <span class="n">sv</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">10</span>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="sd">&quot;&quot;&quot;Aliases&quot;&quot;&quot;</span>
+
+<span class="n">table8x8_from_cspad_ndarr</span> <span class="o">=</span> <span class="n">table_from_cspad_ndarr</span>
+<span class="n">cspad_ndarr_from_table8x8</span> <span class="o">=</span> <span class="n">cspad_ndarr_from_table</span>
+<span class="c1"># See tests in Detector/examples/ex_ndarray_from_image.py</span>
+
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+<span class="c1">##---------- TEST -------------</span>
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_01</span><span class="p">()</span> <span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pyimgalgos.NDArrGenerators</span> <span class="k">import</span> <span class="n">random_standard</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;Test method subtract_bkgd(...):&#39;</span><span class="p">)</span>
+    <span class="n">shape1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">)</span>
+    <span class="n">winds</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">155</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">358</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">random_standard</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">shape1</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">bkgd</span> <span class="o">=</span> <span class="n">random_standard</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">shape1</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">cdata</span> <span class="o">=</span> <span class="n">subtract_bkgd</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bkgd</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">winds</span><span class="o">=</span><span class="n">winds</span><span class="p">,</span> <span class="n">pbits</span><span class="o">=</span><span class="mi">0377</span><span class="p">)</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_02</span><span class="p">()</span> <span class="p">:</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;Test method size_from_shape(shape):&#39;</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;  shape=</span><span class="si">%s</span><span class="s1">,  size_from_shape(shape)=</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">size_from_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_03</span><span class="p">()</span> <span class="p">:</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;Test method shape_as_2d(shape):&#39;</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;  shape=</span><span class="si">%s</span><span class="s1">,  shape_as_2d(shape)=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_as_2d</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_04</span><span class="p">()</span> <span class="p">:</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;Test method shape_as_3d(shape):&#39;</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;  shape=</span><span class="si">%s</span><span class="s1">,  shape_as_3d(shape)=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">shape_as_3d</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_05</span><span class="p">()</span> <span class="p">:</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;Test method mask_from_windows(shape, winds):&#39;</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">winds</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">185</span><span class="o">-</span><span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="mi">388</span><span class="o">-</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">mask_from_windows</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">winds</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;  shape=</span><span class="si">%s</span><span class="s1"> </span><span class="se">\n</span><span class="s1">winds:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">, </span><span class="se">\n</span><span class="s1">mask_from_windows(shape, winds):</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">winds</span><span class="p">,</span> <span class="n">mask_from_windows</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">winds</span><span class="p">))</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_06</span><span class="p">()</span> <span class="p">:</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;Test method mask_3darr_edges(shape, width):&#39;</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="nb">print</span> <span class="s1">&#39;  shape=</span><span class="si">%s</span><span class="s1">, masking width=</span><span class="si">%d</span><span class="s1">, mask_3darr_edges(shape, width):</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">mask_3darr_edges</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_07</span><span class="p">()</span> <span class="p">:</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;Test method mask_2darr_edges(shape, width):&#39;</span><span class="p">)</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="nb">print</span> <span class="s1">&#39;  shape=</span><span class="si">%s</span><span class="s1">, masking width=</span><span class="si">%d</span><span class="s1">, mask_2darr_edges(shape, width):</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">mask_2darr_edges</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_08</span><span class="p">()</span> <span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+    <span class="kn">import</span> <span class="nn">pyimgalgos.GlobalGraphics</span> <span class="k">as</span> <span class="nn">gg</span>
+    <span class="kn">from</span> <span class="nn">pyimgalgos.NDArrGenerators</span> <span class="k">import</span> <span class="n">random_standard</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="s1">&#39;Test method locxymax(nda, order, mode):&#39;</span><span class="p">)</span>
+    <span class="c1">#data = random_standard(shape=(32,185,388), mu=0, sigma=10)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">random_standard</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">185</span><span class="p">,</span><span class="mi">388</span><span class="p">),</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">locxymax</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;clip&#39;</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;Consumed t = </span><span class="si">%10.6f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="kc">True</span> <span class="p">:</span>
+      <span class="n">img</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span> <span class="k">else</span> <span class="n">reshape_to_2d</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+      <span class="n">msk</span> <span class="o">=</span> <span class="n">mask</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span> <span class="k">else</span> <span class="n">reshape_to_2d</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+      <span class="n">ave</span><span class="p">,</span> <span class="n">rms</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">img</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+      <span class="n">amin</span><span class="p">,</span> <span class="n">amax</span> <span class="o">=</span> <span class="n">ave</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">rms</span><span class="p">,</span> <span class="n">ave</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">rms</span>
+      <span class="n">gg</span><span class="o">.</span><span class="n">plotImageLarge</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="p">(</span><span class="n">amin</span><span class="p">,</span> <span class="n">amax</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">)</span>
+      <span class="n">gg</span><span class="o">.</span><span class="n">plotImageLarge</span><span class="p">(</span><span class="n">msk</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;mask loc max&#39;</span><span class="p">)</span>
+      <span class="n">gg</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_09</span><span class="p">()</span> <span class="p">:</span>
+    <span class="nb">print</span> <span class="n">str_tstamp</span><span class="p">()</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_10</span><span class="p">()</span> <span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">pyimgalgos.NDArrGenerators</span> <span class="k">import</span> <span class="n">random_standard</span>
+
+    <span class="n">image</span> <span class="o">=</span> <span class="n">random_standard</span><span class="p">()</span>
+    <span class="n">verbosity</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">save_image_tiff</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;image.tiff&#39;</span><span class="p">,</span> <span class="n">verb</span><span class="o">=</span><span class="n">verbosity</span><span class="p">)</span>
+    <span class="n">save_image_file</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;image.png&#39;</span><span class="p">,</span>  <span class="n">verb</span><span class="o">=</span><span class="n">verbosity</span><span class="p">)</span>
+    <span class="n">save_image_file</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;image.xyz&#39;</span><span class="p">,</span>  <span class="n">verb</span><span class="o">=</span><span class="n">verbosity</span><span class="p">)</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_11</span><span class="p">()</span> <span class="p">:</span>
+    <span class="n">eventName</span> <span class="o">=</span> <span class="s1">&#39;LCLS_2015_Feb22_r0169_022047_197f7&#39;</span>
+    <span class="n">runnum</span><span class="p">,</span> <span class="n">tstamp</span><span class="p">,</span> <span class="n">tsec</span><span class="p">,</span> <span class="n">fid</span> <span class="o">=</span> <span class="n">convertCheetahEventName</span><span class="p">(</span><span class="n">eventName</span><span class="p">,</span> <span class="n">fmtts</span><span class="o">=</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S&#39;</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;Method convertCheetahEventName converts Cheetah event name </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">eventName</span><span class="p">,</span>\
+          <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">to runnum: </span><span class="si">%d</span><span class="s1">  tstamp: </span><span class="si">%s</span><span class="s1">  tsec: </span><span class="si">%d</span><span class="s1">  fid: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">runnum</span><span class="p">,</span> <span class="n">tstamp</span><span class="p">,</span> <span class="n">tsec</span><span class="p">,</span> <span class="n">fid</span><span class="p">)</span>
+
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">usage</span><span class="p">()</span> <span class="p">:</span> <span class="k">return</span> <span class="s1">&#39;Use command: python </span><span class="si">%s</span><span class="s1"> &lt;test-number&gt;, where &lt;test-number&gt; = 1,2,...,7,...&#39;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="p">:</span>    
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">usage</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">test_01</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;1&#39;</span> <span class="p">:</span> <span class="n">test_01</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;2&#39;</span> <span class="p">:</span> <span class="n">test_02</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;3&#39;</span> <span class="p">:</span> <span class="n">test_03</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;4&#39;</span> <span class="p">:</span> <span class="n">test_04</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;5&#39;</span> <span class="p">:</span> <span class="n">test_05</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;6&#39;</span> <span class="p">:</span> <span class="n">test_06</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;7&#39;</span> <span class="p">:</span> <span class="n">test_07</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;8&#39;</span> <span class="p">:</span> <span class="n">test_08</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;9&#39;</span> <span class="p">:</span> <span class="n">test_09</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;10&#39;</span><span class="p">:</span> <span class="n">test_10</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;11&#39;</span><span class="p">:</span> <span class="n">test_11</span><span class="p">()</span>
+    <span class="k">else</span>                  <span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span> <span class="p">(</span><span class="s1">&#39;Test number parameter is not recognized.</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">usage</span><span class="p">())</span>
+
+<span class="c1">##-----------------------------</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span> <span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">End of test&#39;</span><span class="p">)</span>
+
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+<span class="c1">##-----------------------------</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mikhail Dubrovin.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

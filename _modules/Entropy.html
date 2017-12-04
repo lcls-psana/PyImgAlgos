@@ -1,0 +1,268 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Entropy &#8212; pyimgalgos-doc 1 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">pyimgalgos-doc 1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Entropy</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!@PYTHON@</span>
+<span class="c1">####!/usr/bin/env python</span>
+<span class="c1">#------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:py:class:`Entropy.py` - collection of methods to evaluate data array entropy</span>
+<span class="sd">=============================================================================</span>
+
+<span class="sd">Usage::</span>
+
+<span class="sd">    # Import</span>
+<span class="sd">    # ==============</span>
+<span class="sd">    from pyimgalgos.Entropy import *</span>
+
+<span class="sd">    # import for test only</span>
+<span class="sd">    from pyimgalgos.NDArrGenerators import random_standard</span>
+<span class="sd">    from pyimgalgos.GlobalUtils import print_ndarr</span>
+
+<span class="sd">    arr_float = random_standard(shape=(1000), mu=200, sigma=25, dtype=np.float)</span>
+<span class="sd">    arr_int16 = arr_float.astype(np.int16)  </span>
+<span class="sd">    print_ndarr(arr_int16, name=&#39;arr_int16&#39;, first=0, last=10)</span>
+
+<span class="sd">    print &#39;entropy(arr_int16)     = %.6f&#39; % entropy(arr_int16)</span>
+<span class="sd">    print &#39;entropy_v1(arr_int16)  = %.6f&#39; % entropy_v1(arr_int16)</span>
+<span class="sd">    print &#39;entropy_cpo(arr_int16) = %.6f&#39; % entropy_cpo(arr_int16)</span>
+
+
+<span class="sd">See :py:class:`pyimgalgos.GlobalUtils`</span>
+
+<span class="sd">This software was developed for the SIT project.</span>
+<span class="sd">If you use all or part of it, please give an appropriate acknowledgment.</span>
+
+<span class="sd">Created by Mikhail Dubrovin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#------------------------------</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="hist_values"><a class="viewcode-back" href="../index.html#Entropy.hist_values">[docs]</a><span class="k">def</span> <span class="nf">hist_values</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Depending on nda.dtype fills/returns 1-D 2^8(16)-bin histogram-array of 8(16)-bit values of input n-d array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#print &#39;%s for array dtype=%s&#39;%(FR().f_code.co_name, str(nda.dtype))</span>
+
+    <span class="k">if</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span> <span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span> <span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span> <span class="p">:</span>
+        <span class="n">unda</span> <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span> <span class="c1"># int16 (1,2,-3,0,4,-5,...) -&gt; uint16 (1,2,0,65533,4,65531,...)        </span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">unda</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span>
+
+    <span class="k">else</span> <span class="p">:</span> 
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;method </span><span class="si">%s</span><span class="s1"> get unexpected nda dtype=</span><span class="si">%s</span><span class="s1">. Use np.uint8 or np.(u)int16&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">FR</span><span class="p">()</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">dtype</span><span class="p">)))</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="hist_probabilities"><a class="viewcode-back" href="../index.html#Entropy.hist_probabilities">[docs]</a><span class="k">def</span> <span class="nf">hist_probabilities</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns histogram-array of probabilities for each of (u)int16, uint8 intensity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#print &#39;%s for array dtype=%s&#39;%(FR().f_code.co_name, str(nda.dtype))</span>
+
+    <span class="n">nvals</span> <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">ph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hist_values</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+    <span class="n">ph</span> <span class="o">/=</span> <span class="n">nvals</span>
+    <span class="c1">#print &#39;Check sum of probabilities: %.6f for number of values in array = %d&#39; % (ph.sum(), nvals)</span>
+    <span class="k">return</span> <span class="n">ph</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="entropy"><a class="viewcode-back" href="../index.html#Entropy.entropy">[docs]</a><span class="k">def</span> <span class="nf">entropy</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates n-d array entropy using formula from https://en.wikipedia.org/wiki/Entropy_%28information_theory%29</span>
+<span class="sd">    &quot;&quot;&quot;</span> 
+    <span class="n">unda</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># histogram array indexes must be unsigned</span>
+    <span class="k">if</span>   <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span> <span class="p">:</span> <span class="n">unda</span> <span class="o">=</span> <span class="n">nda</span>
+    <span class="k">elif</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">:</span> <span class="n">unda</span> <span class="o">=</span> <span class="n">nda</span>
+    <span class="k">elif</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span> <span class="p">:</span> <span class="n">unda</span> <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span> <span class="c1"># int16 (1,2,-3,0,4,-5,...) -&gt; uint16 (1,2,0,65533,4,65531,...)        </span>
+
+    <span class="n">prob_h</span> <span class="o">=</span> <span class="n">hist_probabilities</span><span class="p">(</span><span class="n">unda</span><span class="p">)</span>
+
+    <span class="n">p_log2p_nda</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prob_h</span> <span class="k">if</span> <span class="n">p</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ent</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p_log2p_nda</span><span class="p">)</span>
+
+    <span class="c1">#print_ndarr(hist_values(nda), name=&#39;Histogram of uint16 values&#39;, first=1500, last=1520)</span>
+    <span class="c1">#print_ndarr(prob_h, name=&#39;Histogram of probabilities&#39;, first=1500, last=1520)</span>
+    <span class="c1">#print_ndarr(prob_nda, name=&#39;per pixel array of probabilities\n&#39;, first=1000, last=1010)</span>
+    <span class="c1">#print_ndarr(p_log2p_nda, name=&#39;per pixel array of P*log2(P)\n&#39;, first=1000, last=1010)</span>
+    <span class="k">return</span> <span class="n">ent</span></div>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">## formula in https://en.wikipedia.org/wiki/Entropy_%28information_theory%29</span>
+<span class="c1">## sums over all (x_i) which is a set of possible values....</span>
+<span class="c1">## this method sums over set (one entry) of probabilities </span>
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="entropy_v1"><a class="viewcode-back" href="../index.html#Entropy.entropy_v1">[docs]</a><span class="k">def</span> <span class="nf">entropy_v1</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;The same as entropy(nda) in a single place.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#print &#39;%s for array dtype=%s&#39;%(FR().f_code.co_name, str(nda.dtype))</span>
+
+    <span class="n">unda</span> <span class="o">=</span> <span class="n">nda</span> 
+    <span class="k">if</span>   <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span>  <span class="p">:</span> <span class="n">unda</span> <span class="o">=</span> <span class="n">nda</span>
+    <span class="k">elif</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span> <span class="p">:</span> <span class="n">unda</span> <span class="o">=</span> <span class="n">nda</span>
+    <span class="k">elif</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span>  <span class="p">:</span> <span class="n">unda</span> <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span> <span class="c1"># int16 (1,2,-3,0,4,-5,...) -&gt; uint16 (1,2,0,65533,4,65531,...)        </span>
+    <span class="k">else</span> <span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;method </span><span class="si">%s</span><span class="s1"> get unexpected nda dtype=</span><span class="si">%s</span><span class="s1">. Use np.uint8 or np.(u)int16&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">FR</span><span class="p">()</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">dtype</span><span class="p">)))</span>
+
+    <span class="n">hsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span> <span class="k">if</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span> <span class="k">else</span> <span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">vals_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">unda</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">minlength</span><span class="o">=</span><span class="n">hsize</span><span class="p">)</span>
+    <span class="n">prob_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vals_h</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">unda</span><span class="o">.</span><span class="n">size</span>
+    <span class="c1">#prob_nda = prob_h[unda]    </span>
+    <span class="c1">#p_log2p_nda = prob_nda * np.log2(prob_nda)</span>
+    <span class="c1">#ent = -p_log2p_nda.sum()</span>
+    <span class="n">p_log2p_nda</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prob_h</span> <span class="k">if</span> <span class="n">p</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ent</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p_log2p_nda</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ent</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="entropy_cpo"><a class="viewcode-back" href="../index.html#Entropy.entropy_cpo">[docs]</a><span class="k">def</span> <span class="nf">entropy_cpo</span><span class="p">(</span><span class="n">signal</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Entropy evaluation method found by cpo on web</span>
+
+<span class="sd">    Function returns entropy of a signal, which is 1-D numpy array</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">lensig</span><span class="o">=</span><span class="n">signal</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">symset</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">signal</span><span class="p">))</span>
+    <span class="n">numsym</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">symset</span><span class="p">)</span>
+    <span class="n">propab</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">signal</span><span class="p">[</span><span class="n">signal</span><span class="o">==</span><span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span><span class="o">*</span><span class="n">lensig</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">symset</span><span class="p">]</span>
+    <span class="n">ent</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">p</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">propab</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">ent</span></div>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_entropy</span><span class="p">():</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;In </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
+
+    <span class="kn">from</span> <span class="nn">pyimgalgos.NDArrGenerators</span> <span class="k">import</span> <span class="n">random_standard</span>
+    <span class="kn">from</span> <span class="nn">pyimgalgos.GlobalUtils</span> <span class="k">import</span> <span class="n">print_ndarr</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+
+    <span class="n">arr_float</span> <span class="o">=</span> <span class="n">random_standard</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">100000</span><span class="p">,),</span> <span class="n">mu</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+    <span class="n">arr_int16</span> <span class="o">=</span> <span class="n">arr_float</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+    
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">arr_int16</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;arr_int16&#39;</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">ent1</span> <span class="o">=</span> <span class="n">entropy</span><span class="p">(</span><span class="n">arr_int16</span><span class="p">);</span>     <span class="n">t1_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">ent2</span> <span class="o">=</span> <span class="n">entropy_v1</span><span class="p">(</span><span class="n">arr_int16</span><span class="p">);</span>  <span class="n">t2_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">ent3</span> <span class="o">=</span> <span class="n">entropy_cpo</span><span class="p">(</span><span class="n">arr_int16</span><span class="p">);</span> <span class="n">t3_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;entropy(arr_int16)     = </span><span class="si">%.6f</span><span class="s1">, time=</span><span class="si">%.6f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ent1</span><span class="p">,</span> <span class="n">t1_sec</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;entropy_v1(arr_int16)  = </span><span class="si">%.6f</span><span class="s1">, time=</span><span class="si">%.6f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ent2</span><span class="p">,</span> <span class="n">t2_sec</span><span class="o">-</span><span class="n">t1_sec</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;entropy_cpo(arr_int16) = </span><span class="si">%.6f</span><span class="s1">, time=</span><span class="si">%.6f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ent3</span><span class="p">,</span> <span class="n">t3_sec</span><span class="o">-</span><span class="n">t2_sec</span><span class="p">)</span>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span> <span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span><span class="p">;</span> <span class="k">global</span> <span class="n">sys</span>
+
+    <span class="n">tname</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;0&#39;</span>
+    <span class="nb">print</span> <span class="mi">50</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Test </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tname</span>
+    <span class="k">if</span>   <span class="n">tname</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span><span class="p">:</span> <span class="n">test_entropy</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">tname</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span> <span class="n">test_entropy</span><span class="p">()</span>
+    <span class="k">else</span> <span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;Test </span><span class="si">%s</span><span class="s1"> is not implemented&#39;</span> <span class="o">%</span> <span class="n">tname</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;End of Test </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">tname</span><span class="p">)</span>
+
+<span class="c1">#------------------------------</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mikhail Dubrovin.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

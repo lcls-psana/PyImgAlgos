@@ -1,0 +1,876 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>FiberIndexing &#8212; pyimgalgos-doc 1 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">pyimgalgos-doc 1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for FiberIndexing</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!@PYTHON@</span>
+<span class="c1">####!/usr/bin/env python</span>
+<span class="c1">#------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:py:class:`FiberIndexing` collection of methods for fiber indexing</span>
+<span class="sd">==================================================================</span>
+
+<span class="sd">This software was developed in co-operation with Meng for analysis of data cxif5315.</span>
+
+<span class="sd">See:</span>
+<span class="sd">  - :py:class:`Graphics`</span>
+<span class="sd">  - :py:class:`GlobalGraphics`</span>
+<span class="sd">  - :py:class:`GlobalUtils`</span>
+<span class="sd">  - :py:class:`NDArrGenerators`</span>
+<span class="sd">  - :py:class:`Quaternion`</span>
+<span class="sd">  - :py:class:`FiberAngles`</span>
+<span class="sd">  - :py:class:`FiberIndexing`</span>
+<span class="sd">  - :py:class:`PeakData`</span>
+<span class="sd">  - :py:class:`PeakStore`</span>
+<span class="sd">  - :py:class:`TDCheetahPeakRecord`</span>
+<span class="sd">  - :py:class:`TDFileContainer`</span>
+<span class="sd">  - :py:class:`TDGroup`</span>
+<span class="sd">  - :py:class:`TDMatchRecord`</span>
+<span class="sd">  - :py:class:`TDNodeRecord`</span>
+<span class="sd">  - :py:class:`TDPeakRecord`</span>
+<span class="sd">  - :py:class:`HBins`</span>
+<span class="sd">  - :py:class:`HPolar`</span>
+<span class="sd">  - :py:class:`HSpectrum`</span>
+<span class="sd">  - :py:class:`RadialBkgd`</span>
+<span class="sd">  - `Analysis of data for cxif5315 &lt;https://confluence.slac.stanford.edu/display/PSDMInternal/Analysis+of+data+for+cxif5315&gt;`_.</span>
+
+<span class="sd">Created on Oct 7, 2015 by Mikhail Dubrovin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#------------------------------</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="BinPars"><a class="viewcode-back" href="../index.html#FiberIndexing.BinPars">[docs]</a><span class="k">class</span> <span class="nc">BinPars</span><span class="p">()</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Bin parameters storage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmin</span>       <span class="o">=</span> <span class="n">vmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vmax</span>       <span class="o">=</span> <span class="n">vmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nbins</span>      <span class="o">=</span> <span class="n">nbins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binwidth</span>   <span class="o">=</span> <span class="p">(</span><span class="n">vmax</span><span class="o">-</span><span class="n">vmin</span><span class="p">)</span><span class="o">/</span><span class="n">nbins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">halfbinw</span>   <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">binwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vtype</span>      <span class="o">=</span> <span class="n">vtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span>   <span class="o">=</span> <span class="n">endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binedges</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">nbins</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">vtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bincenters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">binedges</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">halfbinw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inds</span>       <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binedges</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indedges</span>   <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">binedges</span><span class="p">)</span>          
+        <span class="bp">self</span><span class="o">.</span><span class="n">indcenters</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bincenters</span><span class="p">)</span>          
+        <span class="bp">self</span><span class="o">.</span><span class="n">strrange</span>   <span class="o">=</span><span class="s1">&#39;</span><span class="si">%.0f</span><span class="s1">-</span><span class="si">%.0f</span><span class="s1">-</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">nbins</span><span class="p">)</span></div>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="wavelength_nm_from_energy_ev"><a class="viewcode-back" href="../index.html#FiberIndexing.wavelength_nm_from_energy_ev">[docs]</a><span class="k">def</span> <span class="nf">wavelength_nm_from_energy_ev</span><span class="p">(</span><span class="n">E_eV</span><span class="o">=</span><span class="mi">6000</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns wavelength in nm, evaluated from photon energy in eV (1Angstroms = 10**-10m)</span>
+<span class="sd">       E=h*v = h*c/lambda</span>
+<span class="sd">       6keV approx. = 2A</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#h/2pi = 6.58211928e-16     # eV*s (PDG 2014) reduced Planck constant</span>
+    <span class="c1">#h = 2 * math.pi * h/2pi    # Planck constant</span>
+    <span class="c1">#c = 299792458              # m/s - speed of light (exact)</span>
+    <span class="c1">#hc = h*c                   # eV*m</span>
+    <span class="c1">#wavelen = hc/E_eV * 1e9    # Angstrom, where 1m = 10^9nm = 10^10A</span>
+    <span class="k">return</span> <span class="mf">1239.8493</span><span class="o">/</span><span class="n">E_eV</span>       <span class="c1"># nm </span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="wave_vector_value"><a class="viewcode-back" href="../index.html#FiberIndexing.wave_vector_value">[docs]</a><span class="k">def</span> <span class="nf">wave_vector_value</span><span class="p">(</span><span class="n">E_eV</span><span class="o">=</span><span class="mi">6000</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns wave vector/number value</span>
+<span class="sd">       k = 1/lambda    [1/A] - crystalographer&#39;s definition</span>
+<span class="sd">       k = 2*pi/lambda [1/A] - physics definition</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">wavelength_nm_from_energy_ev</span><span class="p">(</span><span class="n">E_eV</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 1nm = 10A</span></div>
+    <span class="c1">#return 2 * math.pi / (wavelength_nm_from_energy_ev(E_eV) * 10) # 1nm = 10A</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="round_vzeros"><a class="viewcode-back" href="../index.html#FiberIndexing.round_vzeros">[docs]</a><span class="k">def</span> <span class="nf">round_vzeros</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">d</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns input vector with rounded to zero components</span>
+<span class="sd">       which precision less than requested number of digits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prec</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="n">d</span><span class="p">)</span>
+    <span class="n">vx</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">prec</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">vy</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">prec</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">vz</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">prec</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="k">return</span> <span class="n">vx</span><span class="p">,</span><span class="n">vy</span><span class="p">,</span><span class="n">vz</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="triclinic_primitive_vectors"><a class="viewcode-back" href="../index.html#FiberIndexing.triclinic_primitive_vectors">[docs]</a><span class="k">def</span> <span class="nf">triclinic_primitive_vectors</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">18.36</span><span class="p">,</span>  <span class="n">b</span><span class="o">=</span><span class="mf">26.65</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mf">4.81</span><span class="p">,</span>\
+                                <span class="n">alpha</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">102.83</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns 3-d (Bravias) primitive vectors directed along crystal axes (edges)</span>
+<span class="sd">       from lattice cell edge lengths [Angstrom or other prefered units] and angles [degree]</span>
+<span class="sd">       for triclinic crystal cell parametes::</span>
+
+<span class="sd">                  *----------* </span>
+<span class="sd">                 / \        / \ </span>
+<span class="sd">                /   \      /   \ </span>
+<span class="sd">               /     \ gamma    \ </span>
+<span class="sd">              /       *----------* </span>
+<span class="sd">             /       /  /       / </span>
+<span class="sd">            /alpha  /  /       / </span>
+<span class="sd">           *-------/--*       c </span>
+<span class="sd">            \     /    \ beta/ </span>
+<span class="sd">             a   /      \   / </span>
+<span class="sd">              \ /        \ / </span>
+<span class="sd">               *-----b----* </span>
+<span class="sd">             </span>
+<span class="sd">       where a, b, c - crystal cell edge lengths,</span>
+<span class="sd">       alpha, beta, gamma - interaxial angles around a, b, c edges, respectively&#39;</span>
+<span class="sd">       By design, a1 vector for edge a is directed along x,</span>
+<span class="sd">       a2 vector for edge b is in x-y plane, has (x,y,0) components only,</span>
+<span class="sd">       a3 vector for edge c has (x,y,z) components.</span>
+
+<span class="sd">       See geometry details in my logbook p.7-8.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">alp</span><span class="p">,</span> <span class="n">bet</span><span class="p">,</span> <span class="n">gam</span>  <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">beta</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">gamma</span><span class="p">)</span>
+    <span class="n">ca</span><span class="p">,</span> <span class="n">cb</span><span class="p">,</span> <span class="n">cg</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">alp</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">bet</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">gam</span><span class="p">)</span>
+    <span class="n">sa</span><span class="p">,</span> <span class="n">sb</span><span class="p">,</span> <span class="n">sg</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">alp</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">bet</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">gam</span><span class="p">)</span>
+
+    <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">cz</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span>
+    <span class="k">if</span> <span class="n">cb</span><span class="o">!=</span><span class="mi">0</span> <span class="p">:</span> 
+        <span class="n">tanphi</span> <span class="o">=</span> <span class="p">(</span><span class="n">ca</span><span class="o">/</span><span class="n">cb</span><span class="o">-</span><span class="n">cg</span><span class="p">)</span><span class="o">/</span><span class="n">sg</span>
+        <span class="n">cx</span> <span class="o">=</span> <span class="n">c</span><span class="o">*</span><span class="n">cb</span>
+        <span class="n">cy</span> <span class="o">=</span> <span class="n">cx</span><span class="o">*</span><span class="n">tanphi</span>
+        <span class="n">cz</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c</span><span class="o">*</span><span class="n">c</span> <span class="o">-</span> <span class="n">cx</span><span class="o">*</span><span class="n">cx</span> <span class="o">-</span> <span class="n">cy</span><span class="o">*</span><span class="n">cy</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ca</span><span class="o">!=</span><span class="mi">0</span> <span class="p">:</span> <span class="c1"># cb==0</span>
+        <span class="n">cx</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="n">cy</span> <span class="o">=</span> <span class="n">c</span><span class="o">*</span><span class="n">ca</span><span class="o">/</span><span class="n">sg</span>
+        <span class="n">cz</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">c</span><span class="o">*</span><span class="n">c</span> <span class="o">-</span> <span class="n">cx</span><span class="o">*</span><span class="n">cx</span> <span class="o">-</span> <span class="n">cy</span><span class="o">*</span><span class="n">cy</span><span class="p">)</span>
+
+    <span class="n">a1</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">a2</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span><span class="o">*</span><span class="n">cg</span><span class="p">,</span> <span class="n">b</span><span class="o">*</span><span class="n">sg</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">a3</span> <span class="o">=</span> <span class="p">(</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">cz</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">round_vzeros</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span> <span class="n">round_vzeros</span><span class="p">(</span><span class="n">a2</span><span class="p">),</span> <span class="n">round_vzeros</span><span class="p">(</span><span class="n">a3</span><span class="p">)</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="parameters_of_primitive_vectors"><a class="viewcode-back" href="../index.html#FiberIndexing.parameters_of_primitive_vectors">[docs]</a><span class="k">def</span> <span class="nf">parameters_of_primitive_vectors</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns a, b, c, alpha, beta, gamma for three primitive vectors a1, a2, a3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span><span class="n">a1</span><span class="p">))</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span><span class="n">a2</span><span class="p">))</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a3</span><span class="p">,</span><span class="n">a3</span><span class="p">))</span>
+
+    <span class="n">ca</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span><span class="n">a3</span><span class="p">)</span><span class="o">/</span><span class="n">b</span><span class="o">/</span><span class="n">c</span>
+    <span class="n">cb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span><span class="n">a3</span><span class="p">)</span><span class="o">/</span><span class="n">a</span><span class="o">/</span><span class="n">c</span>
+    <span class="n">cg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span><span class="n">a2</span><span class="p">)</span><span class="o">/</span><span class="n">a</span><span class="o">/</span><span class="n">b</span>
+
+    <span class="n">alp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">ca</span><span class="p">))</span>
+    <span class="n">bet</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">cb</span><span class="p">))</span>
+    <span class="n">gam</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">cg</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alp</span><span class="p">,</span> <span class="n">bet</span><span class="p">,</span> <span class="n">gam</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="print_primitive_vectors"><a class="viewcode-back" href="../index.html#FiberIndexing.print_primitive_vectors">[docs]</a><span class="k">def</span> <span class="nf">print_primitive_vectors</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%10.6f</span><span class="s1">&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Prints three primitive vectors and their derived parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">In </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
+    <span class="nb">print</span> <span class="s1">&#39;primitive vectors:</span><span class="se">\n</span><span class="s1">  a1 = (</span><span class="si">%s</span><span class="s1">)</span><span class="se">\n</span><span class="s1">  a2 = (</span><span class="si">%s</span><span class="s1">)</span><span class="se">\n</span><span class="s1">  a3 = (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>\
+           <span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span> <span class="o">%</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">a1</span><span class="p">]),</span>\
+            <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span> <span class="o">%</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">a2</span><span class="p">]),</span>\
+            <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span> <span class="o">%</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">a3</span><span class="p">]))</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alp</span><span class="p">,</span> <span class="n">bet</span><span class="p">,</span> <span class="n">gam</span> <span class="o">=</span> <span class="n">parameters_of_primitive_vectors</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;Derived parameters of primitive vectors:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>\
+           <span class="s1">&#39;a=</span><span class="si">%.3f</span><span class="s1">  b=</span><span class="si">%.3f</span><span class="s1">  c=</span><span class="si">%.3f</span><span class="s1">  alp=</span><span class="si">%.2f</span><span class="s1">  bet=</span><span class="si">%.2f</span><span class="s1">  gam=</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alp</span><span class="p">,</span> <span class="n">bet</span><span class="p">,</span> <span class="n">gam</span><span class="p">)</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="reciprocal_from_bravias"><a class="viewcode-back" href="../index.html#FiberIndexing.reciprocal_from_bravias">[docs]</a><span class="k">def</span> <span class="nf">reciprocal_from_bravias</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns reciprocal primitive vectors from 3-d Bravias primitive vectors</span>
+<span class="sd">       using crystallographer&#39;s definition for conversion as 1/d</span>
+<span class="sd">       (2*pi/d - comes from natural physics definition).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span><span class="n">a3</span><span class="p">)</span>
+    <span class="n">s2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a3</span><span class="p">,</span><span class="n">a1</span><span class="p">)</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span><span class="n">a2</span><span class="p">)</span>
+
+    <span class="n">b1</span> <span class="o">=</span> <span class="n">s1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span><span class="n">s1</span><span class="p">)</span>
+    <span class="n">b2</span> <span class="o">=</span> <span class="n">s2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a2</span><span class="p">,</span><span class="n">s2</span><span class="p">)</span>
+    <span class="n">b3</span> <span class="o">=</span> <span class="n">s3</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a3</span><span class="p">,</span><span class="n">s3</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="lattice"><a class="viewcode-back" href="../index.html#FiberIndexing.lattice">[docs]</a><span class="k">def</span> <span class="nf">lattice</span><span class="p">(</span><span class="n">b1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b3</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">),</span>\
+            <span class="n">hmax</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">kmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cdtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>\
+            <span class="n">hmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lmin</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; returns n-d arrays of 3d coordinates or 2d(if lmax=0) for 3d lattice and Miller hkl indices</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#print &#39;\nIn %s&#39; % sys._getframe().f_code.co_name</span>
+
+    <span class="n">lst_h</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">hmax</span><span class="p">,</span> <span class="n">hmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">hmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="n">hmin</span><span class="p">,</span> <span class="n">hmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">lst_k</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">kmax</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">kmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="n">kmin</span><span class="p">,</span> <span class="n">kmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">lst_l</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">lmax</span><span class="p">,</span> <span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">lmin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmin</span><span class="p">,</span> <span class="n">lmax</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="n">x1d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">b1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">lst_h</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+    <span class="n">y1d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">b1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">lst_h</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+    <span class="n">z1d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">b1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">lst_h</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+
+    <span class="c1">#print &#39;x1d: &#39;, x1d</span>
+    <span class="c1">#print &#39;y1d: &#39;, y1d</span>
+    <span class="c1">#print &#39;z1d: &#39;, z1d</span>
+
+    <span class="n">x2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x1d</span><span class="o">+</span><span class="n">b2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lst_k</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+    <span class="n">y2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y1d</span><span class="o">+</span><span class="n">b2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lst_k</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+    <span class="n">z2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">z1d</span><span class="o">+</span><span class="n">b2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">lst_k</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+    <span class="n">r2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x2d</span><span class="o">*</span><span class="n">x2d</span> <span class="o">+</span> <span class="n">y2d</span><span class="o">*</span><span class="n">y2d</span> <span class="o">+</span> <span class="n">z2d</span><span class="o">*</span><span class="n">z2d</span><span class="p">)</span>
+
+    <span class="n">h2d</span><span class="p">,</span> <span class="n">k2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">lst_h</span><span class="p">,</span> <span class="n">lst_k</span><span class="p">)</span>
+    <span class="n">l2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">h2d</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lmax</span><span class="o">==</span><span class="mi">0</span> <span class="p">:</span> <span class="k">return</span> <span class="n">x2d</span><span class="p">,</span> <span class="n">y2d</span><span class="p">,</span> <span class="n">z2d</span><span class="p">,</span> <span class="n">r2d</span><span class="p">,</span> <span class="n">h2d</span><span class="p">,</span> <span class="n">k2d</span><span class="p">,</span> <span class="n">l2d</span>
+    
+    <span class="n">onehk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">h2d</span><span class="p">)</span>
+    <span class="n">h3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">h2d</span>         <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lst_l</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>    
+    <span class="n">k3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">k2d</span>         <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lst_l</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">l3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">onehk</span><span class="o">*</span><span class="n">l</span>     <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lst_l</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>    
+
+    <span class="n">x3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x2d</span><span class="o">+</span><span class="n">b3</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lst_l</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+    <span class="n">y3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">y2d</span><span class="o">+</span><span class="n">b3</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lst_l</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+    <span class="n">z3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">z2d</span><span class="o">+</span><span class="n">b3</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lst_l</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cdtype</span><span class="p">)</span>
+    <span class="n">r3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x3d</span><span class="o">*</span><span class="n">x3d</span> <span class="o">+</span> <span class="n">y3d</span><span class="o">*</span><span class="n">y3d</span> <span class="o">+</span> <span class="n">z3d</span><span class="o">*</span><span class="n">z3d</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x3d</span><span class="p">,</span> <span class="n">y3d</span><span class="p">,</span> <span class="n">z3d</span><span class="p">,</span> <span class="n">r3d</span><span class="p">,</span> <span class="n">h3d</span><span class="p">,</span> <span class="n">k3d</span><span class="p">,</span> <span class="n">l3d</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="rotation_cs"><a class="viewcode-back" href="../index.html#FiberIndexing.rotation_cs">[docs]</a><span class="k">def</span> <span class="nf">rotation_cs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;For numpy arrays X and Y returns the numpy arrays of Xrot and Yrot</span>
+<span class="sd">       for specified rotation angle cosine and sine values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Xrot</span> <span class="o">=</span> <span class="n">X</span><span class="o">*</span><span class="n">c</span> <span class="o">-</span> <span class="n">Y</span><span class="o">*</span><span class="n">s</span> 
+    <span class="n">Yrot</span> <span class="o">=</span> <span class="n">Y</span><span class="o">*</span><span class="n">c</span> <span class="o">+</span> <span class="n">X</span><span class="o">*</span><span class="n">s</span> 
+    <span class="k">return</span> <span class="n">Xrot</span><span class="p">,</span> <span class="n">Yrot</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="rotation"><a class="viewcode-back" href="../index.html#FiberIndexing.rotation">[docs]</a><span class="k">def</span> <span class="nf">rotation</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">angle_deg</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;For numpy arrays X and Y returns the numpy arrays of Xrot and Yrot rotated by angle_deg</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">angle_rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle_deg</span><span class="p">)</span>
+    <span class="n">s</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rotation_cs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="q_components"><a class="viewcode-back" href="../index.html#FiberIndexing.q_components">[docs]</a><span class="k">def</span> <span class="nf">q_components</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">evald_rad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;For all defined nodes of the lattice returns</span>
+<span class="sd">       dr - distance from evald sphere to the reciprocal lattice node,</span>
+<span class="sd">       qv, qh - vertical, horizontal components of the momentum transfer vector.</span>
+<span class="sd">       NOTE: X, Y, Z, DX, L, dr, qv, qh, ql, qy, ql are the numpy arrays with shape=(2*lmax+1, 2*kmax+1, 2*hmax+1), evald_rad is a scalar</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">DX</span> <span class="o">=</span> <span class="n">X</span> <span class="o">+</span> <span class="n">evald_rad</span>
+    <span class="n">L</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">DX</span><span class="o">*</span><span class="n">DX</span> <span class="o">+</span> <span class="n">Y</span><span class="o">*</span><span class="n">Y</span> <span class="o">+</span> <span class="n">Z</span><span class="o">*</span><span class="n">Z</span><span class="p">)</span>
+    <span class="n">dr</span> <span class="o">=</span> <span class="n">L</span> <span class="o">-</span> <span class="n">evald_rad</span>
+    <span class="n">qv</span> <span class="o">=</span> <span class="n">evald_rad</span> <span class="o">*</span> <span class="n">Z</span><span class="o">/</span><span class="n">L</span>
+    <span class="n">ql</span> <span class="o">=</span> <span class="n">evald_rad</span> <span class="o">*</span> <span class="p">(</span><span class="n">DX</span><span class="o">/</span><span class="n">L</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">qt</span> <span class="o">=</span> <span class="n">evald_rad</span> <span class="o">*</span> <span class="n">Y</span><span class="o">/</span><span class="n">L</span>
+    <span class="n">qh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ql</span><span class="o">*</span><span class="n">ql</span> <span class="o">+</span> <span class="n">qt</span><span class="o">*</span><span class="n">qt</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">Y</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> 
+    <span class="k">return</span> <span class="n">dr</span><span class="p">,</span> <span class="n">qv</span><span class="p">,</span> <span class="n">qh</span><span class="p">,</span> <span class="n">qt</span><span class="p">,</span> <span class="n">ql</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="print_nda"><a class="viewcode-back" href="../index.html#FiberIndexing.print_nda">[docs]</a><span class="k">def</span> <span class="nf">print_nda</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">cmt</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39; </span><span class="si">%8.4f</span><span class="s1">&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Prints ndarray and its shape with preceded comment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="s1">.shape: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cmt</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)),</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span> <span class="p">:</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">nda</span> <span class="p">:</span> <span class="nb">print</span> <span class="n">fmt</span> <span class="o">%</span> <span class="n">c</span><span class="p">,</span>
+
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span> <span class="p">:</span> 
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">nda</span> <span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">row: &#39;</span><span class="p">,</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">row</span> <span class="p">:</span> <span class="nb">print</span> <span class="n">fmt</span> <span class="o">%</span> <span class="n">c</span><span class="p">,</span>
+            
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">==</span><span class="mi">3</span> <span class="p">:</span> 
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">nda</span> <span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">(3d) layer: &#39;</span><span class="p">,</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">layer</span> <span class="p">:</span>
+                <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">row: &#39;</span><span class="p">,</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">row</span> <span class="p">:</span> <span class="nb">print</span> <span class="n">fmt</span> <span class="o">%</span> <span class="n">c</span><span class="p">,</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span></div>
+    
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="print_omega_dr"><a class="viewcode-back" href="../index.html#FiberIndexing.print_omega_dr">[docs]</a><span class="k">def</span> <span class="nf">print_omega_dr</span><span class="p">(</span><span class="n">omega_deg</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">drmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Depricated, see str_omega_drhkl.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lst_dr</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dr</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">&lt;</span><span class="n">drmax</span><span class="p">]</span>       
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst_dr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;omega=</span><span class="si">%.2f</span><span class="s1"> degree, lst_dr: &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">omega_deg</span><span class="p">),</span>
+        <span class="k">for</span> <span class="n">dr</span> <span class="ow">in</span> <span class="n">lst_dr</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39; </span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">dr</span><span class="p">,</span>
+        <span class="nb">print</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">else</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;omega=</span><span class="si">%.2f</span><span class="s1"> degree, lst_dr is empty&#39;</span><span class="o">%</span> <span class="p">(</span><span class="n">omega_deg</span><span class="p">)</span></div>
+    
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="str_omega_drhkl"><a class="viewcode-back" href="../index.html#FiberIndexing.str_omega_drhkl">[docs]</a><span class="k">def</span> <span class="nf">str_omega_drhkl</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">beta_deg</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">qv</span><span class="p">,</span> <span class="n">qh</span><span class="p">,</span> <span class="n">qt</span><span class="p">,</span> <span class="n">ql</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">sigma_ql</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Returns the record to save in look-up table or print.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">drmax</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">sigma_ql</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma_ql</span><span class="o">*</span><span class="n">sigma_ql</span><span class="p">)</span>
+    
+    <span class="n">lst_drhkl</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dr</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">h</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">k</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">l</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>\
+                                <span class="n">r</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">qv</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">qh</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">qt</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">ql</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">&lt;</span><span class="n">drmax</span><span class="p">]</span>       
+    <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst_drhkl</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1">#because lst_drhkl always has a record (0.0, 0, 0, 0, 0.0, 0.0, 0.0)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;# beta </span><span class="si">%.2f</span><span class="s1">  omega </span><span class="si">%.2f</span><span class="s1"> degree&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">beta_deg</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">)</span>\
+          <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]   qt[1/A]   ql[1/A]   P(omega)&#39;</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">lst_drhkl</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span> <span class="p">:</span> <span class="k">continue</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">sigma_ql</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="n">drmax</span> <span class="p">:</span> <span class="k">continue</span>
+            <span class="n">prob</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">factor</span><span class="o">*</span><span class="n">d</span><span class="o">*</span><span class="n">d</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="si">%6d</span><span class="s1">  </span><span class="si">%7.2f</span><span class="s1"> </span><span class="si">%7.2f</span><span class="s1"> </span><span class="si">%3d</span><span class="s1"> </span><span class="si">%3d</span><span class="s1"> </span><span class="si">%3d</span><span class="s1"> </span><span class="si">%9.6f</span><span class="s1"> </span><span class="si">%9.6f</span><span class="s1"> </span><span class="si">%9.6f</span><span class="s1"> </span><span class="si">%9.6f</span><span class="s1"> </span><span class="si">%9.6f</span><span class="s1"> </span><span class="si">%9.6f</span><span class="s1">  </span><span class="si">%9.6f</span><span class="s1">&#39;</span> <span class="o">%</span>\
+                  <span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">beta_deg</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">prob</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">s</span>
+    <span class="k">else</span> <span class="p">:</span> <span class="k">return</span> <span class="s1">&#39;# beta </span><span class="si">%.2f</span><span class="s1">  omega </span><span class="si">%.2f</span><span class="s1"> degree EMPTY</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">beta_deg</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">)</span></div>
+    
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="fill_row"><a class="viewcode-back" href="../index.html#FiberIndexing.fill_row">[docs]</a><span class="k">def</span> <span class="nf">fill_row</span><span class="p">(</span><span class="n">dr</span><span class="p">,</span> <span class="n">qv</span><span class="p">,</span> <span class="n">qh</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">sigma_ql</span><span class="p">,</span> <span class="n">sigma_qt</span><span class="p">,</span> <span class="n">bpq</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns histogram array (row) for horizontal q component</span>
+<span class="sd">       filled by probability to see the peak, modulated by the Gaussian function of dr,</span>
+<span class="sd">       where dr is a radial distance between the lattice node and Evald&#39;s sphere.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">bpq</span><span class="o">.</span><span class="n">nbins</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="n">range_ql</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">sigma_ql</span>
+    <span class="n">range_qt</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">sigma_qt</span>
+    <span class="n">factor_ql</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">sigma_ql</span><span class="o">*</span><span class="n">sigma_ql</span><span class="p">)</span>
+    <span class="n">factor_qt</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">sigma_qt</span><span class="o">*</span><span class="n">sigma_qt</span><span class="p">)</span>
+    
+    <span class="c1"># loop over lattice nodes</span>
+    <span class="k">for</span> <span class="n">dr1</span><span class="p">,</span> <span class="n">qv1</span><span class="p">,</span> <span class="n">qh1</span><span class="p">,</span> <span class="n">h1</span><span class="p">,</span> <span class="n">k1</span><span class="p">,</span> <span class="n">l1</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dr</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">qv</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">qh</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">h</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">k</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">l</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="p">:</span>
+
+        <span class="c1">#if dr1==0 and qv1==0 : continue # and qh1==0 </span>
+        <span class="k">if</span> <span class="n">h1</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">k1</span><span class="o">==</span><span class="mi">0</span> <span class="p">:</span> <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">dr1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">range_ql</span> <span class="p">:</span> <span class="k">continue</span>
+
+        <span class="n">f_angle</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">factor_ql</span><span class="o">*</span><span class="n">dr1</span><span class="o">*</span><span class="n">dr1</span><span class="p">)</span>
+
+        <span class="c1"># loop over q bins</span>
+        <span class="k">for</span> <span class="n">indq</span><span class="p">,</span> <span class="n">binq</span> <span class="ow">in</span> <span class="n">bpq</span><span class="o">.</span><span class="n">indcenters</span> <span class="p">:</span>
+
+            <span class="n">dq</span> <span class="o">=</span> <span class="n">qh1</span> <span class="o">-</span> <span class="n">binq</span>
+            <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">dq</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">range_qt</span> <span class="p">:</span> <span class="k">continue</span>
+
+            <span class="n">row</span><span class="p">[</span><span class="n">indq</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_angle</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">factor_qt</span><span class="o">*</span><span class="n">dq</span><span class="o">*</span><span class="n">dq</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">row</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="make_lookup_table"><a class="viewcode-back" href="../index.html#FiberIndexing.make_lookup_table">[docs]</a><span class="k">def</span> <span class="nf">make_lookup_table</span><span class="p">(</span><span class="n">b1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b3</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">),</span>\
+                      <span class="n">hmax</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">kmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cdtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>\
+                      <span class="n">evald_rad</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sigma_q</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">fout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bpq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bpomega</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bpbeta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>\
+                      <span class="n">hmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lmin</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Depricated, see  make_lookup_table_v2 with sigma_ql, sigma_qt in stead of sigma_q</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">make_lookup_table_v2</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">cdtype</span><span class="p">,</span> <span class="n">evald_rad</span><span class="p">,</span> <span class="n">sigma_q</span><span class="p">,</span> <span class="n">sigma_q</span><span class="p">,</span>\
+                                <span class="n">fout</span><span class="p">,</span> <span class="n">bpq</span><span class="p">,</span> <span class="n">bpomega</span><span class="p">,</span> <span class="n">bpbeta</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="make_lookup_table_v2"><a class="viewcode-back" href="../index.html#FiberIndexing.make_lookup_table_v2">[docs]</a><span class="k">def</span> <span class="nf">make_lookup_table_v2</span><span class="p">(</span><span class="n">b1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b3</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">),</span>\
+                      <span class="n">hmax</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">kmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cdtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>\
+                      <span class="n">evald_rad</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sigma_ql</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">sigma_qt</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">fout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bpq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bpomega</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bpbeta</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>\
+                      <span class="n">hmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lmin</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Makes lookup table - crystal lattice nodes information as a function of angle beta and omega, where</span>
+<span class="sd">       beta  [deg] - fiber axis tilt,  </span>
+<span class="sd">       omega [deg] - fiber rotation around axis,  </span>
+<span class="sd">       For each crysal orientation (beta, gamma) lookup table contains info about lattice nodes</span>
+<span class="sd">       closest to the Evald&#39;s sphere:</span>
+
+<span class="sd">       * # beta 0.00  omega 52.50 degree</span>
+<span class="sd">       * # index    beta   omega   h   k   l   dr[1/A]  R(h,k,l)   qv[1/A]   qh[1/A]   qt[1/A]   ql[1/A]   P(omega)</span>
+<span class="sd">       *   106     0.00   52.50  -2  -1   0 -0.002756  0.123157  0.000000 -0.123478 -0.122470 -0.015745   0.165321</span>
+<span class="sd">       *   106     0.00   52.50   1   1   0 -0.000249  0.072533  0.000000  0.072551  0.072347 -0.005436   0.985422</span>
+<span class="sd">       *   106     0.00   52.50   3   5   0  0.000687  0.273564  0.000000  0.273369  0.262250 -0.077171   0.894200</span>
+
+<span class="sd">       where:</span>
+
+<span class="sd">       - index - orientation index (just an unique integer number)</span>
+<span class="sd">       - beta, omega [deg] - crystal orientation angles,</span>
+<span class="sd">       - h, k, l - Miller indeces</span>
+<span class="sd">       - dr [1/A] - distance between lattice node and Evald&#39;s sphere</span>
+<span class="sd">       - R(h,k,l) [1/A] - distance between nodes (h,k,l) and (0,0,0)</span>
+<span class="sd">       - qv, qh [1/A] - vertical and horizontal components of scattering vector q</span>
+<span class="sd">       - qt, ql [1/A] - transverse (in horizontal plane) and longitudinal components of vector q</span>
+<span class="sd">       - P(omega) - un-normalized probability (&lt;1) evaluated for dr(omega) using sigma_ql.</span>
+
+<span class="sd">       File name is generated automatically with current time stamp like</span>
+<span class="sd">       lut-cxif5315-r0169-2015-10-23T14:58:36.txt</span>
+
+<span class="sd">       Input parameters:</span>
+<span class="sd">       b1, b2, b3 - reciprocal lattice primitive vectors,</span>
+<span class="sd">       hmax, kmax, lmax - lattice node indeces</span>
+<span class="sd">       cdtype - data type for lattice node coordinates,</span>
+<span class="sd">       evald_rad - Evald&#39;s sphere radius,</span>
+<span class="sd">       sigma_ql - expected q resolution along k (due to crystal rotation),</span>
+<span class="sd">       sigma_qt - expected qt resolution (in detector plane),</span>
+<span class="sd">       fout - open output file object,</span>
+<span class="sd">       bpq, bpomega, bpbeta - binning parameters for q, omega, and beta</span>
+<span class="sd">       NOTE: Units of b1, b2, b3, evald_rad, and sigma_q should be the same, for example [1/A].</span>
+
+<span class="sd">       Returns 2-d numpy array for image; summed for all beta probobility(omega vs. q_horizontal).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">lattice</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">cdtype</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+
+    <span class="n">lut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">bpomega</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span> <span class="n">bpq</span><span class="o">.</span><span class="n">nbins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    
+    <span class="c1">#beta_deg = 0</span>
+    <span class="c1">#beta_deg = 15</span>
+
+    <span class="n">ind</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">beta_deg</span> <span class="ow">in</span> <span class="n">bpbeta</span><span class="o">.</span><span class="n">binedges</span> <span class="p">:</span>
+        <span class="k">for</span> <span class="n">iomega</span><span class="p">,</span> <span class="n">omega_deg</span> <span class="ow">in</span> <span class="n">bpomega</span><span class="o">.</span><span class="n">indedges</span> <span class="p">:</span>
+        
+            <span class="n">ind</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+            <span class="n">xrot1</span><span class="p">,</span> <span class="n">yrot1</span> <span class="o">=</span> <span class="n">rotation</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">)</span>
+            <span class="n">xrot2</span><span class="p">,</span> <span class="n">zrot2</span> <span class="o">=</span> <span class="n">rotation</span><span class="p">(</span><span class="n">xrot1</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">beta_deg</span><span class="p">)</span>
+        
+            <span class="n">dr</span><span class="p">,</span> <span class="n">qv</span><span class="p">,</span> <span class="n">qh</span><span class="p">,</span> <span class="n">qt</span><span class="p">,</span> <span class="n">ql</span> <span class="o">=</span> <span class="n">q_components</span><span class="p">(</span><span class="n">xrot2</span><span class="p">,</span> <span class="n">yrot1</span><span class="p">,</span> <span class="n">zrot2</span><span class="p">,</span> <span class="n">evald_rad</span><span class="p">)</span>
+        
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">str_omega_drhkl</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">beta_deg</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">,</span> <span class="n">dr</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">qv</span><span class="p">,</span> <span class="n">qh</span><span class="p">,</span> <span class="n">qt</span><span class="p">,</span> <span class="n">ql</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">sigma_ql</span><span class="p">)</span>
+            <span class="nb">print</span> <span class="n">txt</span><span class="p">,</span>
+            <span class="k">if</span> <span class="n">fout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="p">:</span> <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+        
+            <span class="n">lut</span><span class="p">[</span><span class="n">iomega</span><span class="p">,:]</span> <span class="o">+=</span> <span class="n">fill_row</span><span class="p">(</span><span class="n">dr</span><span class="p">,</span> <span class="n">qv</span><span class="p">,</span> <span class="n">qh</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">sigma_ql</span><span class="p">,</span> <span class="n">sigma_qt</span><span class="p">,</span> <span class="n">bpq</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">lut</span></div>
+        
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">lattice_node_radius</span><span class="p">(</span><span class="n">b1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b3</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">),</span>\
+                 <span class="n">hmax</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">kmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cdtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%10.6f</span><span class="s1">&#39;</span><span class="p">,</span>\
+                 <span class="n">hmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lmin</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">In </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
+    <span class="nb">print</span> <span class="s1">&#39;reciprocal space primitive vectors:</span><span class="se">\n</span><span class="s1">  b1 = (</span><span class="si">%s</span><span class="s1">)</span><span class="se">\n</span><span class="s1">  b2 = (</span><span class="si">%s</span><span class="s1">)</span><span class="se">\n</span><span class="s1">  b3 = (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>\
+           <span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span> <span class="o">%</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b1</span><span class="p">]),</span>\
+            <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span> <span class="o">%</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b2</span><span class="p">]),</span>\
+            <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span> <span class="o">%</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">b3</span><span class="p">]))</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">rarr</span><span class="p">,</span> <span class="n">harr</span><span class="p">,</span> <span class="n">karr</span><span class="p">,</span> <span class="n">larr</span> <span class="o">=</span> <span class="n">lattice</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">cdtype</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+
+    <span class="n">hklarr</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">harr</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">karr</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">larr</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+    <span class="n">dic_r_hkl</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">rarr</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="n">hklarr</span><span class="p">))</span>   
+
+    <span class="n">r_nodes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dic_r_hkl</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">Table of lattice node parameters sorted by radius&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lmax</span><span class="o">==</span><span class="mi">0</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;( h, k) R(h,k)[1/A]&#39;</span>
+    <span class="k">else</span>       <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;( h, k, l) R(h,k,l)[1/A]&#39;</span>
+    <span class="k">for</span> <span class="n">rnode</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dic_r_hkl</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="p">:</span>
+        <span class="n">hkl</span> <span class="o">=</span> <span class="n">dic_r_hkl</span><span class="p">[</span><span class="n">rnode</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">lmax</span><span class="o">==</span><span class="mi">0</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;(</span><span class="si">%2i</span><span class="s1">,</span><span class="si">%2i</span><span class="s1">) </span><span class="si">%6.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">rnode</span><span class="p">)</span>
+        <span class="k">else</span>       <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;(</span><span class="si">%2i</span><span class="s1">,</span><span class="si">%2i</span><span class="s1">,</span><span class="si">%2i</span><span class="s1">) </span><span class="si">%6.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hkl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">hkl</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">rnode</span><span class="p">)</span> 
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_lattice</span><span class="p">(</span><span class="n">b1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b3</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">),</span>\
+                 <span class="n">hmax</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">kmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cdtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>\
+                 <span class="n">hmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lmin</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">Detector.GlobalUtils</span> <span class="k">import</span> <span class="n">print_ndarr</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">In </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="s1">Test lattice with default parameters&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">lattice</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">cdtype</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+
+    <span class="n">print_nda</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39; </span><span class="si">%3d</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">print_nda</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39; </span><span class="si">%3d</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">print_nda</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="s1">&#39;l&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39; </span><span class="si">%3d</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">print_nda</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;x coords&#39;</span><span class="p">)</span>
+    <span class="n">print_nda</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;y coords&#39;</span><span class="p">)</span>
+    <span class="n">print_nda</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="s1">&#39;z coords&#39;</span><span class="p">)</span>
+    <span class="n">print_nda</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s1">&#39;r of lattice nodes&#39;</span><span class="p">)</span>
+        
+    <span class="n">omega_deg</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">beta_deg</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">xrot1</span><span class="p">,</span> <span class="n">yrot1</span> <span class="o">=</span> <span class="n">rotation</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">)</span>
+    <span class="n">xrot2</span><span class="p">,</span> <span class="n">zrot2</span> <span class="o">=</span> <span class="n">rotation</span><span class="p">(</span><span class="n">xrot1</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">beta_deg</span><span class="p">)</span>
+
+    <span class="c1">#print_nda(xrot2, &#39;xrot2&#39;)</span>
+    <span class="c1">#print_nda(yrot1, &#39;yrot1&#39;)</span>
+    <span class="c1">#print_nda(zrot2, &#39;zrot2&#39;)</span>
+    <span class="c1">#print_nda(zrot, &#39;zrot&#39;)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">xrot2</span><span class="p">,</span> <span class="s1">&#39;xrot2&#39;</span><span class="p">)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">yrot1</span><span class="p">,</span> <span class="s1">&#39;yrot1&#39;</span><span class="p">)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">zrot2</span><span class="p">,</span> <span class="s1">&#39;zrot2&#39;</span><span class="p">)</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="plot_lattice"><a class="viewcode-back" href="../index.html#FiberIndexing.plot_lattice">[docs]</a><span class="k">def</span> <span class="nf">plot_lattice</span><span class="p">(</span><span class="n">b1</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">),</span> <span class="n">b3</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">),</span>\
+                 <span class="n">hmax</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">kmax</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cdtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>\
+                 <span class="n">evald_rad</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">qtol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">do_movie</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>\
+                 <span class="n">hmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title_add</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Plots 2-d reciprocal space lattice, evald sphere,</span>
+<span class="sd">       generates series of plots for rotated lattice and movie from these plots.</span>
+
+<span class="sd">       - do_movie = True/False - on/off production of movie</span>
+<span class="sd">       - delay - is a time in msec between movie frames.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="kn">import</span> <span class="nn">pyimgalgos.GlobalGraphics</span> <span class="k">as</span> <span class="nn">gg</span>
+    
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">In </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="s1">Test lattice with default parameters&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">80</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">lattice</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">cdtype</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+
+    <span class="n">x</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">,)</span>
+    <span class="n">y</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">,)</span>
+    <span class="n">z</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">size</span><span class="p">,)</span>
+
+    <span class="n">xlimits</span> <span class="o">=</span> <span class="n">ylimits</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span> <span class="c1"># plot limits in (1/A)</span>
+    <span class="c1">#ylimits = (-0.4, 0.4) # plot limits in (1/A)</span>
+    <span class="c1">#xlimits = (-0.5, 0.3) # plot limits in (1/A)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">plotGraph</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mf">7.5</span><span class="p">),</span> <span class="n">window</span><span class="o">=</span><span class="p">(</span><span class="mf">0.17</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">,</span> <span class="mf">0.84</span><span class="p">),</span> <span class="n">pfmt</span><span class="o">=</span><span class="s1">&#39;bo&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xlimits</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylimits</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Reciprocal x ($1/\AA$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Reciprocal y ($1/\AA$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">reciprocal-space-lattice.png&#39;</span> <span class="o">%</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">pbits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">lst_omega</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">180</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">do_movie</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+    <span class="c1">#lst_omega = range(0,180,5) if do_movie else range(0,13,11)</span>
+    <span class="c1">#lst_omega = range(0,180,45) if do_movie else range(0,13,11)</span>
+
+    <span class="n">beta_deg</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">omega_deg</span> <span class="ow">in</span> <span class="n">lst_omega</span> <span class="p">:</span>
+
+        <span class="n">xrot1</span><span class="p">,</span> <span class="n">yrot1</span> <span class="o">=</span> <span class="n">rotation</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">)</span>
+        <span class="n">xrot2</span><span class="p">,</span> <span class="n">zrot2</span> <span class="o">=</span> <span class="n">rotation</span><span class="p">(</span><span class="n">xrot1</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">beta_deg</span><span class="p">)</span>        
+        <span class="n">dr</span><span class="p">,</span> <span class="n">qv</span><span class="p">,</span> <span class="n">qh</span><span class="p">,</span> <span class="n">qt</span><span class="p">,</span> <span class="n">ql</span> <span class="o">=</span> <span class="n">q_components</span><span class="p">(</span><span class="n">xrot2</span><span class="p">,</span> <span class="n">yrot1</span><span class="p">,</span> <span class="n">zrot2</span><span class="p">,</span> <span class="n">evald_rad</span><span class="p">)</span>
+
+        <span class="n">xhit</span> <span class="o">=</span> <span class="p">[</span><span class="n">xr</span> <span class="k">for</span> <span class="n">dq</span><span class="p">,</span><span class="n">xr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dr</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">xrot2</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">dq</span><span class="p">)</span><span class="o">&lt;</span><span class="n">qtol</span><span class="p">]</span>
+        <span class="n">yhit</span> <span class="o">=</span> <span class="p">[</span><span class="n">yr</span> <span class="k">for</span> <span class="n">dq</span><span class="p">,</span><span class="n">yr</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dr</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">yrot1</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">dq</span><span class="p">)</span><span class="o">&lt;</span><span class="n">qtol</span><span class="p">]</span>
+
+        <span class="c1">#fig, ax = gg.plotGraph(xrot2, yrot1, figsize=(8,7.5), window=(0.15, 0.10, 0.78, 0.84), pfmt=&#39;bo&#39;)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xlimits</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylimits</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xrot1</span><span class="p">,</span> <span class="n">yrot1</span><span class="p">,</span> <span class="s1">&#39;yo&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">xhit</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">yhit</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span> <span class="p">:</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xhit</span><span class="p">,</span> <span class="n">yhit</span><span class="p">,</span> <span class="s1">&#39;bo&#39;</span><span class="p">)</span>
+
+        <span class="n">tit</span> <span class="o">=</span> <span class="s1">&#39;beta=</span><span class="si">%.0f</span><span class="s1"> omega=</span><span class="si">%.0f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">beta_deg</span><span class="p">,</span> <span class="n">omega_deg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">title_add</span> <span class="p">:</span> <span class="n">tit</span> <span class="o">+=</span> <span class="s1">&#39; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">title_add</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">tit</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Reciprocal x ($1/\AA$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Reciprocal y ($1/\AA$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">gg</span><span class="o">.</span><span class="n">drawCenter</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">evald_rad</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="n">gg</span><span class="o">.</span><span class="n">drawCircle</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="n">evald_rad</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">evald_rad</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">gg</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="s1">&#39;Do not hold!&#39;</span><span class="p">)</span>
+        <span class="n">gg</span><span class="o">.</span><span class="n">save_fig</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">lattice-rotated-beta</span><span class="si">%03d</span><span class="s1">-omega</span><span class="si">%03d</span><span class="s1">.png&#39;</span><span class="o">%</span>\
+                    <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">beta_deg</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">omega_deg</span><span class="p">)),</span> <span class="n">pbits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">do_movie</span> <span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">os</span>
+        <span class="c1">#dir_movie = &#39;movie&#39;</span>
+        <span class="c1">#os.system(&#39;mkdir %s&#39;% dir_movie)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="s1">&#39;convert -delay </span><span class="si">%f</span><span class="s1"> </span><span class="si">%s</span><span class="s1">lattice-rotated-beta*.png movie.gif&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="s1">&#39;Wait for completion of the command: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cmd</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="s1">&#39;DONE!&#39;</span>
+    
+    <span class="n">gg</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="k">def</span> <span class="nf">make_index_table</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;./v01-&#39;</span><span class="p">)</span> <span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">pyimgalgos.GlobalUtils</span> <span class="k">import</span> <span class="n">str_tstamp</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">lut-cxif5315-r0169-</span><span class="si">%s</span><span class="s1">.txt&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">str_tstamp</span><span class="p">())</span>
+    <span class="n">fout</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# file name: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fname</span><span class="p">)</span>
+
+    <span class="c1">#------------------------------</span>
+    <span class="c1"># Photon energy</span>
+    <span class="n">Egamma_eV</span>  <span class="o">=</span> <span class="mf">6003.1936</span>                               <span class="c1"># eV SIOC:SYS0:ML00:AO541</span>
+    <span class="n">wavelen_nm</span> <span class="o">=</span> <span class="n">wavelength_nm_from_energy_ev</span><span class="p">(</span><span class="n">Egamma_eV</span><span class="p">)</span> <span class="c1"># nm</span>
+    <span class="n">evald_rad</span>  <span class="o">=</span> <span class="n">wave_vector_value</span><span class="p">(</span><span class="n">Egamma_eV</span><span class="p">)</span>            <span class="c1"># 1/A</span>
+    <span class="c1">#-------</span>
+    <span class="n">sigma_ql</span>   <span class="o">=</span> <span class="mf">0.002</span> <span class="o">*</span> <span class="n">evald_rad</span>
+    <span class="n">sigma_qt</span>   <span class="o">=</span> <span class="mf">0.002</span> <span class="o">*</span> <span class="n">evald_rad</span>
+    <span class="c1">#-------</span>
+    <span class="n">rec</span>  <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># photon energy = </span><span class="si">%.4f</span><span class="s1"> eV&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Egamma_eV</span><span class="p">)</span>\
+         <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># wavelength = </span><span class="si">%.4f</span><span class="s1"> A&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">wavelen_nm</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>\
+         <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># wave number/Evald radius k = 1/lambda = </span><span class="si">%.6f</span><span class="s1"> 1/A&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">evald_rad</span><span class="p">)</span>\
+         <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># sigma_ql = </span><span class="si">%.6f</span><span class="s1"> 1/A (approximately = k * &lt;pixel size&gt;/&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sigma_ql</span><span class="p">)</span>\
+         <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># sigma_qt = </span><span class="si">%.6f</span><span class="s1"> 1/A (approximately = k * &lt;pixel size&gt;/&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sigma_qt</span><span class="p">)</span>\
+         <span class="o">+</span> <span class="s1">&#39;&lt;sample-to-detector distance&gt; = k*100um/100mm)&#39;</span>\
+         <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># 3*sigma_ql = </span><span class="si">%.6f</span><span class="s1"> 1/A</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">sigma_ql</span><span class="p">)</span>\
+         <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># 3*sigma_qt = </span><span class="si">%.6f</span><span class="s1"> 1/A</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">sigma_qt</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">rec</span>
+    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+
+    <span class="c1">#------------------------------</span>
+    <span class="c1"># Lattice parameters</span>
+    <span class="c1"># from previous analysis note:</span>
+    <span class="c1">#a, b, c = 18.36, 26.65, 4.81        # Angstrom</span>
+    <span class="c1">#alpha, beta, gamma = 90, 90, 77.17  # 180 - 102.83 degree</span>
+    <span class="n">a</span><span class="o">=</span> <span class="mf">18.55</span> <span class="c1"># Angstrom</span>
+    <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="mf">1.466</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="mf">0.262</span><span class="o">*</span><span class="n">a</span>              <span class="c1"># Angstrom</span>
+    <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mf">78.47</span>   <span class="c1"># 180 - 101.53 degree</span>
+    <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span>           <span class="c1"># size of lattice to consider</span>
+    <span class="c1">#hmin, kmin, lmin =-4,-6, 0          # size of lattice to consider</span>
+    <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># default [-hmax,hmax], [-kmax,kmax],</span>
+
+    <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span> <span class="o">=</span> <span class="n">triclinic_primitive_vectors</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
+    <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span> <span class="o">=</span> <span class="n">reciprocal_from_bravias</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">)</span>
+
+    <span class="n">msg1</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># Triclinic crystal cell parameters:&#39;</span>\
+         <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">#   a = </span><span class="si">%.2f</span><span class="s1"> A</span><span class="se">\n</span><span class="s1">#   b = </span><span class="si">%.2f</span><span class="s1"> A</span><span class="se">\n</span><span class="s1">#   c = </span><span class="si">%.2f</span><span class="s1"> A&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>\
+         <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">#   alpha = </span><span class="si">%.2f</span><span class="s1"> deg</span><span class="se">\n</span><span class="s1">#   beta  = </span><span class="si">%.2f</span><span class="s1"> deg</span><span class="se">\n</span><span class="s1">#   gamma = </span><span class="si">%.2f</span><span class="s1"> deg&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">)</span>
+
+    <span class="n">msg2</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># 3-d space primitive vectors:</span><span class="se">\n</span><span class="s1">#   a1 = </span><span class="si">%s</span><span class="se">\n</span><span class="s1">#   a2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s1">#   a3 = </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>\
+           <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">a2</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">a3</span><span class="p">))</span>
+
+    <span class="n">msg3</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># reciprocal space primitive vectors:</span><span class="se">\n</span><span class="s1">#   b1 = </span><span class="si">%s</span><span class="se">\n</span><span class="s1">#   b2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s1">#   b3 = </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>\
+           <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">b1</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">b2</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">b3</span><span class="p">))</span>
+
+    <span class="n">rec</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">msg1</span><span class="p">,</span> <span class="n">msg2</span><span class="p">,</span> <span class="n">msg3</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="n">rec</span>
+    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+
+    <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># </span><span class="si">%s</span><span class="se">\n\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">89</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">))</span>
+
+    <span class="c1">#for line in triclinic_primitive_vectors.__doc__.split(&#39;\n&#39;) : fout.write(&#39;\n# %s&#39; % line)</span>
+
+    <span class="n">test_lattice</span>       <span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+    <span class="n">lattice_node_radius</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%10.6f</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+    <span class="n">lattice_node_radius</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>    <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%10.6f</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+
+    <span class="c1">#------------------------------</span>
+    <span class="c1">#return</span>
+
+    <span class="c1">#------------------------------</span>
+    <span class="c1"># binning for look-up table and plots</span>
+
+    <span class="c1"># bin parameters for q in units of k = Evald&#39;s sphere radius [1/A]</span>
+    <span class="n">bpq</span> <span class="o">=</span> <span class="n">BinPars</span><span class="p">((</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">),</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># bin parameters for omega [degree] - fiber rotation angle around axis</span>
+    <span class="n">bpomega</span> <span class="o">=</span> <span class="n">BinPars</span><span class="p">((</span><span class="mf">0.</span><span class="p">,</span>  <span class="mf">180.</span><span class="p">),</span> <span class="mi">360</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="c1"># bin parameters for beta [degree] - fiber axis tilt angle</span>
+    <span class="c1">#bpbeta = BinPars((15.,  195.),  2, vtype=np.float32, endpoint=True)</span>
+    <span class="c1">#bpbeta = BinPars((15.,   15.),  1, vtype=np.float32, endpoint=False)</span>
+    <span class="c1">#bpbeta = BinPars((5.,    25.),  2, vtype=np.float32, endpoint=True)</span>
+    <span class="n">bpbeta</span>  <span class="o">=</span> <span class="n">BinPars</span><span class="p">((</span><span class="mf">0.</span><span class="p">,</span>    <span class="mf">50.</span><span class="p">),</span> <span class="mi">11</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">bpbeta2</span> <span class="o">=</span> <span class="n">BinPars</span><span class="p">((</span><span class="mf">180.</span><span class="p">,</span> <span class="mf">230.</span><span class="p">),</span> <span class="mi">11</span><span class="p">,</span> <span class="n">vtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">str_beta</span> <span class="o">=</span> <span class="s1">&#39;for-beta:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">bpbeta</span><span class="o">.</span><span class="n">strrange</span><span class="p">)</span>
+     
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">Indexing lookup table</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">91</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="n">lut</span>  <span class="o">=</span> <span class="n">make_lookup_table_v2</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">evald_rad</span><span class="p">,</span> <span class="n">sigma_ql</span><span class="p">,</span> <span class="n">sigma_qt</span><span class="p">,</span> <span class="n">fout</span><span class="p">,</span> <span class="n">bpq</span><span class="p">,</span> <span class="n">bpomega</span><span class="p">,</span> <span class="n">bpbeta</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+    <span class="n">lut2</span> <span class="o">=</span> <span class="n">make_lookup_table_v2</span><span class="p">(</span><span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">b3</span><span class="p">,</span> <span class="n">hmax</span><span class="p">,</span> <span class="n">kmax</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">evald_rad</span><span class="p">,</span> <span class="n">sigma_ql</span><span class="p">,</span> <span class="n">sigma_qt</span><span class="p">,</span> <span class="n">fout</span><span class="p">,</span> <span class="n">bpq</span><span class="p">,</span> <span class="n">bpomega</span><span class="p">,</span> <span class="n">bpbeta2</span><span class="p">,</span> <span class="n">hmin</span><span class="p">,</span> <span class="n">kmin</span><span class="p">,</span> <span class="n">lmin</span><span class="p">)</span>
+
+    <span class="n">fout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Indexing lookup table is saved in the file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fname</span>
+
+    <span class="c1">#------------------------------</span>
+    <span class="c1"># produce and save plots</span>
+    <span class="kn">import</span> <span class="nn">pyimgalgos.GlobalGraphics</span> <span class="k">as</span> <span class="nn">gg</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">lut</span> <span class="c1"># or lut2</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">lut</span> <span class="o">+</span> <span class="n">lut2</span>
+
+    <span class="n">img_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">bpq</span><span class="o">.</span><span class="n">vmin</span><span class="p">,</span> <span class="n">bpq</span><span class="o">.</span><span class="n">vmax</span><span class="p">,</span> <span class="n">bpomega</span><span class="o">.</span><span class="n">vmax</span><span class="p">,</span> <span class="n">bpomega</span><span class="o">.</span><span class="n">vmin</span><span class="p">)</span> 
+    <span class="n">axim</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">plotImageLarge</span><span class="p">(</span><span class="n">lut</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">img_range</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">13</span><span class="p">),</span>\
+                      <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Non-symmetrized for beta&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;upper&#39;</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span>  <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.94</span><span class="p">,</span> <span class="mf">0.94</span><span class="p">))</span>
+    <span class="n">axim</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;$q_</span><span class="si">{H}</span><span class="s1">$ ($1/\AA$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">axim</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;$\omega$ (degree)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">plot-img-prob-omega-vs-qh-</span><span class="si">%s</span><span class="s1">.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">str_beta</span><span class="p">),</span> <span class="n">pbits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">axim</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">plotImageLarge</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">img_range</span><span class="o">=</span><span class="n">img_range</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">13</span><span class="p">),</span>\
+                      <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Symmetrized for beta (beta, beta+pi)&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;upper&#39;</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span>  <span class="mf">0.06</span><span class="p">,</span> <span class="mf">0.94</span><span class="p">,</span> <span class="mf">0.94</span><span class="p">))</span>
+    <span class="n">axim</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;$q_</span><span class="si">{H}</span><span class="s1">$ ($1/\AA$)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">axim</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;$\omega$ (degree)&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">plot-img-prob-omega-vs-qh-sym-</span><span class="si">%s</span><span class="s1">.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">str_beta</span><span class="p">),</span> <span class="n">pbits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">arrhi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>    
+    <span class="n">fighi</span><span class="p">,</span> <span class="n">axhi</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">hist1d</span><span class="p">(</span><span class="n">bpq</span><span class="o">.</span><span class="n">binedges</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bpq</span><span class="o">.</span><span class="n">nbins</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="p">(</span><span class="n">bpq</span><span class="o">.</span><span class="n">vmin</span><span class="p">,</span> <span class="n">bpq</span><span class="o">.</span><span class="n">vmax</span><span class="p">),</span> <span class="n">weights</span><span class="o">=</span><span class="n">arrhi</span><span class="p">,</span>\
+                                <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">show_stat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>\
+                                <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">axwin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">),</span>\
+                                <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;$q_</span><span class="si">{H}</span><span class="s1">$ ($1/\AA$)&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Intensity&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">save_fig</span><span class="p">(</span><span class="n">fighi</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">plot-his-prob-vs-qh-</span><span class="si">%s</span><span class="s1">.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">str_beta</span><span class="p">),</span> <span class="n">pbits</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">qh_weight</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bpq</span><span class="o">.</span><span class="n">bincenters</span><span class="p">,</span> <span class="n">arrhi</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">arr-qh-weight-</span><span class="si">%s</span><span class="s1">.npy&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">str_beta</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;Save qh:weigt array in file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">fname</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">qh_weight</span><span class="p">)</span>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="check_triclinic_primitive_vectors"><a class="viewcode-back" href="../index.html#FiberIndexing.check_triclinic_primitive_vectors">[docs]</a><span class="k">def</span> <span class="nf">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">alp</span><span class="p">,</span><span class="n">bet</span><span class="p">,</span><span class="n">gam</span><span class="p">,</span><span class="n">vrb</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;1) prints input parameters of primitive vectors,</span>
+<span class="sd">       2) prints three primitive vectors and their reconstructed parameters,</span>
+<span class="sd">       3) reitrive parameters of primitive vectors,</span>
+<span class="sd">       4) compare with input and print results of comparison.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span> <span class="mi">50</span><span class="o">*</span><span class="s1">&#39;_&#39;</span>
+    <span class="k">if</span> <span class="n">vrb</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">In </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">()</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;Input parameters of primitive vectors:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span>\
+           <span class="s1">&#39;a=</span><span class="si">%.3f</span><span class="s1">  b=</span><span class="si">%.3f</span><span class="s1">  c=</span><span class="si">%.3f</span><span class="s1">  alp=</span><span class="si">%.2f</span><span class="s1">  bet=</span><span class="si">%.2f</span><span class="s1">  gam=</span><span class="si">%.2f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">alp</span><span class="p">,</span> <span class="n">bet</span><span class="p">,</span> <span class="n">gam</span><span class="p">)</span>
+    <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span> <span class="o">=</span> <span class="n">triclinic_primitive_vectors</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">alp</span><span class="p">,</span><span class="n">bet</span><span class="p">,</span><span class="n">gam</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vrb</span> <span class="p">:</span> <span class="n">print_primitive_vectors</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%10.6f</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">ra</span><span class="p">,</span> <span class="n">rb</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">ralp</span><span class="p">,</span> <span class="n">rbet</span><span class="p">,</span> <span class="n">rgam</span> <span class="o">=</span> <span class="n">parameters_of_primitive_vectors</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">a3</span><span class="p">)</span>
+    <span class="n">DIF</span><span class="o">=</span><span class="mf">1e-10</span>
+    <span class="n">fabs</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span>
+    <span class="k">if</span>  <span class="n">fabs</span><span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="n">ra</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">DIF</span>\
+    <span class="ow">and</span> <span class="n">fabs</span><span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">rb</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">DIF</span>\
+    <span class="ow">and</span> <span class="n">fabs</span><span class="p">(</span><span class="n">c</span><span class="o">-</span><span class="n">rc</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">DIF</span>\
+    <span class="ow">and</span> <span class="n">fabs</span><span class="p">(</span><span class="n">alp</span><span class="o">-</span><span class="n">ralp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">DIF</span>\
+    <span class="ow">and</span> <span class="n">fabs</span><span class="p">(</span><span class="n">bet</span><span class="o">-</span><span class="n">rbet</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">DIF</span>\
+    <span class="ow">and</span> <span class="n">fabs</span><span class="p">(</span><span class="n">gam</span><span class="o">-</span><span class="n">rgam</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">DIF</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;Test os OK&#39;</span>
+    <span class="k">else</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;WARNING test is failed&#39;</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">def</span> <span class="nf">test_triclinic_primitive_vectors</span><span class="p">(</span><span class="n">vrb</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="p">:</span>
+    <span class="n">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span> <span class="n">vrb</span><span class="p">)</span>
+    <span class="n">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="n">vrb</span><span class="p">)</span>
+    <span class="n">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="n">vrb</span><span class="p">)</span>
+    <span class="n">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">vrb</span><span class="p">)</span>
+    <span class="n">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="n">vrb</span><span class="p">)</span>
+    <span class="n">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="n">vrb</span><span class="p">)</span>
+    <span class="n">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">110</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">vrb</span><span class="p">)</span>
+    <span class="n">check_triclinic_primitive_vectors</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">110</span><span class="p">,</span><span class="mi">120</span><span class="p">,</span> <span class="n">vrb</span><span class="p">)</span>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span> <span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span><span class="p">;</span> <span class="k">global</span> <span class="n">sys</span>
+    <span class="n">tname</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;0&#39;</span>
+    <span class="nb">print</span> <span class="mi">50</span><span class="o">*</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Test </span><span class="si">%s</span><span class="s1">:&#39;</span> <span class="o">%</span> <span class="n">tname</span>
+
+    <span class="k">if</span>   <span class="n">tname</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span> <span class="p">:</span> <span class="n">make_index_table</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">tname</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="p">:</span> <span class="n">test_triclinic_primitive_vectors</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">tname</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span> <span class="p">:</span> <span class="n">test_triclinic_primitive_vectors</span><span class="p">(</span><span class="n">vrb</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span> <span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;Test </span><span class="si">%s</span><span class="s1"> is undefined&#39;</span> <span class="o">%</span> <span class="n">tname</span><span class="p">)</span>
+
+<span class="c1">#------------------------------</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mikhail Dubrovin.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

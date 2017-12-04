@@ -1,0 +1,487 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>RadialBkgd &#8212; pyimgalgos-doc 1 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">pyimgalgos-doc 1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for RadialBkgd</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1">#------------------------------</span>
+<span class="sd">&quot;&quot;&quot;:py:class:`RadialBkgd` - radial background subtraction for imaging detector n-d array data,</span>
+<span class="sd">   extension of the base class :py:class:`HPolar` for methods subtract_bkgd and subtract_bkgd_interpol.</span>
+
+<span class="sd">Usage::</span>
+
+<span class="sd">    # Import</span>
+<span class="sd">    # ------</span>
+<span class="sd">    from pyimgalgos.RadialBkgd import RadialBkgd</span>
+
+<span class="sd">    # Initialization</span>
+<span class="sd">    # --------------</span>
+<span class="sd">    rb = RadialBkgd(xarr, yarr, mask=None, radedges=None, nradbins=100, phiedges=(0,360), nphibins=32)</span>
+
+<span class="sd">    # Access methods</span>
+<span class="sd">    # --------------</span>
+<span class="sd">    orb   = rb.obj_radbins() # returns HBins object for radial bins</span>
+<span class="sd">    opb   = rb.obj_phibins() # returns HBins object for angular bins</span>
+<span class="sd">    rad   = rb.pixel_rad()</span>
+<span class="sd">    irad  = rb.pixel_irad()</span>
+<span class="sd">    phi0  = rb.pixel_phi0()</span>
+<span class="sd">    phi   = rb.pixel_phi()</span>
+<span class="sd">    iphi  = rb.pixel_iphi()</span>
+<span class="sd">    iseq  = rb.pixel_iseq()</span>
+<span class="sd">    npix  = rb.bin_number_of_pixels()</span>
+<span class="sd">    int   = rb.bin_intensity(nda)</span>
+<span class="sd">    arr1d = rb.bin_avrg(nda)</span>
+<span class="sd">    arr2d = rb.bin_avrg_rad_phi(nda, do_transp=True)</span>
+<span class="sd">    pixav = rb.pixel_avrg(nda)</span>
+<span class="sd">    pixav = rb.pixel_avrg_interpol(nda, method=&#39;linear&#39;) # method=&#39;nearest&#39; &#39;cubic&#39;</span>
+<span class="sd">    cdata = rb.subtract_bkgd(nda)</span>
+<span class="sd">    cdata = rb.subtract_bkgd_interpol(nda, method=&#39;linear&#39;)</span>
+
+<span class="sd">    # Print attributes and n-d arrays</span>
+<span class="sd">    # -------------------------------</span>
+<span class="sd">    rb.print_attrs()</span>
+<span class="sd">    rb.print_ndarrs()</span>
+
+<span class="sd">    # Global methods</span>
+<span class="sd">    # --------------</span>
+<span class="sd">    from pyimgalgos.RadialBkgd import polarization_factor, divide_protected, cart2polar, polar2cart, bincount</span>
+
+<span class="sd">    polf = polarization_factor(rad, phi, z)</span>
+<span class="sd">    result = divide_protected(num, den, vsub_zero=0)</span>
+<span class="sd">    r, theta = cart2polar(x, y)</span>
+<span class="sd">    x, y = polar2cart(r, theta)</span>
+<span class="sd">    bin_values = bincount(map_bins, map_weights=None, length=None)</span>
+
+<span class="sd">@see :py:class:`pyimgalgos.HPolar`</span>
+<span class="sd">:py:class:`pyimgalgos.HBins`</span>
+<span class="sd">See `Radial background &lt;https://confluence.slac.stanford.edu/display/PSDMInternal/Radial+background+subtraction+algorithm&gt;`_.</span>
+<span class="sd">:py:class:`pyimgalgos.HSpectrum`</span>
+
+<span class="sd">This software was developed for the SIT project.</span>
+<span class="sd">If you use all or part of it, please give an appropriate acknowledgment.</span>
+
+<span class="sd">Revision: $Revision$</span>
+
+<span class="sd">@version $Id$</span>
+
+<span class="sd">@author Mikhail S. Dubrovin</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">#--------------------------------</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;$Revision$&quot;</span>
+<span class="c1">#--------------------------------</span>
+
+<span class="c1">#import math</span>
+<span class="c1">#import numpy as np</span>
+<span class="c1">#from pyimgalgos.HBins import HBins</span>
+<span class="kn">from</span> <span class="nn">pyimgalgos.HPolar</span> <span class="k">import</span> <span class="n">HPolar</span><span class="p">,</span> <span class="n">polarization_factor</span><span class="p">,</span> <span class="n">divide_protected</span><span class="p">,</span> <span class="n">cart2polar</span><span class="p">,</span> <span class="n">polar2cart</span><span class="p">,</span> <span class="n">bincount</span>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">class</span> <span class="nc">RadialBkgd</span><span class="p">(</span><span class="n">HPolar</span><span class="p">)</span> <span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xarr</span><span class="p">,</span> <span class="n">yarr</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">radedges</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nradbins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">phiedges</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">360</span><span class="p">),</span> <span class="n">nphibins</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span> <span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Parameters</span>
+<span class="sd">           - mask     - n-d array with mask</span>
+<span class="sd">           - xarr     - n-d array with pixel x coordinates in any units</span>
+<span class="sd">           - yarr     - n-d array with pixel y coordinates in the same units as xarr</span>
+<span class="sd">           - radedges - radial bin edges for corrected region in the same units of xarr;</span>
+<span class="sd">                        default=None - all radial range</span>
+<span class="sd">           - nradbins - number of radial bins</span>
+<span class="sd">           - phiedges - phi ange bin edges for corrected region.</span>
+<span class="sd">                        default=(0,360)</span>
+<span class="sd">                        Difference of the edge limits should not exceed +/-360 degree </span>
+<span class="sd">           - nphibins - number of angular bins</span>
+<span class="sd">                        default=32 - bin size equal to 1 rhumb for default phiedges</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">HPolar</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xarr</span><span class="p">,</span> <span class="n">yarr</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">radedges</span><span class="p">,</span> <span class="n">nradbins</span><span class="p">,</span> <span class="n">phiedges</span><span class="p">,</span> <span class="n">nphibins</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">subtract_bkgd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndarr</span><span class="p">)</span> <span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns 1-d numpy array of per-pixel background subtracted input data.&quot;&quot;&quot;</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">ndarr</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">nda</span> <span class="o">=</span> <span class="n">ndarr</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">nda</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixel_avrg</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span>
+        <span class="n">nda</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="k">return</span> <span class="n">nda</span>
+
+
+    <span class="k">def</span> <span class="nf">subtract_bkgd_interpol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndarr</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">verb</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns 1-d numpy array of per-pixel interpolated-background subtracted input data.&quot;&quot;&quot;</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">ndarr</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">nda</span> <span class="o">=</span> <span class="n">ndarr</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">nda</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixel_avrg_interpol</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">verb</span><span class="p">)</span>
+        <span class="n">nda</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="k">return</span> <span class="n">nda</span>
+
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+<span class="c1">#----------- TEST -------------</span>
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="data_geo"><a class="viewcode-back" href="../index.html#RadialBkgd.data_geo">[docs]</a><span class="k">def</span> <span class="nf">data_geo</span><span class="p">(</span><span class="n">ntest</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns test data numpy array and geometry object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+    <span class="kn">from</span> <span class="nn">PSCalib.NDArrIO</span> <span class="k">import</span> <span class="n">save_txt</span><span class="p">,</span> <span class="n">load_txt</span>
+    <span class="kn">from</span> <span class="nn">PSCalib.GeometryAccess</span> <span class="k">import</span> <span class="n">GeometryAccess</span>
+
+    <span class="nb">dir</span>       <span class="o">=</span> <span class="s1">&#39;/reg/g/psdm/detector/alignment/cspad/calib-cxi-camera2-2016-02-05&#39;</span>
+    <span class="c1">#fname_nda = &#39;%s/nda-water-ring-cxij4716-r0022-e000001-CxiDs2-0-Cspad-0-ave.txt&#39; % dir</span>
+    <span class="n">fname_nda</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/nda-water-ring-cxij4716-r0022-e014636-CxiDs2-0-Cspad-0-ave.txt&#39;</span> <span class="o">%</span> <span class="nb">dir</span>
+    <span class="n">fname_geo</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/calib/CsPad::CalibV1/CxiDs2.0:Cspad.0/geometry/geo-cxi01516-2016-02-18-Ag-behenate-tuned.data&#39;</span> <span class="o">%</span> <span class="nb">dir</span>
+    <span class="c1">#fname_geo = &#39;%s/geo-cxi02416-r0010-2016-03-11.txt&#39; % dir</span>
+    <span class="n">fname_gain</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/calib/CsPad::CalibV1/CxiDs2.0:Cspad.0/pixel_gain/cxi01516-r0016-2016-02-18-FeKalpha.data&#39;</span> <span class="o">%</span> <span class="nb">dir</span>
+
+    <span class="c1"># load n-d array with averaged water ring</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">load_txt</span><span class="p">(</span><span class="n">fname_nda</span><span class="p">)</span>
+    <span class="c1">#arr *= load_txt(fname_gain)</span>
+    <span class="c1">#print_ndarr(arr,&#39;water ring&#39;)</span>
+    <span class="n">arr</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">size</span><span class="p">,)</span> <span class="c1"># (32*185*388,)</span>
+
+    <span class="c1"># retrieve geometry</span>
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">geo</span> <span class="o">=</span> <span class="n">GeometryAccess</span><span class="p">(</span><span class="n">fname_geo</span><span class="p">)</span>
+    <span class="n">geo</span><span class="o">.</span><span class="n">move_geo</span><span class="p">(</span><span class="s1">&#39;CSPAD:V1&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1600</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">geo</span><span class="o">.</span><span class="n">move_geo</span><span class="p">(</span><span class="s1">&#39;QUAD:V1&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1">#geo.get_geo(&#39;QUAD:V1&#39;, 3).print_geo()</span>
+    <span class="nb">print</span> <span class="s1">&#39;Time to load geometry </span><span class="si">%.3f</span><span class="s1"> sec from file</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">,</span> <span class="n">fname_geo</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">arr</span><span class="p">,</span> <span class="n">geo</span></div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="test01"><a class="viewcode-back" href="../index.html#RadialBkgd.test01">[docs]</a><span class="k">def</span> <span class="nf">test01</span><span class="p">(</span><span class="n">ntest</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;fig-v01&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test for radial 1-d binning of entire image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+    <span class="kn">import</span> <span class="nn">pyimgalgos.GlobalGraphics</span> <span class="k">as</span> <span class="nn">gg</span>
+    <span class="kn">from</span> <span class="nn">PSCalib.GeometryAccess</span> <span class="k">import</span> <span class="n">img_from_pixel_arrays</span>
+
+    <span class="n">arr</span><span class="p">,</span> <span class="n">geo</span> <span class="o">=</span> <span class="n">data_geo</span><span class="p">(</span><span class="n">ntest</span><span class="p">)</span>
+
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">iX</span><span class="p">,</span> <span class="n">iY</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_coord_indexes</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_coords</span><span class="p">()</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_mask</span><span class="p">(</span><span class="n">mbits</span><span class="o">=</span><span class="mi">0377</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> 
+    <span class="nb">print</span> <span class="s1">&#39;Time to retrieve geometry </span><span class="si">%.3f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">rb</span> <span class="o">=</span> <span class="n">RadialBkgd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">nradbins</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">nphibins</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># v1</span>
+    <span class="nb">print</span> <span class="s1">&#39;RadialBkgd initialization time </span><span class="si">%.3f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">arr</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span>   <span class="n">ntest</span> <span class="o">==</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">arr</span><span class="p">,</span>                   <span class="s1">&#39;averaged data&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_rad</span><span class="p">(),</span>        <span class="s1">&#39;pixel radius value&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">3</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_phi</span><span class="p">(),</span>        <span class="s1">&#39;pixel phi value&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">4</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_irad</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel radial bin index&#39;</span> 
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">5</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_iphi</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel phi bin index&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">6</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_iseq</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel sequential (rad and phi) bin index&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">7</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span>                  <span class="s1">&#39;mask&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">8</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_avrg</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span>    <span class="s1">&#39;averaged radial background&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">9</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">subtract_bkgd</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;background-subtracted data&#39;</span>
+
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">t1_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">pf</span> <span class="o">=</span> <span class="n">polarization_factor</span><span class="p">(</span><span class="n">rb</span><span class="o">.</span><span class="n">pixel_rad</span><span class="p">(),</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_phi</span><span class="p">(),</span> <span class="mf">94e3</span><span class="p">)</span> <span class="c1"># Z=94mm</span>
+        <span class="nb">print</span> <span class="s1">&#39;Time to evaluate polarization correction factor </span><span class="si">%.3f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t1_sec</span><span class="p">)</span>
+
+        <span class="k">if</span>   <span class="n">ntest</span> <span class="o">==</span><span class="mi">10</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">pf</span><span class="p">,</span>                    <span class="s1">&#39;polarization factor&#39;</span>
+        <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span><span class="mi">11</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">arr</span> <span class="o">*</span> <span class="n">pf</span><span class="p">,</span>              <span class="s1">&#39;polarization-corrected averaged data&#39;</span>
+        <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span><span class="mi">12</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">subtract_bkgd</span><span class="p">(</span><span class="n">arr</span> <span class="o">*</span> <span class="n">pf</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span> <span class="p">,</span> <span class="s1">&#39;polarization-corrected background subtracted data&#39;</span>
+        <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span><span class="mi">13</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_avrg</span><span class="p">(</span><span class="n">arr</span> <span class="o">*</span> <span class="n">pf</span><span class="p">),</span> <span class="s1">&#39;polarization-corrected averaged radial background&#39;</span>
+        <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span><span class="mi">14</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_avrg_interpol</span><span class="p">(</span><span class="n">arr</span> <span class="o">*</span> <span class="n">pf</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span> <span class="p">,</span> <span class="s1">&#39;polarization-corrected interpolated radial background&#39;</span>
+        <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span><span class="mi">15</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">subtract_bkgd_interpol</span><span class="p">(</span><span class="n">arr</span> <span class="o">*</span> <span class="n">pf</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span> <span class="p">,</span> <span class="s1">&#39;polarization-corrected interpolated radial background-subtracted data&#39;</span>
+
+
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;Test </span><span class="si">%d</span><span class="s1"> is not implemented&#39;</span> <span class="o">%</span> <span class="n">ntest</span> 
+            <span class="k">return</span>
+        
+    <span class="nb">print</span> <span class="s1">&#39;Get </span><span class="si">%s</span><span class="s1"> n-d array time </span><span class="si">%.3f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img_from_pixel_arrays</span><span class="p">(</span><span class="n">iX</span><span class="p">,</span> <span class="n">iY</span><span class="p">,</span> <span class="n">nda</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">21</span><span class="p">,)</span> <span class="k">else</span> <span class="n">nda</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">300</span><span class="p">,:]</span>
+
+    <span class="n">da</span><span class="p">,</span> <span class="n">ds</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">colmap</span> <span class="o">=</span> <span class="s1">&#39;jet&#39;</span> <span class="c1"># &#39;cubehelix&#39; &#39;cool&#39; &#39;summer&#39; &#39;jet&#39; &#39;winter&#39;</span>
+    <span class="k">if</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="n">nda</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="mf">1.</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">15</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">da</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="n">colmap</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
+
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">ave</span><span class="p">,</span> <span class="n">rms</span> <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">nda</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span><span class="n">ave</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">rms</span><span class="p">,</span> <span class="n">ave</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">rms</span><span class="p">)</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">plotImageLarge</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">da</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">12</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colmap</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">-img.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">ntest</span><span class="p">))</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">hist1d</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_stat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> \
+           <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">axwin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">),</span> \
+           <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Pixel value&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Number of pixels&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">-his.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">ntest</span><span class="p">))</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;End of test for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">title</span>    </div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="test02"><a class="viewcode-back" href="../index.html#RadialBkgd.test02">[docs]</a><span class="k">def</span> <span class="nf">test02</span><span class="p">(</span><span class="n">ntest</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;fig-v01&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test for 2-d (default) binning of the rad-phi range of entire image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#from Detector.GlobalUtils import print_ndarr</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+    <span class="kn">import</span> <span class="nn">pyimgalgos.GlobalGraphics</span> <span class="k">as</span> <span class="nn">gg</span>
+    <span class="kn">from</span> <span class="nn">PSCalib.GeometryAccess</span> <span class="k">import</span> <span class="n">img_from_pixel_arrays</span>
+
+    <span class="n">arr</span><span class="p">,</span> <span class="n">geo</span> <span class="o">=</span> <span class="n">data_geo</span><span class="p">(</span><span class="n">ntest</span><span class="p">)</span>
+
+    <span class="n">iX</span><span class="p">,</span> <span class="n">iY</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_coord_indexes</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_coords</span><span class="p">()</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_mask</span><span class="p">(</span><span class="n">mbits</span><span class="o">=</span><span class="mi">0377</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> 
+
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">rb</span> <span class="o">=</span> <span class="n">RadialBkgd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span> <span class="c1"># v0</span>
+    <span class="c1">#rb = RadialBkgd(X, Y, mask, nradbins=500) # , nphibins=8, phiedges=(-20, 240), radedges=(10000,80000))</span>
+    <span class="nb">print</span> <span class="s1">&#39;RadialBkgd initialization time </span><span class="si">%.3f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+
+    <span class="c1">#print &#39;npixels_per_bin:&#39;,   rb.npixels_per_bin()</span>
+    <span class="c1">#print &#39;intensity_per_bin:&#39;, rb.intensity_per_bin(arr)</span>
+    <span class="c1">#print &#39;average_per_bin:&#39;,   rb.average_per_bin(arr)</span>
+
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">arr</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span>   <span class="n">ntest</span> <span class="o">==</span> <span class="mi">21</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">arr</span><span class="p">,</span>                   <span class="s1">&#39;averaged data&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">22</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_rad</span><span class="p">(),</span>        <span class="s1">&#39;pixel radius value&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">23</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_phi</span><span class="p">(),</span>        <span class="s1">&#39;pixel phi value&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">24</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_irad</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel radial bin index&#39;</span> 
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">25</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_iphi</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel phi bin index&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">26</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_iseq</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel sequential (rad and phi) bin index&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">27</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span>                  <span class="s1">&#39;mask&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">28</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_avrg</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span>      <span class="s1">&#39;averaged radial background&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">29</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">subtract_bkgd</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;background-subtracted data&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">30</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">bin_avrg_rad_phi</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span><span class="s1">&#39;r-phi&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">31</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_avrg_interpol</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span> <span class="s1">&#39;averaged radial interpolated background&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">32</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">subtract_bkgd_interpol</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="n">verb</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;interpol-background-subtracted data&#39;</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;Test </span><span class="si">%d</span><span class="s1"> is not implemented&#39;</span> <span class="o">%</span> <span class="n">ntest</span> 
+        <span class="k">return</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;Get </span><span class="si">%s</span><span class="s1"> n-d array time </span><span class="si">%.3f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img_from_pixel_arrays</span><span class="p">(</span><span class="n">iX</span><span class="p">,</span> <span class="n">iY</span><span class="p">,</span> <span class="n">nda</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">30</span><span class="p">,)</span> <span class="k">else</span> <span class="n">nda</span> <span class="c1"># [100:300,:]</span>
+
+    <span class="n">colmap</span> <span class="o">=</span> <span class="s1">&#39;jet&#39;</span> <span class="c1"># &#39;cubehelix&#39; &#39;cool&#39; &#39;summer&#39; &#39;jet&#39; &#39;winter&#39; &#39;gray&#39;</span>
+
+    <span class="n">da</span> <span class="o">=</span> <span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nda</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">da</span>
+
+    <span class="k">if</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">21</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">29</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">31</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">ave</span><span class="p">,</span> <span class="n">rms</span> <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">nda</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span><span class="n">ave</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">rms</span><span class="p">,</span> <span class="n">ave</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">rms</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">32</span><span class="p">,)</span> <span class="p">:</span> 
+        <span class="n">colmap</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">da</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">plotImageLarge</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">da</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">12</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colmap</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">-img.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">ntest</span><span class="p">))</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">hist1d</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_stat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> \
+           <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">axwin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">),</span> \
+           <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Pixel value&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Number of pixels&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">-his.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">ntest</span><span class="p">))</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;End of test for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">title</span>    </div>
+
+<span class="c1">#------------------------------</span>
+
+<div class="viewcode-block" id="test03"><a class="viewcode-back" href="../index.html#RadialBkgd.test03">[docs]</a><span class="k">def</span> <span class="nf">test03</span><span class="p">(</span><span class="n">ntest</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;fig-v01&#39;</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Test for 2-d binning of the restricted rad-phi range of entire image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+    <span class="kn">import</span> <span class="nn">pyimgalgos.GlobalGraphics</span> <span class="k">as</span> <span class="nn">gg</span>
+    <span class="kn">from</span> <span class="nn">PSCalib.GeometryAccess</span> <span class="k">import</span> <span class="n">img_from_pixel_arrays</span>
+
+    <span class="n">arr</span><span class="p">,</span> <span class="n">geo</span> <span class="o">=</span> <span class="n">data_geo</span><span class="p">(</span><span class="n">ntest</span><span class="p">)</span>
+
+    <span class="n">iX</span><span class="p">,</span> <span class="n">iY</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_coord_indexes</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_coords</span><span class="p">()</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pixel_mask</span><span class="p">(</span><span class="n">mbits</span><span class="o">=</span><span class="mi">0377</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> 
+
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+    <span class="n">rb</span> <span class="o">=</span> <span class="n">RadialBkgd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">nradbins</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">nphibins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">phiedges</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">240</span><span class="p">),</span> <span class="n">radedges</span><span class="o">=</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span><span class="mi">80000</span><span class="p">))</span> <span class="k">if</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">51</span><span class="p">,</span><span class="mi">52</span><span class="p">)</span>\
+    <span class="k">else</span> <span class="n">RadialBkgd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">nradbins</span><span class="o">=</span>  <span class="mi">5</span><span class="p">,</span> <span class="n">nphibins</span><span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">phiedges</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">240</span><span class="p">),</span> <span class="n">radedges</span><span class="o">=</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span><span class="mi">80000</span><span class="p">))</span>
+    <span class="c1">#rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(240, -20), radedges=(80000,10000)) # v3</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;RadialBkgd initialization time </span><span class="si">%.3f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+
+    <span class="c1">#print &#39;npixels_per_bin:&#39;,   rb.npixels_per_bin()</span>
+    <span class="c1">#print &#39;intensity_per_bin:&#39;, rb.intensity_per_bin(arr)</span>
+    <span class="c1">#print &#39;average_per_bin:&#39;,   rb.average_per_bin(arr)</span>
+
+    <span class="n">t0_sec</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">arr</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">if</span>   <span class="n">ntest</span> <span class="o">==</span> <span class="mi">41</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">arr</span><span class="p">,</span>                   <span class="s1">&#39;averaged data&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">42</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_rad</span><span class="p">(),</span>        <span class="s1">&#39;pixel radius value&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">43</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_phi</span><span class="p">(),</span>        <span class="s1">&#39;pixel phi value&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">44</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_irad</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel radial bin index&#39;</span> 
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">45</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_iphi</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel phi bin index&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">46</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_iseq</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>   <span class="s1">&#39;pixel sequential (rad and phi) bin index&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">47</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">mask</span><span class="p">,</span>                  <span class="s1">&#39;mask&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">48</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_avrg</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span>      <span class="s1">&#39;averaged radial background&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">49</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">subtract_bkgd</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;background-subtracted data&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">50</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">bin_avrg_rad_phi</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span><span class="s1">&#39;r-phi&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">51</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">pixel_avrg_interpol</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span> <span class="s1">&#39;averaged radial interpolated background&#39;</span>
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="o">==</span> <span class="mi">52</span> <span class="p">:</span> <span class="n">nda</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="n">rb</span><span class="o">.</span><span class="n">subtract_bkgd_interpol</span><span class="p">(</span><span class="n">nda</span><span class="p">)</span> <span class="o">*</span> <span class="n">mask</span><span class="p">,</span> <span class="s1">&#39;interpol-background-subtracted data&#39;</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;Test </span><span class="si">%d</span><span class="s1"> is not implemented&#39;</span> <span class="o">%</span> <span class="n">ntest</span> 
+        <span class="k">return</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;Get </span><span class="si">%s</span><span class="s1"> n-d array time </span><span class="si">%.3f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t0_sec</span><span class="p">)</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img_from_pixel_arrays</span><span class="p">(</span><span class="n">iX</span><span class="p">,</span> <span class="n">iY</span><span class="p">,</span> <span class="n">nda</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">50</span><span class="p">,)</span> <span class="k">else</span> <span class="n">nda</span> <span class="c1"># [100:300,:]</span>
+
+    <span class="n">colmap</span> <span class="o">=</span> <span class="s1">&#39;jet&#39;</span> <span class="c1"># &#39;cubehelix&#39; &#39;cool&#39; &#39;summer&#39; &#39;jet&#39; &#39;winter&#39; &#39;gray&#39;</span>
+
+    <span class="n">da</span> <span class="o">=</span> <span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nda</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">da</span>
+
+    <span class="k">if</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">41</span><span class="p">,</span><span class="mi">48</span><span class="p">,</span><span class="mi">49</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">51</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">ave</span><span class="p">,</span> <span class="n">rms</span> <span class="o">=</span> <span class="n">nda</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">nda</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">ds</span> <span class="o">=</span> <span class="p">(</span><span class="n">ave</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">rms</span><span class="p">,</span> <span class="n">ave</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="n">rms</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">ntest</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">52</span><span class="p">,)</span> <span class="p">:</span> 
+        <span class="n">colmap</span> <span class="o">=</span> <span class="s1">&#39;gray&#39;</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">da</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">plotImageLarge</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">da</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">12</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">colmap</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">-img.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">ntest</span><span class="p">))</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">hist1d</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">amp_range</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_stat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> \
+           <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">axwin</span><span class="o">=</span><span class="p">(</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.78</span><span class="p">,</span> <span class="mf">0.80</span><span class="p">),</span> \
+           <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Pixel value&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Number of pixels&#39;</span><span class="p">,</span> <span class="n">titwin</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">gg</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">-his.png&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">ntest</span><span class="p">))</span>
+
+    <span class="n">gg</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="nb">print</span> <span class="s1">&#39;End of test for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">title</span>    </div>
+
+<span class="c1">#------------------------------</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span> <span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="n">ntest</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="nb">print</span> <span class="s1">&#39;Test # </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ntest</span>
+
+    <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;fig-v01-cspad-RadialBkgd&#39;</span>
+
+    <span class="k">if</span>   <span class="n">ntest</span><span class="o">&lt;</span><span class="mi">20</span> <span class="p">:</span> <span class="n">test01</span><span class="p">(</span><span class="n">ntest</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ntest</span><span class="o">&lt;</span><span class="mi">40</span> <span class="p">:</span> <span class="n">test02</span><span class="p">(</span><span class="n">ntest</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">ntest</span><span class="o">&lt;</span><span class="mi">60</span> <span class="p">:</span> <span class="n">test03</span><span class="p">(</span><span class="n">ntest</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
+    <span class="k">else</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;Test </span><span class="si">%d</span><span class="s1"> is not implemented&#39;</span> <span class="o">%</span> <span class="n">ntest</span>     
+    <span class="c1">#sys.exit(&#39;End of test&#39;)</span>
+ 
+<span class="c1">#------------------------------</span>
+<span class="c1">#------------------------------</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mikhail Dubrovin.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

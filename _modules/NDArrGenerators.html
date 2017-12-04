@@ -1,0 +1,334 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>NDArrGenerators &#8212; pyimgalgos-doc 1 documentation</title>
+    <link rel="stylesheet" href="../_static/agogo.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">pyimgalgos-doc 1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for NDArrGenerators</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!@PYTHON@</span>
+<span class="c1">####!/usr/bin/env python</span>
+<span class="c1">#------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:py:class:`NDArrGenerators` wrapping methods for numpy random array generators</span>
+<span class="sd">==============================================================================</span>
+
+<span class="sd">Usage::</span>
+
+<span class="sd">    import pyimgalgos.NDArrGenerators as ag</span>
+
+<span class="sd">    # Methods</span>
+
+<span class="sd">    v = ag.prod_of_elements(arr, dtype=np.int)</span>
+<span class="sd">    size = ag.size_from_shape() # use nda.size()</span>
+
+<span class="sd">    shape = ag.shape_as_2d(sh)</span>
+<span class="sd">    shape = ag.shape_as_3d(sh)</span>
+<span class="sd">    arr2d = ag.reshape_to_2d(nda)</span>
+<span class="sd">    arr3d = ag.reshape_to_3d(nda)</span>
+<span class="sd">    nda = ag.random_standard(shape=(40,60), mu=200, sigma=25, dtype=np.float)</span>
+<span class="sd">    nda = ag.random_exponential(shape=(40,60), a0=100, dtype=np.float)</span>
+<span class="sd">    nda = ag.random_one(shape=(40,60), dtype=np.float)</span>
+<span class="sd">    nda = ag.random_256(shape=(40,60), dtype=np.uint8)</span>
+<span class="sd">    nda = ag.random_xffffffff(shape=(40,60), dtype=np.uint32, add=0xff000000)</span>
+<span class="sd">    nda = ag.aranged_array(shape=(40,60), dtype=np.uint32)</span>
+<span class="sd">    ag.print_ndarr(nda, name=&#39;&#39;, first=0, last=5)</span>
+<span class="sd">    nda = ag.ring_intensity(r, r0, sigma)</span>
+<span class="sd">    ag.add_ring(arr2d, amp=100, row=4.3, col=5.8, rad=100, sigma=3)</span>
+<span class="sd">    peaks = ag.add_random_peaks(arr2d, npeaks=10, amean=100, arms=50, wmean=2, wrms=0.1)</span>
+
+<span class="sd">See:</span>
+<span class="sd">  - :py:class:`Graphics`</span>
+<span class="sd">  - :py:class:`GlobalGraphics`</span>
+<span class="sd">  - :py:class:`NDArrGenerators`</span>
+<span class="sd">  - `numpy.random.rand &lt;https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.random.rand.html&gt;`_.</span>
+<span class="sd">  - `matplotlib &lt;https://matplotlib.org/contents.html&gt;`_.</span>
+
+<span class="sd">This software was developed for the SIT project.</span>
+<span class="sd">If you use all or part of it, please give an appropriate acknowledgment.</span>
+
+<span class="sd">Created on Nov 23, 2015 by Mikhail Dubrovin</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="prod_of_elements"><a class="viewcode-back" href="../index.html#NDArrGenerators.prod_of_elements">[docs]</a><span class="k">def</span> <span class="nf">prod_of_elements</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns product of sequence elements</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="size_from_shape"><a class="viewcode-back" href="../index.html#NDArrGenerators.size_from_shape">[docs]</a><span class="k">def</span> <span class="nf">size_from_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns size from the shape sequence </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">prod_of_elements</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="shape_as_2d"><a class="viewcode-back" href="../index.html#NDArrGenerators.shape_as_2d">[docs]</a><span class="k">def</span> <span class="nf">shape_as_2d</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns 2-d shape for n-d shape if n&gt;2, otherwise returns unchanged shape.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">3</span> <span class="p">:</span> <span class="k">return</span> <span class="n">sh</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">size_from_shape</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span><span class="o">/</span><span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="shape_as_3d"><a class="viewcode-back" href="../index.html#NDArrGenerators.shape_as_3d">[docs]</a><span class="k">def</span> <span class="nf">shape_as_3d</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns 3-d shape for n-d shape if n&gt;3, otherwise returns unchanged shape.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span><span class="o">&lt;</span><span class="mi">4</span> <span class="p">:</span> <span class="k">return</span> <span class="n">sh</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">size_from_shape</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span><span class="o">/</span><span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">sh</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="reshape_to_2d"><a class="viewcode-back" href="../index.html#NDArrGenerators.reshape_to_2d">[docs]</a><span class="k">def</span> <span class="nf">reshape_to_2d</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns n-d re-shaped to 2-d</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">arr</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape_as_2d</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="reshape_to_3d"><a class="viewcode-back" href="../index.html#NDArrGenerators.reshape_to_3d">[docs]</a><span class="k">def</span> <span class="nf">reshape_to_3d</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns n-d re-shaped to 3-d</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">arr</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape_as_3d</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="random_standard"><a class="viewcode-back" href="../index.html#NDArrGenerators.random_standard">[docs]</a><span class="k">def</span> <span class="nf">random_standard</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="mi">60</span><span class="p">),</span> <span class="n">mu</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns numpy array of requested shape and type filled with normal distribution for mu and sigma.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">sigma</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="random_exponential"><a class="viewcode-back" href="../index.html#NDArrGenerators.random_exponential">[docs]</a><span class="k">def</span> <span class="nf">random_exponential</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="mi">60</span><span class="p">),</span> <span class="n">a0</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns numpy array of requested shape and type filled with exponential distribution for width a0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">a0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_exponential</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> </div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="random_one"><a class="viewcode-back" href="../index.html#NDArrGenerators.random_one">[docs]</a><span class="k">def</span> <span class="nf">random_one</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="mi">60</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns numpy array of requested shape and type filled with random numbers in the range [0,255].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> </div>
+
+<span class="c1">#-----------------------------</span>
+
+<span class="n">random_1</span> <span class="o">=</span> <span class="n">random_one</span>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="random_256"><a class="viewcode-back" href="../index.html#NDArrGenerators.random_256">[docs]</a><span class="k">def</span> <span class="nf">random_256</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="mi">60</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns numpy array of requested shape and type filled with random numbers in the range [0,255].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">255</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span> </div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="random_xffffffff"><a class="viewcode-back" href="../index.html#NDArrGenerators.random_xffffffff">[docs]</a><span class="k">def</span> <span class="nf">random_xffffffff</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="mi">60</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mh">0xff000000</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns numpy array of requested shape and type </span>
+<span class="sd">       filled with random numbers in the range [0,0xffffff] with bits 0xff000000 for alpha mask.  </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mh">0xffffff</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">+</span> <span class="n">add</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="aranged_array"><a class="viewcode-back" href="../index.html#NDArrGenerators.aranged_array">[docs]</a><span class="k">def</span> <span class="nf">aranged_array</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="mi">60</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns numpy array of requested shape and type filling with ascending integer numbers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">size_from_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">arr</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+    <span class="k">return</span> <span class="n">arr</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="print_ndarr"><a class="viewcode-back" href="../index.html#NDArrGenerators.print_ndarr">[docs]</a><span class="k">def</span> <span class="nf">print_ndarr</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Prints array attributes, title, and a few elements in a single line. </span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">if</span> <span class="n">nda</span> <span class="ow">is</span> <span class="kc">None</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">nda</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="p">:</span> <span class="n">print_ndarr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span> <span class="s1">&#39;ndarray from tuple: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>  <span class="p">:</span> <span class="n">print_ndarr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nda</span><span class="p">),</span> <span class="s1">&#39;ndarray from list: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nda</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">nda</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span> <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:  shape:</span><span class="si">%s</span><span class="s1">  size:</span><span class="si">%d</span><span class="s1">  dtype:</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">...&#39;</span> <span class="o">%</span> \
+         <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">nda</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">nda</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">nda</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">nda</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[</span><span class="n">first</span><span class="p">:</span><span class="n">last</span><span class="p">])</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="ring_intensity"><a class="viewcode-back" href="../index.html#NDArrGenerators.ring_intensity">[docs]</a><span class="k">def</span> <span class="nf">ring_intensity</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">r0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;returns numpy array with ring intensity distribution modulated by Gaussian(r-r0,sigma).</span>
+<span class="sd">       Parameters</span>
+<span class="sd">       ----------</span>
+<span class="sd">       r : np.array - numpy array of radius (i.e. radios for each pixel) </span>
+<span class="sd">       r0 : float - radius of the ring</span>
+<span class="sd">       sigma : float - width of the ring</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">factor</span><span class="o">*</span><span class="p">(</span><span class="n">r</span><span class="o">-</span><span class="n">r0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">rr</span><span class="o">*</span><span class="n">rr</span><span class="p">)</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="add_ring"><a class="viewcode-back" href="../index.html#NDArrGenerators.add_ring">[docs]</a><span class="k">def</span> <span class="nf">add_ring</span><span class="p">(</span><span class="n">arr2d</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mf">4.3</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mf">5.8</span><span class="p">,</span> <span class="n">rad</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Adds peak Gaussian-shaped peak intensity to numpy array arr2d</span>
+<span class="sd">       Parameters</span>
+<span class="sd">       ----------</span>
+<span class="sd">       arr2d : np.array - 2-d numpy array </span>
+<span class="sd">       amp : float - ring intensity</span>
+<span class="sd">       row : float - ring center row</span>
+<span class="sd">       col : float - ring center col</span>
+<span class="sd">       rad : float - ring mean radius</span>
+<span class="sd">       sigma : float - width of the peak</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nsigma</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">rmin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">row</span> <span class="o">-</span> <span class="n">rad</span> <span class="o">-</span> <span class="n">nsigma</span><span class="o">*</span><span class="n">sigma</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">cmin</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">col</span> <span class="o">-</span> <span class="n">rad</span> <span class="o">-</span> <span class="n">nsigma</span><span class="o">*</span><span class="n">sigma</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">rmax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">row</span> <span class="o">+</span> <span class="n">rad</span> <span class="o">+</span> <span class="n">nsigma</span><span class="o">*</span><span class="n">sigma</span><span class="p">)),</span> <span class="n">arr2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">cmax</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">col</span> <span class="o">+</span> <span class="n">rad</span> <span class="o">+</span> <span class="n">nsigma</span><span class="o">*</span><span class="n">sigma</span><span class="p">)),</span> <span class="n">arr2d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">rmax</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-</span> <span class="n">row</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">cmin</span><span class="p">,</span> <span class="n">cmax</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-</span> <span class="n">col</span>
+    <span class="n">CG</span><span class="p">,</span> <span class="n">RG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">RG</span><span class="o">*</span><span class="n">RG</span><span class="o">+</span><span class="n">CG</span><span class="o">*</span><span class="n">CG</span><span class="p">)</span>
+    <span class="n">arr2d</span><span class="p">[</span><span class="n">rmin</span><span class="p">:</span><span class="n">rmax</span><span class="p">,</span><span class="n">cmin</span><span class="p">:</span><span class="n">cmax</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amp</span> <span class="o">*</span> <span class="n">ring_intensity</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">rad</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span></div>
+
+<span class="c1">#-----------------------------</span>
+
+<div class="viewcode-block" id="add_random_peaks"><a class="viewcode-back" href="../index.html#NDArrGenerators.add_random_peaks">[docs]</a><span class="k">def</span> <span class="nf">add_random_peaks</span><span class="p">(</span><span class="n">arr2d</span><span class="p">,</span> <span class="n">npeaks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">amean</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">arms</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">wmean</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">wrms</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns 2-d array with peaks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">shape</span><span class="o">=</span><span class="n">arr2d</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">rand_uni</span> <span class="o">=</span> <span class="n">random_1</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">npeaks</span><span class="p">))</span>
+    <span class="n">r0</span> <span class="o">=</span> <span class="n">rand_uni</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">*</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">c0</span> <span class="o">=</span> <span class="n">rand_uni</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">*</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">rand_std</span> <span class="o">=</span> <span class="n">random_standard</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="n">npeaks</span><span class="p">),</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">a0</span>    <span class="o">=</span> <span class="n">amean</span> <span class="o">+</span> <span class="n">arms</span><span class="o">*</span><span class="n">rand_std</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> 
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">wmean</span> <span class="o">+</span> <span class="n">wrms</span><span class="o">*</span><span class="n">rand_std</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> 
+
+    <span class="n">peaks</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="n">c0</span><span class="p">,</span> <span class="n">a0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">r0</span><span class="p">,</span> <span class="n">c0</span><span class="p">,</span> <span class="n">a0</span><span class="p">,</span> <span class="n">sigma</span> <span class="ow">in</span> <span class="n">peaks</span> <span class="p">:</span>
+        <span class="n">add_ring</span><span class="p">(</span><span class="n">arr2d</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="n">a0</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">r0</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="n">c0</span><span class="p">,</span> <span class="n">rad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">peaks</span></div>
+
+<span class="c1">#-----------------------------</span>
+<span class="c1">#-----------------------------</span>
+<span class="c1">#-----------------------------</span>
+<span class="c1">#-----------------------------</span>
+<span class="c1">#-----------------------------</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">random_exponential</span><span class="p">(),</span> <span class="s1">&#39;random_exponential&#39;</span><span class="p">)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">random_standard</span><span class="p">(),</span> <span class="s1">&#39;random_standard&#39;</span><span class="p">)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">random_1</span><span class="p">(),</span> <span class="s1">&#39;random_1&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">random_256</span><span class="p">(),</span> <span class="s1">&#39;random_256&#39;</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">random_xffffffff</span><span class="p">(),</span> <span class="s1">&#39;random_xffffffff&#39;</span><span class="p">)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">random_standard</span><span class="p">(),</span> <span class="s1">&#39;random_standard&#39;</span><span class="p">)</span>
+    <span class="n">print_ndarr</span><span class="p">(</span><span class="n">aranged_array</span><span class="p">(),</span> <span class="s1">&#39;aranged_array&#39;</span><span class="p">)</span>
+    <span class="c1">#print_ndarr(, &#39;&#39;)</span>
+    <span class="nb">print</span> <span class="s1">&#39;Test is completed&#39;</span>
+
+<span class="c1">#-----------------------------</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Mikhail Dubrovin.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
