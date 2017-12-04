@@ -1,7 +1,9 @@
-#!/usr/bin/env python
+#!@PYTHON@
+####!/usr/bin/env python
 #------------------------------
-""":py:class:`HSpectrum` - spectral histogram for arbitrary shaped numpy array.
-
+"""
+Class :py:class:`HSpectrum` works with spectral histogram for arbitrary shaped numpy array
+==========================================================================================
 Usage::
 
     # Import
@@ -43,7 +45,7 @@ See:
 This software was developed for the SIT project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
-Author: Mikhail Dubrovin
+Created in 2015 by Mikhail Dubrovin
 """
 #------------------------------
 

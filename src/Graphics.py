@@ -22,18 +22,10 @@ Usage::
     gr.draw_fig(fig)
     gr.save_plt(fname='img.png', verb=True)
     gr.save_fig(fig, fname='img.png', verb=True)
-
     hi = gr.hist(axhi, arr, bins=None, amp_range=None, weights=None, color=None, log=False)
-
-    imsh = gr.imshow(axim, img, amp_range=None, extent=None,\
-           interpolation='nearest', aspect='auto', origin='upper',\
-           orientation='horizontal', cmap='inferno')
-
+    imsh = gr.imshow(axim, img, amp_range=None, extent=None, interpolation='nearest', aspect='auto', origin='upper', orientation='horizontal', cmap='inferno')
     cbar = gr.colorbar(fig, imsh, axcb, orientation='vertical', amp_range=None)
-
-    imsh, cbar = gr.imshow_cbar(fig, axim, axcb, img, amin=None, amax=None, extent=None,\
-                interpolation='nearest', aspect='auto', origin='upper',\
-                orientation='vertical', cmap='inferno')
+    imsh, cbar = gr.imshow_cbar(fig, axim, axcb, img, amin=None, amax=None, extent=None, interpolation='nearest', aspect='auto', origin='upper', orientation='vertical', cmap='inferno')
 
 See:
   - :py:class:`Graphics`

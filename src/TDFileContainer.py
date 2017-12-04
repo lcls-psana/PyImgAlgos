@@ -1,15 +1,10 @@
 #!/usr/bin/env python
 
-#--------------------------------------------------------------------------
-# File and Version Information:
-#  $Id$
-#
-# Description:
-#  class TDFileContainer
-#
-#------------------------------------------------------------------------
+#------------------------------
 
-"""TDFileContainer - text/table data file container - load/hold/provide access to data from text file.
+"""
+:py:class:`TDFileContainer` - text/table data file container - load/hold/provide access to data from text file
+==============================================================================================================
 
 It is assumed that text data file contains records of the same format and occasionally record-header
 beginning with character # (hash in [0] position).
@@ -102,16 +97,36 @@ Usage::
 This software was developed for the LCLS project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
-@see classes
-\n  :py:class:`pyimgalgos.TDFileContainer` - file records container. 
-\n  :py:class:`pyimgalgos.TDGroup` - holds a list of records associated with a single group.
-\n  :py:class:`pyimgalgos.TDPeakRecord` - provides access to the peak record.
-\n  :py:class:`pyimgalgos.TDNodeRecord` - provides access to the look-up table with crystal orientation record.
-\n  :py:class:`pyimgalgos.TDCheetahPeakRecord` - provides access to the Cheetah peak record.
+See classes:
+  - :py:class:`pyimgalgos.TDFileContainer` - file records container. 
+  - :py:class:`pyimgalgos.TDGroup` - holds a list of records associated with a single group.
+  - :py:class:`pyimgalgos.TDPeakRecord` - provides access to the peak record.
+  - :py:class:`pyimgalgos.TDNodeRecord` - provides access to the look-up table with crystal orientation record.
+  - :py:class:`pyimgalgos.TDCheetahPeakRecord` - provides access to the Cheetah peak record.
 
-@version $Id$
+See:
+  - :py:class:`Graphics`
+  - :py:class:`GlobalGraphics`
+  - :py:class:`GlobalUtils`
+  - :py:class:`NDArrGenerators`
+  - :py:class:`Quaternion`
+  - :py:class:`FiberAngles`
+  - :py:class:`FiberIndexing`
+  - :py:class:`PeakData`
+  - :py:class:`PeakStore`
+  - :py:class:`TDCheetahPeakRecord`
+  - :py:class:`TDFileContainer`
+  - :py:class:`TDGroup`
+  - :py:class:`TDMatchRecord`
+  - :py:class:`TDNodeRecord`
+  - :py:class:`TDPeakRecord`
+  - :py:class:`HBins`
+  - :py:class:`HPolar`
+  - :py:class:`HSpectrum`
+  - :py:class:`RadialBkgd`
+  - `matplotlib <https://confluence.slac.stanford.edu/display/PSDMInternal/Analysis+of+data+for+cxif5315>`_.
 
-@author Mikhail S. Dubrovin
+Created in 2015 by Mikhail Dubrovin
 """
 #------------------------------
 __version__ = "$Revision$"

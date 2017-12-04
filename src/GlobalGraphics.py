@@ -2,8 +2,8 @@
 ####!/usr/bin/env python
 #------------------------------
 """
-:py:class:`GlobalGraphics` Collection of global graphical methods
-=================================================================
+:py:class:`GlobalGraphics` - collection of global graphical methods
+===================================================================
 
 Usage::
 

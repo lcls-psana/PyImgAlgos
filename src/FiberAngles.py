@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-##-----------------------------
-"""A set of methods to evaluate angles in fiber diffraction experiments.
+"""
+Class :py:class:`FiberAngles` - contains methods to evaluate angles in fiber diffraction experiments
+====================================================================================================
 
 Usage::
     # Import
@@ -41,9 +42,29 @@ Usage::
 This software was developed for the SIT project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
-@version $Id$
+See:
+  - :py:class:`Graphics`
+  - :py:class:`GlobalGraphics`
+  - :py:class:`GlobalUtils`
+  - :py:class:`NDArrGenerators`
+  - :py:class:`Quaternion`
+  - :py:class:`FiberAngles`
+  - :py:class:`FiberIndexing`
+  - :py:class:`PeakData`
+  - :py:class:`PeakStore`
+  - :py:class:`TDCheetahPeakRecord`
+  - :py:class:`TDFileContainer`
+  - :py:class:`TDGroup`
+  - :py:class:`TDMatchRecord`
+  - :py:class:`TDNodeRecord`
+  - :py:class:`TDPeakRecord`
+  - :py:class:`HBins`
+  - :py:class:`HPolar`
+  - :py:class:`HSpectrum`
+  - :py:class:`RadialBkgd`
+  - `matplotlib <https://confluence.slac.stanford.edu/display/PSDMInternal/Analysis+of+data+for+cxif5315>`_.
 
-@author Mikhail S. Dubrovin
+Created in 2015 by Mikhail Dubrovin
 """
 
 ##-----------------------------

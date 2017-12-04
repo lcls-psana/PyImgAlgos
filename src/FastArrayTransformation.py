@@ -1,21 +1,15 @@
+#!@PYTHON@
+####!/usr/bin/env python
 #------------------------------
-"""A set of methods for the fast array transformation based on NumPy and SciPy
+"""
+:py:class:`Entropy.py` - a set of methods for the fast array transformation based on NumPy and SciPy
+====================================================================================================
 
 This software was developed for the SIT project.  If you use all or 
 part of it, please give an appropriate acknowledgment.
 
-@see
-
-@version $Id$
-
-@author Mikhail S. Dubrovin
+Created by Mikhail Dubrovin
 """
-
-#------------------------------
-#  Module's version from CVS --
-#------------------------------
-__version__ = "$Revision$"
-# $Source$
 
 #--------------------------------
 #  Imports of standard modules --

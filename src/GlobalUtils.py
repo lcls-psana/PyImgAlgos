@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 ##-----------------------------
-""":py:class:`GlobalUtils` contains collection of global utilities with a single call algorithms.
+"""
+:py:class:`GlobalUtils` contains collection of global utilities with a single call algorithms
+=============================================================================================
 
 Usage::
 
@@ -57,7 +59,11 @@ Usage::
     table8x8 = table_from_cspad_ndarr(nda_cspad) 
     nda_cspad = cspad_ndarr_from_table(table8x8)
 
-    # Save math
+    nda_32x185x388 = cspad_psana_from_cctbx(nda_64x185x194)
+    nda_64x185x194 = cspad_cctbx_from_psana(nda_32x185x388)
+    cross_check_cspad_psana_cctbx(nda_32x185x388, nda_64x185x194)
+
+    # Safe math
     # =========
     res = divide_protected(num, den, vsub_zero=0)
 
@@ -82,10 +88,10 @@ Usage::
 
 See :py:class:`GlobalUtils`
 
-This software was developed for the SIT project.  If you use all or 
-part of it, please give an appropriate acknowledgment.
+This software was developed for the SIT project.
+If you use all or part of it, please give an appropriate acknowledgment.
 
-Author Mikhail S. Dubrovin
+Created by Mikhail Dubrovin
 """
 
 ##-----------------------------
@@ -436,6 +442,69 @@ def cspad_ndarr_from_table(table8x8) :
     nda_out.shape = (quads*segs, rows, cols)
     return nda_out
 
+#------------------------------
+
+def cspad_psana_from_cctbx(nda_in) :
+    """returns cspad array (32, 185, 388) from cctbx array of ASICs (64, 185, 194)
+    """
+    asics, rows, colsh = shape_in = (64,185,194)
+    size = asics * rows * colsh
+    segs, cols = asics/2, colsh*2
+    
+    if nda_in.size != size :
+        raise ValueError('Input array size: %d is not consistent with cspad size: %d' % (nda_in.size, size))
+
+    if nda_in.shape != shape_in:
+        raise ValueError('Input array shape: %s is not consistent with cspad 8x8 table shape: %s' % (nda_in.shape, shape_in))
+
+    nda_out = np.empty((segs, rows, cols), dtype=nda_in.dtype)
+    
+    for s in range(segs) :
+        a=s*2 # ASIC[0] in segment
+        nda_out[s,:,0:colsh]    = nda_in[a,:,:]
+        nda_out[s,:,colsh:cols] = nda_in[a+1,:,:]
+
+    return nda_out
+
+#------------------------------
+
+def cspad_cctbx_from_psana(nda_in) :
+    """returns cctbx array of ASICs (64, 185, 194) from cspad array (32, 185, 388)
+    """
+    segs, rows, cols = shape_in = (32,185,388)
+    size = segs * rows * cols
+    colsh = cols/2
+
+    if nda_in.size != size :
+        raise ValueError('Input array size: %d is not consistent with cspad size: %d' % (nda_in.size, size))
+
+    if nda_in.shape != shape_in:
+        raise ValueError('Input array shape: %s is not consistent with cspad shape: %s' % (nda_in.shape, shape_in))
+
+    nda_out = np.empty((segs*2, rows, cols/2), dtype=nda_in.dtype)
+    for s in range(segs) :
+        a=s*2 # ASIC[0] in segment
+        nda_out[a,:,:]   = nda_in[s,:,0:colsh]
+        nda_out[a+1,:,:] = nda_in[s,:,colsh:cols]
+    return nda_out
+
+#------------------------------
+
+def cross_check_cspad_psana_cctbx(nda, arr) :
+    """Apply two-way conversions between psana and cctbx cspad arrays and compare.
+    """
+    from time import time
+    t0_sec = time()
+    nda_c = cspad_psana_from_cctbx(arr)
+    dt1 = time() - t0_sec
+    t0_sec = time()
+    arr_c = cspad_cctbx_from_psana(nda)
+    dt2 = time() - t0_sec
+    print 'psana ndarray is equal to converted from cctbx: %s, time = %.6f sec' % (np.array_equal(nda, nda_c), dt1)
+    print 'cctbx ndarray is equal to converted from psana: %s, time = %.6f sec' % (np.array_equal(arr, arr_c), dt2)
+
+#------------------------------
+#------------------------------
 #------------------------------
 
 def divide_protected(num, den, vsub_zero=0) :

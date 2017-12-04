@@ -1,5 +1,8 @@
-#!/usr/bin/env python
-""":py:class:`HBins` histogram-style bin parameters holder
+#!@PYTHON@
+####!/usr/bin/env python
+"""
+Class :py:class:`HBins` histogram-style bin parameters holder
+=============================================================
 
 Usage::
 

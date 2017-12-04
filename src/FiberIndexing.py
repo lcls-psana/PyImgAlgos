@@ -1,8 +1,35 @@
-#!/usr/bin/env python
+#!@PYTHON@
+####!/usr/bin/env python
+#------------------------------
 """
-Created on Oct 7, 2015
+:py:class:`FiberIndexing` collection of methods for fiber indexing
+==================================================================
 
-@author: Mikhail
+This software was developed in co-operation with Meng for analysis of data cxif5315.
+
+See:
+  - :py:class:`Graphics`
+  - :py:class:`GlobalGraphics`
+  - :py:class:`GlobalUtils`
+  - :py:class:`NDArrGenerators`
+  - :py:class:`Quaternion`
+  - :py:class:`FiberAngles`
+  - :py:class:`FiberIndexing`
+  - :py:class:`PeakData`
+  - :py:class:`PeakStore`
+  - :py:class:`TDCheetahPeakRecord`
+  - :py:class:`TDFileContainer`
+  - :py:class:`TDGroup`
+  - :py:class:`TDMatchRecord`
+  - :py:class:`TDNodeRecord`
+  - :py:class:`TDPeakRecord`
+  - :py:class:`HBins`
+  - :py:class:`HPolar`
+  - :py:class:`HSpectrum`
+  - :py:class:`RadialBkgd`
+  - `matplotlib <https://confluence.slac.stanford.edu/display/PSDMInternal/Analysis+of+data+for+cxif5315>`_.
+
+Created on Oct 7, 2015 by Mikhail Dubrovin
 """
 #------------------------------
 

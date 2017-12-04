@@ -1,6 +1,9 @@
-#!/usr/bin/env python
+#!@PYTHON@
+####!/usr/bin/env python
 #------------------------------
-""":py:class:`HPolar` - makes 2-d histogram in polar (r-phi) coordinates for imaging detector n-d array data
+"""
+Class :py:class:`HPolar` - makes 2-d histogram in polar (r-phi) coordinates for imaging detector n-d array data
+===============================================================================================================
 
 Usage::
 
@@ -55,7 +58,7 @@ See:
 This software was developed for the SIT project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
-Author: Mikhail Dubrovin
+Created in 2015 by Mikhail Dubrovin
 """
 #------------------------------
 
