@@ -13,9 +13,13 @@ reverse time order.
 
 =======
 
+Tag: V01-00-11
+2019-08-29 Mikhail S. Dubrovin
+- Graphics.py - remove depricated plt.hold
+
 Tag: V01-00-10
 2017-12-04 Mikhail S. Dubrovin
-- GlobalUtils - add pethods to convert cspad array between cctbx and psana, update self-doc
+- GlobalUtils - add methods to convert cspad array between cctbx and psana, update self-doc
   modified:
     Entropy.py
     FastArrayTransformation.py

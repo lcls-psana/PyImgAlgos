@@ -125,7 +125,7 @@ def add_title_labels_to_axes(axes, title=None, xlabel=None, ylabel=None, fslab=1
 #------------------------------
 
 def show(mode=None) :
-    plt.hold(True)
+    #plt.hold(True)
     if mode is None : plt.ioff() # hold contraol at show() (connect to keyboard for controllable re-drawing)
     else            : plt.ion()  # do not hold control
     plt.pause(0.001) # hack to make it work... othervise show() does not work...
