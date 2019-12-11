@@ -47,6 +47,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 
 Created in 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 
 import sys
@@ -72,12 +73,12 @@ class HSpectrum :
         """ Prints object essential attributes
         """
         hb = self.hbins
-        print 'Class %s object attributes:' % (self.__class__.__name__)
-        print 'Binning mode: %s, where True/False for equal/variable size bins' % (hb.equalbins())
-        print 'Number of bins: %d' % hb.nbins()
-        print 'Bin edges: %s' % str(hb.edges())
-        print 'vmin = %f\nvmax = %f' % (hb.vmin(), hb.vmax())
-        print 'pbits: %d' % (self.pbits)
+        print('Class %s object attributes:' % (self.__class__.__name__))
+        print('Binning mode: %s, where True/False for equal/variable size bins' % (hb.equalbins()))
+        print('Number of bins: %d' % hb.nbins())
+        print('Bin edges: %s' % str(hb.edges()))
+        print('vmin = %f\nvmax = %f' % (hb.vmin(), hb.vmax()))
+        print('pbits: %d' % (self.pbits))
         #self.hbins.print_attrs()
         #self.hbins.print_attrs_defined()
 
@@ -92,8 +93,8 @@ class HSpectrum :
         self.histarr = np.zeros(self.hshape, dtype=np.uint16) # huge size array
         self.pix_inds = np.array(range(self.asize), dtype=np.uint32)
         if self.pbits & 1 :
-            print 'n-d array shape = %s, size = %d, dtype = %s' % (str(self.ashape), self.asize, str(nda.dtype))
-            print 'histogram shape = %s, size = %d, dtype = %s' % (str(self.hshape), self.histarr.size, str(self.histarr.dtype))
+            print('n-d array shape = %s, size = %d, dtype = %s' % (str(self.ashape), self.asize, str(nda.dtype)))
+            print('histogram shape = %s, size = %d, dtype = %s' % (str(self.hshape), self.histarr.size, str(self.histarr.dtype)))
         self.is_inited = True
 
 
@@ -131,7 +132,7 @@ def random_standard_array(shape=(185,388), mu=50, sigma=10) :
 #------------------------------
 
 def example_equidistant() :
-    print """Test HSpectrum for equidistant bins"""
+    print("""Test HSpectrum for equidistant bins""")
 
     from time import time
 
@@ -146,7 +147,7 @@ def example_equidistant() :
       arr = random_standard_array(ashape, mu, sigma)
       t0_sec = time()
       spec.fill(arr)
-      print 'Event:%3d, t = %10.6f sec' % (ev, time()-t0_sec)
+      print('Event:%3d, t = %10.6f sec' % (ev, time()-t0_sec))
 
 
     if True :
@@ -160,7 +161,7 @@ def example_equidistant() :
 #------------------------------
 
 def example_varsize() :
-    print """Test HSpectrum for variable size bins"""
+    print("""Test HSpectrum for variable size bins""")
 
     from time import time
 
@@ -175,7 +176,7 @@ def example_varsize() :
       arr = random_standard_array(ashape, mu, sigma)
       t0_sec = time()
       spec.fill(arr)
-      print 'Event:%3d, t = %10.6f sec' % (ev, time()-t0_sec)
+      print('Event:%3d, t = %10.6f sec' % (ev, time()-t0_sec))
 
 
     if True :
@@ -191,7 +192,7 @@ def example_varsize() :
 def usage() : return 'Use command: python %s <test-number [1-2]>' % sys.argv[0]
 
 def main() :    
-    print '\n%s\n' % usage()
+    print('\n%s\n' % usage())
     if len(sys.argv) != 2 : example_equidistant()
     elif sys.argv[1]=='1' : example_equidistant()
     elif sys.argv[1]=='2' : example_varsize()

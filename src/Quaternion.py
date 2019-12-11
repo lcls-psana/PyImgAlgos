@@ -30,6 +30,7 @@ See:
 
 Created in April 2016 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 
 import numpy as np
@@ -63,7 +64,7 @@ class Quaternion :
         return pfmt % (self.w, self.x, self.y, self.z)
 
     def print_obj(self, cmt='Quaternion w,x,y,z: ', fmt='%7.3f') :
-        print self.str_obj(cmt, fmt)
+        print(self.str_obj(cmt, fmt))
 
 #------------------------------
 
@@ -78,7 +79,7 @@ class Vector :
         return pfmt % (self.u, self.v, self.w)
 
     def print_obj(self, cmt='Vector: ', fmt='%6.3f') :
-        print self.str_obj(cmt, fmt)
+        print(self.str_obj(cmt, fmt))
 
 #------------------------------
 
@@ -99,7 +100,7 @@ class Matrix :
                   self.m20, self.m21, self.m22)
 
     def print_obj(self, cmt='Matrix:\n', fmt='%6.3f') :
-        print self.str_obj(cmt, fmt)
+        print(self.str_obj(cmt, fmt))
 
     def product(self, A, B) :
         self.m00 = A.m00*B.m00 + A.m01*B.m10 + A.m02*B.m20
@@ -321,7 +322,7 @@ def record_for_angles(ax, ay, az) :
     """Prints string like:
        Angles around x,y,z:    72.0    -3.5   176.4   quaternion: w,x,y,z:   0.007459   0.043148   0.586445   0.808804
     """
-    print 'Angles around x,y,z:  %6.1f  %6.1f  %6.1f' % (ax, ay, az),
+    print('Angles around x,y,z:  %6.1f  %6.1f  %6.1f' % (ax, ay, az), end=' ')
     m = Matrix()
     m.rotation_matrix(az, ay, ax)
     q = quaternion_from_rotmatrix(m)
@@ -364,7 +365,7 @@ def test_quaternion_from_rotation_matrix(tname) :
 
     vfmt = '%9.6f'
 
-    print 'Inpurt angles around x,y,z:  %.2f  %.2f  %.2f' % (ax, ay, az)
+    print('Inpurt angles around x,y,z:  %.2f  %.2f  %.2f' % (ax, ay, az))
     m = Matrix()
     m.rotation_matrix(az, ay, ax)
     m.print_obj('R3-rotation matrix:\n', fmt=vfmt)
@@ -373,7 +374,7 @@ def test_quaternion_from_rotation_matrix(tname) :
     mq = rotmatrix_from_quaternion(q)
     mq.print_obj('R3-rotation matrix back from quaternion:\n', fmt=vfmt)
     axo, ayo, azo = mq.get_angles()
-    print 'Output angles around x,y,z:  %.2f  %.2f  %.2f' % (axo, ayo, azo)
+    print('Output angles around x,y,z:  %.2f  %.2f  %.2f' % (axo, ayo, azo))
 
 #------------------------------
 
@@ -410,7 +411,7 @@ def test_quaternion_table_crystal(tname) :
 if __name__ == "__main__" :
     import sys; global sys
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s:' % tname
+    print(50*'_', '\nTest %s:' % tname)
 
     if   tname == '0' : test_quaternion(tname)
     elif tname == '1' : test_rotation_matrix(tname)

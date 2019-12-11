@@ -69,6 +69,7 @@ See:
 
 Created in 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 
 #--------------------------------
 
@@ -124,13 +125,13 @@ class TDCheetahPeakRecord :
     def print_peak_data_short(sp) :
         """Prints short subset of data
         """    
-        print '%d %4d  %s     %s  %.6f  %.6f  %.6f  %d  %.6f  %.6f  %.6f  %.6f  %.6f  %d  %.6f  %.6f  %.6f  %.6f  %d  %d' % \
+        print('%d %4d  %s     %s  %.6f  %.6f  %.6f  %d  %.6f  %.6f  %.6f  %.6f  %.6f  %d  %.6f  %.6f  %.6f  %.6f  %d  %d' % \
               (sp.frameNumber, sp.runnum, sp.tstamp, sp.s_fid,\
                sp.photonEnergyEv, sp.wavelengthA,\
                sp.GMD, sp.peak_index, sp.peak_x_raw, sp.peak_y_raw,\
                sp.peak_r_assembled, sp.peak_q, sp.peak_resA, sp.nPixels,\
                sp.totalIntensity, sp.maxIntensity, sp.sigmaBG, sp.SNR,\
-               sp.tsec, sp.fid)
+               sp.tsec, sp.fid))
 
 #------------------------------
 
@@ -138,7 +139,7 @@ class TDCheetahPeakRecord :
         """prints peak seg, row, col
         """    
         s, r, c = src_from_rc8x8(sp.peak_y_raw, sp.peak_x_raw)
-        print 'seg: %d, row: %.1f, col: %.1f' % (s, r, c)
+        print('seg: %d, row: %.1f, col: %.1f' % (s, r, c))
 
 #------------------------------
 
@@ -152,15 +153,15 @@ class TDCheetahPeakRecord :
     def print_peak_data(sp) :
         """Prints input data string(line)
         """    
-        for field in sp.fields : print field,
-        print ''
+        for field in sp.fields : print(field, end=' ')
+        print('')
 
 #------------------------------
 
     def print_attrs(sp) :
         msg = 'Attributes of %s - there is no extra attributes.' % (sp.__class__.__name__)
         #msg += ', line:  \n%s' % (sp.line)
-        print msg
+        print(msg)
 
 #------------------------------
 

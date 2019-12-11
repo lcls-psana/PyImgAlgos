@@ -9,6 +9,7 @@ part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -25,14 +26,14 @@ import GlobalGraphics as gg # for test purpose
 
 def random_normal(shape=(1300,1340), mu=200, sigma=25, pbits=0377) :
     arr = mu + sigma*np.random.standard_normal(size=shape)
-    if pbits & 1 : print 'Created arr.shape=', arr.shape
+    if pbits & 1 : print('Created arr.shape=', arr.shape)
     return arr
 
 #------------------------------
 
 def random_exponential(shape=(1300,1340), a0=100, pbits=0377) :
     arr = a0*np.random.standard_exponential(size=shape)
-    if pbits & 1 : print 'Created arr.shape=', arr.shape
+    if pbits & 1 : print('Created arr.shape=', arr.shape)
     return arr
 
 #--------------------------------
@@ -107,16 +108,16 @@ def peaks_on_ring(shape=(1300, 1340), npeaks=3) :
 
 def rings_sinc(shape=(1024,1024), pbits=0377) :
     # Create test image - a sinc function, centered in the middle of
-    if pbits & 1 : print "Creating test image",
+    if pbits & 1 : print("Creating test image", end=' ')
 
     xsize, ysize = shape
     ratio = float(ysize)/float(xsize)
-    if pbits & 1 : print 'ratio = ', ratio
+    if pbits & 1 : print('ratio = ', ratio)
     xmin, xmax = -4, 6
     ymin, ymax = -7*ratio, 3*ratio
 
-    if pbits & 1 : print '\nxmin, xmax, xsize = ', xmin, xmax, xsize
-    if pbits & 1 : print '\nymin, ymax, ysize = ', ymin, ymax, ysize
+    if pbits & 1 : print('\nxmin, xmax, xsize = ', xmin, xmax, xsize)
+    if pbits & 1 : print('\nymin, ymax, ysize = ', ymin, ymax, ysize)
 
     xarr = np.linspace(xmin, xmax, xsize)
     yarr = np.linspace(ymin, ymax, ysize)
@@ -172,10 +173,10 @@ def monotonicly_rising(shape=(10,10), dtype = np.float32) :
 def main() :
 
     if len(sys.argv)!=2 :
-        print 'Use command > python %s <test-number>' % sys.argv[0]
+        print('Use command > python %s <test-number>' % sys.argv[0])
         return
 
-    print 'Test # %s' % sys.argv[1]
+    print('Test # %s' % sys.argv[1])
 
     if   sys.argv[1]=='1' : gg.plotImageLarge(random_normal()) #, amp_range=(100,300))
     elif sys.argv[1]=='2' : gg.plotImageLarge(random_exponential())
@@ -183,7 +184,7 @@ def main() :
     elif sys.argv[1]=='4' : gg.plotImageLarge(rings_sinc())
     elif sys.argv[1]=='5' : gg.plotImageLarge(peaks_on_ring())
     else :
-        print 'Non-expected arguments: sys.argv=', sys.argv
+        print('Non-expected arguments: sys.argv=', sys.argv)
         sys.exit ('Check input parameters')
 
     gg.move(500,10)

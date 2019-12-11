@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #------------------------------
 
+from __future__ import print_function
 import os
 import sys
 import math
@@ -14,7 +15,7 @@ class Store :
     """Store of shared parameters.
     """
     def __init__(self) :
-        print 'In Store'
+        print('In Store')
 
 #------------------------------
 
@@ -121,7 +122,7 @@ def test_image_rotation() :
     plot_init()
     for phi in np.linspace(0,360,72, endpoint=False) :
         img_rot = image_rotation(img, phi, center=None, oshape=(2000,2000))
-        print 'test image rotation for phi(deg)=%.1f shape:%s' % (phi, str(img_rot.shape))
+        print('test image rotation for phi(deg)=%.1f shape:%s' % (phi, str(img_rot.shape)))
         plot_image(img_rot)
     
     gg.show()

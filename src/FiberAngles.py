@@ -66,6 +66,7 @@ See:
 
 Created in 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 
 ##-----------------------------
 import numpy as np
@@ -292,10 +293,10 @@ def funcy_l0(x, phi_deg, bet_deg) :
     sqarg = B*B-C
 
     if isinstance(sqarg, np.float64) :
-        if sqarg<0 : print 'WARNING in funcy_l0: solution does not exist because of sqarg<0 :', sqarg
+        if sqarg<0 : print('WARNING in funcy_l0: solution does not exist because of sqarg<0 :', sqarg)
     else :
         for v in sqarg :
-            if v<0 : print 'WARNING in funcy_l0: solution does not exist because of sqarg<0 :', sqarg
+            if v<0 : print('WARNING in funcy_l0: solution does not exist because of sqarg<0 :', sqarg)
 
     sqapro = np.select([sqarg>0,], [sqarg,], default=0)
     return -B + np.sign(B)*np.sqrt(sqapro)
@@ -335,10 +336,10 @@ def funcy_l1_v0(x, phi_deg, bet_deg, DoR=0.474, sgnrt=-1.) :
     sqarg = B*B-C
 
     if isinstance(sqarg, np.float64) :
-        if sqarg<0 : print 'WARNING in funcy_l1_v0: solution does not exist because of sqarg<0 :', sqarg
+        if sqarg<0 : print('WARNING in funcy_l1_v0: solution does not exist because of sqarg<0 :', sqarg)
     else :
         for v in sqarg :
-            if v<0 : print 'WARNING in funcy_l1_v0: solution does not exist because of sqarg<0 :', sqarg
+            if v<0 : print('WARNING in funcy_l1_v0: solution does not exist because of sqarg<0 :', sqarg)
 
     sqapro = np.select([sqarg>0,], [sqarg,], default=0)
 
@@ -379,10 +380,10 @@ def funcy_l1_v1(x, phi_deg, bet_deg, DoR=0.4292, sgnrt=1.) :
     #      '  B:', B, '  C:', C, '  sqarg:', sqarg
 
     if isinstance(sqarg, np.float64) :
-        if sqarg<0 : print 'WARNING in funcy_l1_v1: solution does not exist because of sqarg<0 :', sqarg
+        if sqarg<0 : print('WARNING in funcy_l1_v1: solution does not exist because of sqarg<0 :', sqarg)
     else :
         for v in sqarg :
-            if v<0 : print 'WARNING in funcy_l1_v1: solution does not exist because of sqarg<0 :', sqarg
+            if v<0 : print('WARNING in funcy_l1_v1: solution does not exist because of sqarg<0 :', sqarg)
 
     sqapro = np.select([sqarg>0,], [sqarg,], default=0)
     #sgn = 1. if bet>-13.3 else -1.
@@ -470,7 +471,7 @@ def recipnorm(x, y, z) :
 ##-----------------------------
 
 def test_plot_phi() :
-    print """Test plot for phi angle"""
+    print("""Test plot for phi angle""")
 
     import pyimgalgos.GlobalGraphics as gg
 
@@ -499,7 +500,7 @@ def test_plot_phi() :
 ##-----------------------------
 
 def test_plot_beta() :
-    print """Test plot for beta angle"""
+    print("""Test plot for beta angle""")
 
     import pyimgalgos.GlobalGraphics as gg
 
@@ -534,7 +535,7 @@ def test_plot_beta() :
 ##-----------------------------
 
 def test_plot_beta_l0() :
-    print """Test plot for beta angle"""
+    print("""Test plot for beta angle""")
 
     import pyimgalgos.GlobalGraphics as gg
 
@@ -602,7 +603,7 @@ def test_plot_beta_l0() :
 ##-----------------------------
 
 def test_plot_beta_l1(DoR=0.4292, sgnrt=1.) :
-    print """Test plot for beta angle"""
+    print("""Test plot for beta angle""")
 
     import pyimgalgos.GlobalGraphics as gg
 
@@ -659,7 +660,7 @@ def test_plot_beta_l1(DoR=0.4292, sgnrt=1.) :
 ##-----------------------------
 
 def test_plot_beta_l1_zoom(DoR=0.4292, sgnrt=1.) :
-    print """Test plot for beta angle"""
+    print("""Test plot for beta angle""")
 
     import pyimgalgos.GlobalGraphics as gg
 
@@ -731,7 +732,7 @@ def test_plot_beta_l1_zoom(DoR=0.4292, sgnrt=1.) :
 ##-----------------------------
 
 def test_fraser() :
-    print """Test fraser transformation"""
+    print("""Test fraser transformation""")
 
     from pyimgalgos.GlobalGraphics import fig_axes, plot_img, store
     import matplotlib.pyplot as plt
@@ -755,14 +756,14 @@ if __name__ == "__main__" :
     import sys
 
     if len(sys.argv)<2 :
-        print 'For specific test use command:\n> %s <test-id-string>' % sys.argv[0]
-        print 'Default test: test_fraser()'
+        print('For specific test use command:\n> %s <test-id-string>' % sys.argv[0])
+        print('Default test: test_fraser()')
         test_fraser()
         sys.exit('Default test is completed')
 
     DoR = 390/913.27
 
-    print 'Test: %s' % sys.argv[1]
+    print('Test: %s' % sys.argv[1])
     if   sys.argv[1]=='1' : test_fraser()
     elif sys.argv[1]=='2' : test_plot_phi()
     elif sys.argv[1]=='3' : test_plot_beta()
@@ -772,7 +773,7 @@ if __name__ == "__main__" :
     elif sys.argv[1]=='7' : test_plot_beta_l1_zoom(DoR=DoR, sgnrt=+1.)
     elif sys.argv[1]=='8' : test_plot_beta_l1_zoom(DoR=DoR, sgnrt=-1.)
     else :
-        print 'Default test: test_fraser()'
+        print('Default test: test_fraser()')
         test_fraser()
     sys.exit('Test %s is completed' % sys.argv[1])
     

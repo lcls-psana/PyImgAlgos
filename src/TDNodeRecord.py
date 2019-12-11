@@ -46,6 +46,7 @@ See:
 
 Created in 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 
 #--------------------------------
 
@@ -94,8 +95,8 @@ class TDNodeRecord :
     def print_short(sp) :
         """Prints short subset of data
         """    
-        print '%6d  %7.2f  %7.2f  %2d %2d %2d    %9.6f  %9.6f  %9.6f  %9.6f  %9.6f  %9.6f  %9.6f' % \
-              (sp.index, sp.beta, sp.omega, sp.h, sp.k, sp.l, sp.dr, sp.R, sp.qv, sp.qh, sp.qt, sp.ql, sp.P)   
+        print('%6d  %7.2f  %7.2f  %2d %2d %2d    %9.6f  %9.6f  %9.6f  %9.6f  %9.6f  %9.6f  %9.6f' % \
+              (sp.index, sp.beta, sp.omega, sp.h, sp.k, sp.l, sp.dr, sp.R, sp.qv, sp.qh, sp.qt, sp.ql, sp.P))   
 
 #------------------------------
 #--------------------------------

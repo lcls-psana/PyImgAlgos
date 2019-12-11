@@ -8,6 +8,7 @@ part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 
 #------------------------------
 #  Module's version from SVN --
@@ -112,7 +113,7 @@ class image_crop (object) :
             #if self.m_print_bits & 32 :
             msg = __name__ + ': WARNING! CSPAD array object %s is not found in evt' % self.m_key_in
             #logging.info( msg )
-            print msg
+            print(msg)
             return
 
         if self.m_print_bits & 2 and self.counter == 1 :
@@ -142,7 +143,7 @@ class image_crop (object) :
               '\n  rowmin %s\n  rowmax %s\n  colmin %s\n  colmax %s\n' % \
               (self.rowmin, self.rowmax, self.colmin, self.colmax)
         #logging.info( msg )
-        print msg
+        print(msg)
 
 
     def print_image_parameters( self ) :
@@ -151,7 +152,7 @@ class image_crop (object) :
             + '    dtype = %s' % str(self.arr.dtype)
         #    + '\narray:\n' + str(self.arr)
         #logging.info( msg )
-        print msg
+        print(msg)
 
 #-----------------------------
 #-----------------------------

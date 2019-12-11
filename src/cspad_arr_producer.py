@@ -8,6 +8,7 @@ part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 
 #------------------------------
 #  Module's version from SVN --
@@ -79,7 +80,7 @@ class cspad_arr_producer (object) :
             self.m_dtype = self.dic_dtypes[self.m_dtype_str]
         except :
             msg = __name__ + ' WARNING: specified data_type = %s is not implemented' % self.m_dtype_str
-            print msg
+            print(msg)
             self.print_dtypes()    
             self.m_dtype = np.int16 
 
@@ -99,7 +100,7 @@ class cspad_arr_producer (object) :
         msg = '\nImplemented data types:'
         for k,v in cspad_arr_producer.dic_dtypes.iteritems() :
             msg += '\n%10s : %10s' % (k,v)
-        print msg
+        print(msg)
         
 
     def beginjob( self, evt, env ) :
@@ -128,7 +129,7 @@ class cspad_arr_producer (object) :
             return
 
         msg = __name__ + ' WARNING: CSPAD or CSPAD2x2 configuration is NOT found!'
-        print msg
+        print(msg)
 
 
     def beginrun( self, evt, env ) :
@@ -160,7 +161,7 @@ class cspad_arr_producer (object) :
 
         if self.arr is None :
             msg =  __name__ + 'WARNING!: image is non-available' 
-            print msg
+            print(msg)
             return
 
         if self.m_print_bits & 8 : self.print_part_of_output_array()
@@ -187,7 +188,7 @@ class cspad_arr_producer (object) :
 
         if not data :
             msg = __name__ + 'proc_event_for_cspad: DATA IS NOT FOUND'
-            print msg
+            print(msg)
             return
 
         # 2. Fill output array accounting for dtype and configuration
@@ -200,7 +201,7 @@ class cspad_arr_producer (object) :
 
             quad_data = q.data()        # shape=(8, 185, 388)
             nsects = quad_data.shape[0]
-            if self.m_print_bits & 32 : print 'quad_num=%d  roi_mask(oct)=%o   nsects=%d   data.shape=%s' % (quad_num, roi_mask,  nsects, str(quad_data.shape)) 
+            if self.m_print_bits & 32 : print('quad_num=%d  roi_mask(oct)=%o   nsects=%d   data.shape=%s' % (quad_num, roi_mask,  nsects, str(quad_data.shape))) 
 
             # Copy quad data (N<8, 185, 388) -> to CSPAD arr (4, 8, 185, 388) - changing data type
             ind=0
@@ -215,7 +216,7 @@ class cspad_arr_producer (object) :
         if env.fwkName() == "psana":
             elem = evt.get(CsPad2x2.Element, self.m_src) # returns psana.CsPad2x2.ElementV1 object
             if not elem :
-                print 'CsPad2x2.Element is not found!'
+                print('CsPad2x2.Element is not found!')
                 return
         else:
             elem = evt.get(TypeId.Type.Id_Cspad2x2Element, self.m_src) # returns CsPad2x2.ElementV1 object
@@ -239,24 +240,24 @@ class cspad_arr_producer (object) :
         msg = '\n%s: List of input parameters\n  source: %s\n  print_bits: %4d\n  dtype_str: %s\n  dtype_str: %s\n  key_out %s\n  m_val_miss: %s' % \
               (__name__, self.m_src, self.m_print_bits, self.m_dtype_str, str(self.m_dtype), self.m_key_out, self.m_val_miss)
         #logging.info( msg )
-        print msg
+        print(msg)
 
 
     def print_part_of_output_array( self ) :
         msg = __name__ + ': arr[2,4,:] :\n' + str(self.arr[2,4,:]) \
             + '\n  arr.shape = %s    arr.dtype = %s' % (str(self.arr.shape), str(self.arr.dtype))
         ##logging.info( msg )
-        print msg
+        print(msg)
 
 
     def print_config_pars_for_cspad2x2( self, env ) :
         msg  = '%s: List of configuration parameters for CSPAD2x2' % (__name__)
-        print msg
-        print "  payloadSize    =", self.config.payloadSize()
-        print "  asicMask       =", self.config.asicMask()
-        print "  roiMask        =", self.config.roiMask()
-        print "  numAsicsRead   =", self.config.numAsicsRead()
-        print "  numAsicsStored =", self.config.numAsicsStored()
+        print(msg)
+        print("  payloadSize    =", self.config.payloadSize())
+        print("  asicMask       =", self.config.asicMask())
+        print("  roiMask        =", self.config.roiMask())
+        print("  numAsicsRead   =", self.config.numAsicsRead())
+        print("  numAsicsStored =", self.config.numAsicsStored())
  
 
     def print_config_pars_for_cspad( self, env ) :
@@ -279,7 +280,7 @@ class cspad_arr_producer (object) :
         #msg +=  '\n  sections      : %s' % str(self.list_of_sections)
 
         #logging.info( msg )
-        print msg
+        print(msg)
 
 #-----------------------------
 #-----------------------------

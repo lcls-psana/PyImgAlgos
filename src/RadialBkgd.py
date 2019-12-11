@@ -63,6 +63,7 @@ Revision: $Revision$
 @author Mikhail S. Dubrovin
 
 """
+from __future__ import print_function
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -141,7 +142,7 @@ def data_geo(ntest) :
     geo.move_geo('CSPAD:V1', 0, 1600, 0, 0)
     geo.move_geo('QUAD:V1', 2, -100, 0, 0)
     #geo.get_geo('QUAD:V1', 3).print_geo()
-    print 'Time to load geometry %.3f sec from file\n%s' % (time()-t0_sec, fname_geo)
+    print('Time to load geometry %.3f sec from file\n%s' % (time()-t0_sec, fname_geo))
 
     return arr, geo
 
@@ -160,11 +161,11 @@ def test01(ntest, prefix='fig-v01') :
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
     mask = geo.get_pixel_mask(mbits=0377).flatten() 
-    print 'Time to retrieve geometry %.3f sec' % (time()-t0_sec)
+    print('Time to retrieve geometry %.3f sec' % (time()-t0_sec))
 
     t0_sec = time()
     rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=1) # v1
-    print 'RadialBkgd initialization time %.3f sec' % (time()-t0_sec)
+    print('RadialBkgd initialization time %.3f sec' % (time()-t0_sec))
 
     t0_sec = time()
     nda, title = arr, None
@@ -181,7 +182,7 @@ def test01(ntest, prefix='fig-v01') :
     else :
         t1_sec = time()
         pf = polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 94e3) # Z=94mm
-        print 'Time to evaluate polarization correction factor %.3f sec' % (time()-t1_sec)
+        print('Time to evaluate polarization correction factor %.3f sec' % (time()-t1_sec))
 
         if   ntest ==10 : nda, title = pf,                    'polarization factor'
         elif ntest ==11 : nda, title = arr * pf,              'polarization-corrected averaged data'
@@ -192,10 +193,10 @@ def test01(ntest, prefix='fig-v01') :
 
 
         else :
-            print 'Test %d is not implemented' % ntest 
+            print('Test %d is not implemented' % ntest) 
             return
         
-    print 'Get %s n-d array time %.3f sec' % (title, time()-t0_sec)
+    print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
 
     img = img_from_pixel_arrays(iX, iY, nda) if not ntest in (21,) else nda[100:300,:]
 
@@ -222,7 +223,7 @@ def test01(ntest, prefix='fig-v01') :
 
     gg.show()
 
-    print 'End of test for %s' % title    
+    print('End of test for %s' % title)    
 
 #------------------------------
 
@@ -243,7 +244,7 @@ def test02(ntest, prefix='fig-v01') :
     t0_sec = time()
     rb = RadialBkgd(X, Y, mask) # v0
     #rb = RadialBkgd(X, Y, mask, nradbins=500) # , nphibins=8, phiedges=(-20, 240), radedges=(10000,80000))
-    print 'RadialBkgd initialization time %.3f sec' % (time()-t0_sec)
+    print('RadialBkgd initialization time %.3f sec' % (time()-t0_sec))
 
     #print 'npixels_per_bin:',   rb.npixels_per_bin()
     #print 'intensity_per_bin:', rb.intensity_per_bin(arr)
@@ -264,10 +265,10 @@ def test02(ntest, prefix='fig-v01') :
     elif ntest == 31 : nda, title = rb.pixel_avrg_interpol(nda), 'averaged radial interpolated background'
     elif ntest == 32 : nda, title = rb.subtract_bkgd_interpol(nda, method='linear', verb=True) * mask, 'interpol-background-subtracted data'
     else :
-        print 'Test %d is not implemented' % ntest 
+        print('Test %d is not implemented' % ntest) 
         return
 
-    print 'Get %s n-d array time %.3f sec' % (title, time()-t0_sec)
+    print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
 
     img = img_from_pixel_arrays(iX, iY, nda) if not ntest in (30,) else nda # [100:300,:]
 
@@ -294,7 +295,7 @@ def test02(ntest, prefix='fig-v01') :
 
     gg.show()
 
-    print 'End of test for %s' % title    
+    print('End of test for %s' % title)    
 
 #------------------------------
 
@@ -317,7 +318,7 @@ def test03(ntest, prefix='fig-v01') :
     else RadialBkgd(X, Y, mask, nradbins=  5, nphibins= 8, phiedges=(-20, 240), radedges=(10000,80000))
     #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(240, -20), radedges=(80000,10000)) # v3
 
-    print 'RadialBkgd initialization time %.3f sec' % (time()-t0_sec)
+    print('RadialBkgd initialization time %.3f sec' % (time()-t0_sec))
 
     #print 'npixels_per_bin:',   rb.npixels_per_bin()
     #print 'intensity_per_bin:', rb.intensity_per_bin(arr)
@@ -338,10 +339,10 @@ def test03(ntest, prefix='fig-v01') :
     elif ntest == 51 : nda, title = rb.pixel_avrg_interpol(nda), 'averaged radial interpolated background'
     elif ntest == 52 : nda, title = rb.subtract_bkgd_interpol(nda) * mask, 'interpol-background-subtracted data'
     else :
-        print 'Test %d is not implemented' % ntest 
+        print('Test %d is not implemented' % ntest) 
         return
 
-    print 'Get %s n-d array time %.3f sec' % (title, time()-t0_sec)
+    print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
 
     img = img_from_pixel_arrays(iX, iY, nda) if not ntest in (50,) else nda # [100:300,:]
 
@@ -368,21 +369,21 @@ def test03(ntest, prefix='fig-v01') :
 
     gg.show()
 
-    print 'End of test for %s' % title    
+    print('End of test for %s' % title)    
 
 #------------------------------
 
 if __name__ == '__main__' :
     import sys
     ntest = int(sys.argv[1]) if len(sys.argv)>1 else 1
-    print 'Test # %d' % ntest
+    print('Test # %d' % ntest)
 
     prefix = 'fig-v01-cspad-RadialBkgd'
 
     if   ntest<20 : test01(ntest, prefix)
     elif ntest<40 : test02(ntest, prefix)
     elif ntest<60 : test03(ntest, prefix)
-    else : print 'Test %d is not implemented' % ntest     
+    else : print('Test %d is not implemented' % ntest)     
     #sys.exit('End of test')
  
 #------------------------------

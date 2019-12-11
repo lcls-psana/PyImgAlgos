@@ -61,6 +61,7 @@ Revision: $Revision$
 @author Mikhail S. Dubrovin
 
 """
+from __future__ import print_function
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -183,13 +184,13 @@ class RadialBkgd() :
 
 
     def print_attrs(self) :
-        print '%s attrbutes:' % self.__class__.__name__
-        print self.pb.strrange(fmt='Phi bins:  min:%8.1f  max:%8.1f  nbins:%5d')
-        print self.rb.strrange(fmt='Rad bins:  min:%8.1f  max:%8.1f  nbins:%5d')
+        print('%s attrbutes:' % self.__class__.__name__)
+        print(self.pb.strrange(fmt='Phi bins:  min:%8.1f  max:%8.1f  nbins:%5d'))
+        print(self.rb.strrange(fmt='Rad bins:  min:%8.1f  max:%8.1f  nbins:%5d'))
 
 
     def print_ndarrs(self) :
-        print '%s n-d arrays:' % self.__class__.__name__
+        print('%s n-d arrays:' % self.__class__.__name__)
         if self.print_ndarr is None :
             from Detector.GlobalUtils import print_ndarr
             self.print_ndarr = print_ndarr
@@ -290,7 +291,7 @@ class RadialBkgd() :
 
         # 2) add values in bin edges
         
-        if verb : print 'binv.shape: ', binv.shape
+        if verb : print('binv.shape: ', binv.shape)
         vrad_a1,  vrad_a2 = binv[0,:], binv[-1,:]
         if self.is360 :
             vrad_a1 = vrad_a2 = 0.5*(binv[0,:] + binv[-1,:]) # [iphi, irad]
@@ -299,7 +300,7 @@ class RadialBkgd() :
         vang_rmin, vang_rmax = nodea[:,0], nodea[:,-1]
         vang_rmin.shape = vang_rmax.shape = (vang_rmin.size, 1) # it should be 2d for hstack
         val_nodes = np.hstack((vang_rmin, nodea, vang_rmax))
-        if verb : print 'nodear.shape: ', val_nodes.shape
+        if verb : print('nodear.shape: ', val_nodes.shape)
 
         # 3) extend bin-centers by limits        
         bcentsr = self.rb.bincenters()
@@ -309,18 +310,18 @@ class RadialBkgd() :
 
         rad_nodes = np.concatenate(((blimsr[0],), bcentsr, (blimsr[1],)))
         phi_nodes = np.concatenate(((blimsp[0],), bcentsp, (blimsp[1],)))
-        if verb : print 'rad_nodes.shape', rad_nodes.shape
-        if verb : print 'phi_nodes.shape', phi_nodes.shape
+        if verb : print('rad_nodes.shape', rad_nodes.shape)
+        if verb : print('phi_nodes.shape', phi_nodes.shape)
 
         # 4) make point coordinate and value arrays
         points_rad, points_phi = np.meshgrid(rad_nodes, phi_nodes)
-        if verb : print 'points_phi.shape', points_phi.shape
-        if verb : print 'points_rad.shape', points_rad.shape
+        if verb : print('points_phi.shape', points_phi.shape)
+        if verb : print('points_rad.shape', points_rad.shape)
         points = np.array(zip(points_phi.flatten(), points_rad.flatten())) 
-        if verb : print 'points.shape', points.shape
+        if verb : print('points.shape', points.shape)
 
         values = val_nodes.flatten()
-        if verb : print 'values.shape', values.shape
+        if verb : print('values.shape', values.shape)
 
         # 4) return interpolated data on (phi, rad) grid
         grid_vals = self.griddata(points, values, (self.phi, self.rad), method=method)
@@ -370,7 +371,7 @@ def data_geo(ntest) :
     geo.move_geo('CSPAD:V1', 0, 1600, 0, 0)
     geo.move_geo('QUAD:V1', 2, -100, 0, 0)
     #geo.get_geo('QUAD:V1', 3).print_geo()
-    print 'Time to load geometry %.3f sec from file\n%s' % (time()-t0_sec, fname_geo)
+    print('Time to load geometry %.3f sec from file\n%s' % (time()-t0_sec, fname_geo))
 
     return arr, geo
 
@@ -389,11 +390,11 @@ def test01(ntest) :
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
     mask = geo.get_pixel_mask(mbits=0377).flatten() 
-    print 'Time to retrieve geometry %.3f sec' % (time()-t0_sec)
+    print('Time to retrieve geometry %.3f sec' % (time()-t0_sec))
 
     t0_sec = time()
     rb = RadialBkgd(X, Y, mask, nradbins=500, nphibins=1) # v1
-    print 'RadialBkgd initialization time %.3f sec' % (time()-t0_sec)
+    print('RadialBkgd initialization time %.3f sec' % (time()-t0_sec))
 
     t0_sec = time()
     nda, title = arr, None
@@ -410,7 +411,7 @@ def test01(ntest) :
     else :
         t1_sec = time()
         pf = polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 94e3) # Z=94mm
-        print 'Time to evaluate polarization correction factor %.3f sec' % (time()-t1_sec)
+        print('Time to evaluate polarization correction factor %.3f sec' % (time()-t1_sec))
 
         if   ntest ==10 : nda, title = pf,                    'polarization factor'
         elif ntest ==11 : nda, title = arr * pf,              'polarization-corrected averaged data'
@@ -421,10 +422,10 @@ def test01(ntest) :
 
 
         else :
-            print 'Test %d is not implemented' % ntest 
+            print('Test %d is not implemented' % ntest) 
             return
         
-    print 'Get %s n-d array time %.3f sec' % (title, time()-t0_sec)
+    print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
 
     img = img_from_pixel_arrays(iX, iY, nda) if not ntest in (21,) else nda[100:300,:]
 
@@ -453,7 +454,7 @@ def test01(ntest) :
 
     gg.show()
 
-    print 'End of test for %s' % title    
+    print('End of test for %s' % title)    
 
 #------------------------------
 
@@ -474,7 +475,7 @@ def test02(ntest) :
     t0_sec = time()
     rb = RadialBkgd(X, Y, mask) # v0
     #rb = RadialBkgd(X, Y, mask, nradbins=500) # , nphibins=8, phiedges=(-20, 240), radedges=(10000,80000))
-    print 'RadialBkgd initialization time %.3f sec' % (time()-t0_sec)
+    print('RadialBkgd initialization time %.3f sec' % (time()-t0_sec))
 
     #print 'npixels_per_bin:',   rb.npixels_per_bin()
     #print 'intensity_per_bin:', rb.intensity_per_bin(arr)
@@ -495,10 +496,10 @@ def test02(ntest) :
     elif ntest == 31 : nda, title = rb.bkgd_nda_interpol(nda), 'averaged radial interpolated background'
     elif ntest == 32 : nda, title = rb.subtract_bkgd_interpol(nda, method='linear', verb=True) * mask, 'interpol-background-subtracted data'
     else :
-        print 'Test %d is not implemented' % ntest 
+        print('Test %d is not implemented' % ntest) 
         return
 
-    print 'Get %s n-d array time %.3f sec' % (title, time()-t0_sec)
+    print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
 
     img = img_from_pixel_arrays(iX, iY, nda) if not ntest in (30,) else nda # [100:300,:]
 
@@ -527,7 +528,7 @@ def test02(ntest) :
 
     gg.show()
 
-    print 'End of test for %s' % title    
+    print('End of test for %s' % title)    
 
 #------------------------------
 
@@ -550,7 +551,7 @@ def test03(ntest) :
     else RadialBkgd(X, Y, mask, nradbins=  5, nphibins= 8, phiedges=(-20, 240), radedges=(10000,80000))
     #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(240, -20), radedges=(80000,10000)) # v3
 
-    print 'RadialBkgd initialization time %.3f sec' % (time()-t0_sec)
+    print('RadialBkgd initialization time %.3f sec' % (time()-t0_sec))
 
     #print 'npixels_per_bin:',   rb.npixels_per_bin()
     #print 'intensity_per_bin:', rb.intensity_per_bin(arr)
@@ -571,10 +572,10 @@ def test03(ntest) :
     elif ntest == 51 : nda, title = rb.bkgd_nda_interpol(nda), 'averaged radial interpolated background'
     elif ntest == 52 : nda, title = rb.subtract_bkgd_interpol(nda) * mask, 'interpol-background-subtracted data'
     else :
-        print 'Test %d is not implemented' % ntest 
+        print('Test %d is not implemented' % ntest) 
         return
 
-    print 'Get %s n-d array time %.3f sec' % (title, time()-t0_sec)
+    print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
 
     img = img_from_pixel_arrays(iX, iY, nda) if not ntest in (50,) else nda # [100:300,:]
 
@@ -603,18 +604,18 @@ def test03(ntest) :
 
     gg.show()
 
-    print 'End of test for %s' % title    
+    print('End of test for %s' % title)    
 
 #------------------------------
 
 if __name__ == '__main__' :
     import sys
     ntest = int(sys.argv[1]) if len(sys.argv)>1 else 1
-    print 'Test # %d' % ntest
+    print('Test # %d' % ntest)
     if   ntest<20 : test01(ntest)
     elif ntest<40 : test02(ntest)
     elif ntest<60 : test03(ntest)
-    else : print 'Test %d is not implemented' % ntest     
+    else : print('Test %d is not implemented' % ntest)     
     #sys.exit('End of test')
  
 #------------------------------

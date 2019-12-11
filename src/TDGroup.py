@@ -24,6 +24,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 __version__ = "$Revision$"
 # $Source$
@@ -46,7 +47,7 @@ class TDGroup :
            objtype - object type used for text data record processing/access
            pbits   - print control bit-word; pbits & 256 - tracking
         """
-        if pbits & 256 : print 'c-tor of class %s' % self.__class__.__name__
+        if pbits & 256 : print('c-tor of class %s' % self.__class__.__name__)
         self.objtype = objtype
         self.pbits = pbits
         self.lst_of_objs = [objtype(rec) for rec in recs]
@@ -56,7 +57,7 @@ class TDGroup :
     def __call__(self) :
         """Alias of get_objs()
         """
-        if self.pbits & 256 : print '__call__() of class %s' % self.__class__.__name__
+        if self.pbits & 256 : print('__call__() of class %s' % self.__class__.__name__)
         return self.get_objs()
         
 ##-----------------------------
@@ -64,16 +65,16 @@ class TDGroup :
     def get_objs(self) :
         """Returns list of objs in event
         """
-        if self.pbits & 256 : print 'get_objs() of class %s' % self.__class__.__name__
+        if self.pbits & 256 : print('get_objs() of class %s' % self.__class__.__name__)
         return self.lst_of_objs
     
 ##-----------------------------
 
     def print_attrs(self) :
         #print 'Attributes of the class %s object' % self.__class__.__name__
-        if self.lst_of_objs == [] : print 'List of objects in %s is empty' % self.__class__.__name__
+        if self.lst_of_objs == [] : print('List of objects in %s is empty' % self.__class__.__name__)
 
-        print 'List of objects in the %s:' % self.__class__.__name__
+        print('List of objects in the %s:' % self.__class__.__name__)
         for obj in self.lst_of_objs : obj.print_short()
 
 ##-----------------------------

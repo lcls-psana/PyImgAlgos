@@ -8,6 +8,7 @@ part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 
 #------------------------------
 #  Module's version from SVN --
@@ -120,7 +121,7 @@ class image_save_in_file (object) :
             #if self.m_print_bits & 32 :
             msg = '%s: WARNING! CSPAD image np.ndarray %s is not found in evt' % ( __name__, self.m_key_in )
             #logging.info( msg )
-            print msg
+            print(msg)
             return
 
         #self.image = evt.get(self.m_key_in)
@@ -142,7 +143,7 @@ class image_save_in_file (object) :
         fname = '%s-%s-r%04d-ev%06d%s' % (name_pref, self.exp, self.run, self.evnum, name_ext)
         if self.m_print_bits & 4 :
             msg = 'Save image in file %s' % fname
-            print msg
+            print(msg)
 
         if name_ext == '.txt' :
             np.savetxt(fname, self.image) # , fmt='%f')
@@ -181,7 +182,7 @@ class image_save_in_file (object) :
         msg = '\n%s: List of input parameters\n  source %s\n  key_in %s\n  ofname %s\n  print_bits: %4d' % \
               ( __name__, self.m_src, self.m_key_in, self.m_ofname, self.m_print_bits)
         #logging.info( msg )
-        print msg
+        print(msg)
 
 
     def print_part_of_image_array( self, r1=50, r2=60, c1=100, c2=110 ) :
@@ -189,7 +190,7 @@ class image_save_in_file (object) :
         msg += '\n%s' % str(self.image[r1:r2,c1:c2])
         msg += '\n image.shape = %s' % str(self.image.shape)
         #logging.info( msg )
-        print msg
+        print(msg)
 
 
 #-----------------------------

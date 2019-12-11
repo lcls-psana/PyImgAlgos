@@ -44,6 +44,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 
 Created in 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import numpy as np
 
@@ -144,13 +145,13 @@ def draw_fig(fig) :
 #------------------------------
 
 def save_plt(fname='img.png', verb=True) :
-    if verb : print 'Save plot in file: %s' % fname 
+    if verb : print('Save plot in file: %s' % fname) 
     plt.savefig(fname)
 
 #------------------------------
 
 def save_fig(fig, fname='img.png', verb=True) :
-    if verb : print 'Save figure in file: %s' % fname 
+    if verb : print('Save figure in file: %s' % fname) 
     fig.savefig(fname)
 
 #------------------------------
@@ -250,7 +251,7 @@ def test03() :
     fig, axim = fig_img_axes()
     imsh = None
     for i in range(10) :
-       print 'Event %3d' % i
+       print('Event %3d' % i)
        img = random_standard((1000,1000), mu=200, sigma=25)
        #axim.cla()
        set_win_title(fig, 'Event %d' % i)
@@ -275,7 +276,7 @@ def test04() :
     fig, axhi = fig_img_axes()
 
     for i in range(10) :
-       print 'Event %3d' % i
+       print('Event %3d' % i)
        arr = random_standard((500,), mu, sigma, dtype=np.float)
        axhi.cla()
        set_win_title(fig, 'Event %d' % i)
@@ -293,7 +294,7 @@ def test05() :
     move_fig(fig, x0=200, y0=0)
     imsh = None
     for i in range(20) :
-       print 'Event %3d' % i
+       print('Event %3d' % i)
        img = random_standard((1000,1000), mu=i, sigma=10)
        #axim.cla()
        set_win_title(fig, 'Event %d' % i)
@@ -320,11 +321,11 @@ def test_selected() :
     from pyimgalgos.NDArrGenerators import random_standard; global random_standard
 
     if len(sys.argv)==1   :
-        print 'Use command > python %s <test-number [1-5]>' % sys.argv[0]
+        print('Use command > python %s <test-number [1-5]>' % sys.argv[0])
         sys.exit ('Add <test-number> in command line...')
 
     tname = sys.argv[1] if len(sys.argv) > 1 else '1'
-    print 50*'_', '\nTest %s' % tname
+    print(50*'_', '\nTest %s' % tname)
 
     t0_sec=time()
     if   tname == '1': test01()
@@ -349,7 +350,7 @@ def test_all() :
 if __name__ == "__main__" :
     test_selected()
     #test_all()
-    print 'End of test'
+    print('End of test')
 
 #------------------------------
 

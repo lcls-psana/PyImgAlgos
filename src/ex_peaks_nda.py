@@ -8,6 +8,7 @@ part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 
 #------------------------------
 #  Module's version from SVN --
@@ -85,7 +86,7 @@ class ex_peaks_nda (object) :
             
         else : 
             msg = __name__ + ': WARNING!!! THIS MODULE DOES NOT HAVE IMPLEMENTATION FOR PYANA'
-            print msg
+            print(msg)
             return
 
         self.counter +=1     
@@ -96,7 +97,7 @@ class ex_peaks_nda (object) :
                 #if self.m_print_bits & 32 :
                 msg = __name__ + ': WARNING! peaks array object %s is not found in evt' % self.m_key_in
                 #logging.info( msg )
-                print msg
+                print(msg)
             return
 
 
@@ -116,18 +117,18 @@ class ex_peaks_nda (object) :
         msg = '\n%s: List of input parameters\n  source %s\n  key_in %s\n  print_bits: %4d' % \
               (__name__ , self.m_src, self.m_key_in, self.m_print_bits)
         #logging.info( msg )
-        print msg
+        print(msg)
 
 #-----------------------------
 
     def print_nda( self ) :
-        print 'Array with peaks: shape=%s' % str(self.arr.shape)
+        print('Array with peaks: shape=%s' % str(self.arr.shape))
 
         for row in range(self.arr.shape[0]) :
             arr_row = self.arr[row,:]
             fmt = ' --- q:%d s:%d c:%03d r:%03d sig_c:%8.3f sig_c:%8.3f' \
                 + ' Amax:%8.3f Atot:%8.3f Btot:%8.3f noise:%8.3f S/N:%8.3f npix:%d'
-            print fmt % (tuple(arr_row))
+            print(fmt % (tuple(arr_row)))
 
 #-----------------------------
 #-----------------------------

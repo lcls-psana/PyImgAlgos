@@ -28,6 +28,7 @@ Revision: $Revision$
 @author Mikhail S. Dubrovin
 
 """
+from __future__ import print_function
 
 #--------------------------------
 __version__ = "$Revision$"
@@ -84,7 +85,7 @@ def median_filter_ndarr(nda_in, rank=3) :
     ndim = len(shape_in)
     if ndim == 1 :
         msg = 'WARNING: pyimgalgos.median_filter_ndarr got 1-d array, while it works with ndim>1 imaging arrays - return None.'
-        print msg
+        print(msg)
         #raise ValueError(msg)
         return None
 
@@ -125,7 +126,7 @@ def slope_2darr(shape=(185,388), axis=0, dtype=np.float) :
 #------------------------------
 
 def example01() :
-    print """example01 footprint_ring()"""
+    print("""example01 footprint_ring()""")
     fpr = footprint_ring(rank=50)
     if True :
       import pyimgalgos.GlobalGraphics as gg      
@@ -135,7 +136,7 @@ def example01() :
 #------------------------------
 
 def example02() :
-    print """example02 random_standard_ndarr(shape=(40,40))"""
+    print("""example02 random_standard_ndarr(shape=(40,40))""")
 
     from time import time
     #nda = slope_2darr(shape=(5,5), axis=0, dtype=np.float)
@@ -144,7 +145,7 @@ def example02() :
     rank=3
     t0_sec = time()
     nda_med = median_filter_ndarr(nda, rank)
-    print 'median_filter_ndarr consumes time %.3f sec at rank=%d and array shape=%s' % (time()-t0_sec, rank, str(nda.shape))
+    print('median_filter_ndarr consumes time %.3f sec at rank=%d and array shape=%s' % (time()-t0_sec, rank, str(nda.shape)))
 
     if True :
       import pyimgalgos.GlobalGraphics as gg      
@@ -155,14 +156,14 @@ def example02() :
 #------------------------------
 
 def example03() :
-    print """example03 random_standard_ndarr(shape=(32,185,388))"""
+    print("""example03 random_standard_ndarr(shape=(32,185,388))""")
 
     from time import time
     nda = random_standard_ndarr(shape=(32,185,388), mu=50, sigma=10, dtype=np.float)
     rank=3
     t0_sec = time()
     nda_med = median_filter_ndarr(nda, rank)
-    print 'median_filter_ndarr consumes time %.3f sec at rank=%d and array shape=%s' % (time()-t0_sec, rank, str(nda.shape))
+    print('median_filter_ndarr consumes time %.3f sec at rank=%d and array shape=%s' % (time()-t0_sec, rank, str(nda.shape)))
 
     if True :
       seg=1
@@ -176,7 +177,7 @@ def example03() :
 def usage() : return 'Use command: python %s <test-number [1-3]>' % sys.argv[0]
 
 def main() :    
-    print '\n%s\n' % usage()
+    print('\n%s\n' % usage())
     if len(sys.argv)!= 2  : example01()
     elif sys.argv[1]=='1' : example01()
     elif sys.argv[1]=='2' : example02()

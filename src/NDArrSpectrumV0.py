@@ -48,6 +48,7 @@ Revision: $Revision$
 @author Mikhail S. Dubrovin
 
 """
+from __future__ import print_function
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -114,12 +115,12 @@ class NDArrSpectrum :
     def print_attrs(self) :
         """ Prints object attributes
         """
-        print 'Class %s object attributes:' % (self.__class__.__name__)
-        print 'Binning mode: %d, where 0/1 stands for equidistant/variable size bins' % (self.mode)
-        print 'Number of bins: %d' % self.nbins
-        print 'Bin edges: %s' % str(self.edges)
-        print 'vmin = %f\nvmax = %f' % (self.vmin, self.vmax)
-        print 'pbits: %d' % (self.pbits)
+        print('Class %s object attributes:' % (self.__class__.__name__))
+        print('Binning mode: %d, where 0/1 stands for equidistant/variable size bins' % (self.mode))
+        print('Number of bins: %d' % self.nbins)
+        print('Bin edges: %s' % str(self.edges))
+        print('vmin = %f\nvmax = %f' % (self.vmin, self.vmax))
+        print('pbits: %d' % (self.pbits))
 
 
     def init_spectrum(self, nda) :
@@ -133,8 +134,8 @@ class NDArrSpectrum :
         self.histarr = np.zeros(self.hshape, dtype=np.uint16)
         self.pix_inds = np.array(range(self.asize), dtype=np.uint32)
         if self.pbits & 1 :
-            print 'n-d array shape = %s, size = %d, dtype = %s' % (str(self.ashape), self.asize, str(nda.dtype))
-            print 'histogram shape = %s, size = %d, dtype = %s' % (str(self.hshape), self.histarr.size, str(self.histarr.dtype))
+            print('n-d array shape = %s, size = %d, dtype = %s' % (str(self.ashape), self.asize, str(nda.dtype)))
+            print('histogram shape = %s, size = %d, dtype = %s' % (str(self.hshape), self.histarr.size, str(self.histarr.dtype)))
 
 
     def fill(self, nda) :
@@ -176,7 +177,7 @@ def random_standard_array(shape=(185,388), mu=50, sigma=10) :
 #------------------------------
 
 def example_equidistant() :
-    print """Test NDArrSpectrum for equidistant bins"""
+    print("""Test NDArrSpectrum for equidistant bins""")
 
     vmin, vmax, nbins = 0, 100, 50 # binning parameters
     mu, sigma = 50, 10             # parameters of random Gaussian distribution of intensities
@@ -189,7 +190,7 @@ def example_equidistant() :
       arr = random_standard_array(ashape, mu, sigma)
       t0_sec = time()
       spec.fill(arr)
-      print 'Event:%3d, t = %10.6f sec' % (ev, time()-t0_sec)
+      print('Event:%3d, t = %10.6f sec' % (ev, time()-t0_sec))
 
 
     if True :
@@ -202,7 +203,7 @@ def example_equidistant() :
 #------------------------------
 
 def example_varsize() :
-    print """Test NDArrSpectrum for variable size bins"""
+    print("""Test NDArrSpectrum for variable size bins""")
 
     edges = (0, 30, 40, 50, 60, 70, 100) # array of bin edges
     mu, sigma = 50, 10                   # parameters of random Gaussian distribution of intensities
@@ -215,7 +216,7 @@ def example_varsize() :
       arr = random_standard_array(ashape, mu, sigma)
       t0_sec = time()
       spec.fill(arr)
-      print 'Event:%3d, t = %10.6f sec' % (ev, time()-t0_sec)
+      print('Event:%3d, t = %10.6f sec' % (ev, time()-t0_sec))
 
 
     if True :
@@ -230,7 +231,7 @@ def example_varsize() :
 def usage() : return 'Use command: python %s <test-number [1-2]>' % sys.argv[0]
 
 def main() :    
-    print '\n%s\n' % usage()
+    print('\n%s\n' % usage())
     if len(sys.argv) != 2 : example_equidistant()
     elif sys.argv[1]=='1' : example_equidistant()
     elif sys.argv[1]=='2' : example_varsize()

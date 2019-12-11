@@ -93,6 +93,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 
 Created by Mikhail Dubrovin
 """
+from __future__ import print_function
 
 ##-----------------------------
 
@@ -190,8 +191,8 @@ def mask_from_windows(ashape=(32,185,388), winds=None) :
     ndim = len(ashape)
         
     if ndim<2 :
-        print 'ERROR in mask_from_windows(...):',\
-              ' Wrong number of dimensions %d in the shape=%s parameter. Allowed ndim>1.' % (ndim, str(shape))
+        print('ERROR in mask_from_windows(...):',\
+              ' Wrong number of dimensions %d in the shape=%s parameter. Allowed ndim>1.' % (ndim, str(shape)))
         return None
 
     shape = ashape if ndim<4 else shape_as_3d(ashape)
@@ -225,7 +226,7 @@ def list_of_windarr(nda, winds=None) :
                [nda[s, rmin:rmax, cmin:cmax] for (s, rmin, rmax, cmin, cmax) in winds]
 
     else :
-        print 'ERROR in list_of_windarr (with winds): Unexpected number of n-d array dimensions: ndim = %d' % ndim
+        print('ERROR in list_of_windarr (with winds): Unexpected number of n-d array dimensions: ndim = %d' % ndim)
         return []
 
 ##-----------------------------
@@ -266,7 +267,7 @@ def subtract_bkgd(data, bkgd, mask=None, winds=None, pbits=0) :
     mean_bkgd = mean_of_listwarr(lwbkgd)
 
     frac = mean_data/mean_bkgd
-    if pbits : print 'subtract_bkgd, fraction = %10.6f' % frac
+    if pbits : print('subtract_bkgd, fraction = %10.6f' % frac)
 
     return data - bkgd*frac
 
@@ -342,7 +343,7 @@ def save_image_tiff(image, fname='image.tiff', verb=False) :
     """
     if sp.Image is None : import Image; sp.Image=Image
 
-    if verb : print 'Save image in file %s' % fname
+    if verb : print('Save image in file %s' % fname)
     img = sp.Image.fromarray(image.astype(np.int16))
     img.save(fname)
 
@@ -356,10 +357,10 @@ def save_image_file(image, fname='image.png', verb=False) :
 
     fields = os.path.splitext(fname)
     if len(fields)>1 and fields[1] in ['.gif', '.pdf', '.eps', '.png', '.jpg', '.jpeg', '.tiff'] : 
-        if verb : print 'Save image in file %s' % fname
+        if verb : print('Save image in file %s' % fname)
         sp.scim.imsave(fname, image) 
     else :
-        if verb : print 'Non-supported file extension. Save image in text file %s' % fname
+        if verb : print('Non-supported file extension. Save image in text file %s' % fname)
         np.savetxt(fname, image, fmt='%8.1f', delimiter=' ', newline='\n')
         #raise IOError('Unknown file type in extension %s' % fname)
 
@@ -399,13 +400,13 @@ def src_from_rc8x8(row, col) :
 #------------------------------
 
 def print_ndarr(nda, name='', first=0, last=5) :
-    if nda is None : print '%s: %s' % (name, nda)
+    if nda is None : print('%s: %s' % (name, nda))
     elif isinstance(nda, tuple) : print_ndarr(np.array(nda), 'ndarray from tuple: %s' % name)
     elif isinstance(nda, list)  : print_ndarr(np.array(nda), 'ndarray from list: %s' % name)
     elif not isinstance(nda, np.ndarray) :
-                     print '%s: %s' % (name, type(nda))
-    else           : print '%s:  shape:%s  size:%d  dtype:%s %s...' % \
-         (name, str(nda.shape), nda.size, nda.dtype, nda.flatten()[first:last])
+                     print('%s: %s' % (name, type(nda)))
+    else           : print('%s:  shape:%s  size:%d  dtype:%s %s...' % \
+         (name, str(nda.shape), nda.size, nda.dtype, nda.flatten()[first:last]))
 
 #------------------------------
 
@@ -500,8 +501,8 @@ def cross_check_cspad_psana_cctbx(nda, arr) :
     t0_sec = time()
     arr_c = cspad_cctbx_from_psana(nda)
     dt2 = time() - t0_sec
-    print 'psana ndarray is equal to converted from cctbx: %s, time = %.6f sec' % (np.array_equal(nda, nda_c), dt1)
-    print 'cctbx ndarray is equal to converted from psana: %s, time = %.6f sec' % (np.array_equal(arr, arr_c), dt2)
+    print('psana ndarray is equal to converted from cctbx: %s, time = %.6f sec' % (np.array_equal(nda, nda_c), dt1))
+    print('cctbx ndarray is equal to converted from psana: %s, time = %.6f sec' % (np.array_equal(arr, arr_c), dt2))
 
 #------------------------------
 #------------------------------
@@ -519,10 +520,10 @@ def divide_protected(num, den, vsub_zero=0) :
 def create_directory(dir) :
     if dir=='' or (dir is None) : return
     if os.path.exists(dir) :
-        print 'Directory exists: %s' % dir
+        print('Directory exists: %s' % dir)
     else :
         os.makedirs(dir)
-        print 'Directory created: %s' % dir
+        print('Directory created: %s' % dir)
 
 #------------------------------
 
@@ -533,11 +534,11 @@ def print_command_line_parameters(parser) :
     opts = vars(popts)                       # dict of options
     defs = vars(parser.get_default_values()) # dict of default options
 
-    print 'Command:\n ', ' '.join(sys.argv)+\
+    print('Command:\n ', ' '.join(sys.argv)+\
           '\nArgument list: %s\nOptional parameters:\n' % str(args)+\
-          '  <key>      <value>              <default>'
+          '  <key>      <value>              <default>')
     for k,v in opts.items() :
-        print '  %s %s %s' % (k.ljust(10), str(v).ljust(20), str(defs[k]).ljust(20))
+        print('  %s %s %s' % (k.ljust(10), str(v).ljust(20), str(defs[k]).ljust(20)))
 
 #------------------------------
 
@@ -571,7 +572,7 @@ cspad_ndarr_from_table8x8 = cspad_ndarr_from_table
 def test_01() :
     from pyimgalgos.NDArrGenerators import random_standard
 
-    print '%s\n%s\n' % (80*'_','Test method subtract_bkgd(...):')
+    print('%s\n%s\n' % (80*'_','Test method subtract_bkgd(...):'))
     shape1 = (32,185,388)
     winds = [(s, 10, 155, 20, 358) for s in (0,1)]
     data = random_standard(shape=shape1, mu=300, sigma=50)
@@ -581,49 +582,49 @@ def test_01() :
 ##-----------------------------
 
 def test_02() :
-    print '%s\n%s\n' % (80*'_','Test method size_from_shape(shape):')
+    print('%s\n%s\n' % (80*'_','Test method size_from_shape(shape):'))
     shape = (2,3,4,5)
-    print '  shape=%s,  size_from_shape(shape)=%d' % (shape, size_from_shape(shape))
+    print('  shape=%s,  size_from_shape(shape)=%d' % (shape, size_from_shape(shape)))
 
 ##-----------------------------
 
 def test_03() :
-    print '%s\n%s\n' % (80*'_','Test method shape_as_2d(shape):')
+    print('%s\n%s\n' % (80*'_','Test method shape_as_2d(shape):'))
     shape = (2,3,4,5)
-    print '  shape=%s,  shape_as_2d(shape)=%s' % (shape, shape_as_2d(shape))
+    print('  shape=%s,  shape_as_2d(shape)=%s' % (shape, shape_as_2d(shape)))
 
 ##-----------------------------
 
 def test_04() :
-    print '%s\n%s\n' % (80*'_','Test method shape_as_3d(shape):')
+    print('%s\n%s\n' % (80*'_','Test method shape_as_3d(shape):'))
     shape = (2,3,4,5)
-    print '  shape=%s,  shape_as_3d(shape)=%s' % (shape, shape_as_3d(shape))
+    print('  shape=%s,  shape_as_3d(shape)=%s' % (shape, shape_as_3d(shape)))
 
 ##-----------------------------
 
 def test_05() :
-    print '%s\n%s\n' % (80*'_','Test method mask_from_windows(shape, winds):')
+    print('%s\n%s\n' % (80*'_','Test method mask_from_windows(shape, winds):'))
     shape = (2,185,388)
     w = 1
     winds = [(s, w, 185-w, w, 388-w) for s in (0,1)]
     mask = mask_from_windows(shape, winds)
-    print '  shape=%s \nwinds:\n%s, \nmask_from_windows(shape, winds):\n%s' % (shape, winds, mask_from_windows(shape, winds))
+    print('  shape=%s \nwinds:\n%s, \nmask_from_windows(shape, winds):\n%s' % (shape, winds, mask_from_windows(shape, winds)))
 
 ##-----------------------------
 
 def test_06() :
-    print '%s\n%s\n' % (80*'_','Test method mask_3darr_edges(shape, width):')
+    print('%s\n%s\n' % (80*'_','Test method mask_3darr_edges(shape, width):'))
     shape = (32,185,388)
     width = 1
-    print '  shape=%s, masking width=%d, mask_3darr_edges(shape, width):\n%s' % (shape, width, mask_3darr_edges(shape, width))
+    print('  shape=%s, masking width=%d, mask_3darr_edges(shape, width):\n%s' % (shape, width, mask_3darr_edges(shape, width)))
 
 ##-----------------------------
 
 def test_07() :
-    print '%s\n%s\n' % (80*'_','Test method mask_2darr_edges(shape, width):')
+    print('%s\n%s\n' % (80*'_','Test method mask_2darr_edges(shape, width):'))
     shape = (185,388)
     width = 2
-    print '  shape=%s, masking width=%d, mask_2darr_edges(shape, width):\n%s' % (shape, width, mask_2darr_edges(shape, width))
+    print('  shape=%s, masking width=%d, mask_2darr_edges(shape, width):\n%s' % (shape, width, mask_2darr_edges(shape, width)))
 
 ##-----------------------------
 
@@ -632,12 +633,12 @@ def test_08() :
     import pyimgalgos.GlobalGraphics as gg
     from pyimgalgos.NDArrGenerators import random_standard
 
-    print '%s\n%s\n' % (80*'_','Test method locxymax(nda, order, mode):')
+    print('%s\n%s\n' % (80*'_','Test method locxymax(nda, order, mode):'))
     #data = random_standard(shape=(32,185,388), mu=0, sigma=10)
     data = random_standard(shape=(2,185,388), mu=0, sigma=10)
     t0_sec = time()
     mask = locxymax(data, order=1, mode='clip')
-    print 'Consumed t = %10.6f sec' % (time()-t0_sec)
+    print('Consumed t = %10.6f sec' % (time()-t0_sec))
 
     if True :
       img = data if len(data.shape)==2 else reshape_to_2d(data)
@@ -652,7 +653,7 @@ def test_08() :
 ##-----------------------------
 
 def test_09() :
-    print str_tstamp()
+    print(str_tstamp())
 
 ##-----------------------------
 
@@ -670,8 +671,8 @@ def test_10() :
 def test_11() :
     eventName = 'LCLS_2015_Feb22_r0169_022047_197f7'
     runnum, tstamp, tsec, fid = convertCheetahEventName(eventName, fmtts='%Y-%m-%dT%H:%M:%S')
-    print 'Method convertCheetahEventName converts Cheetah event name %s' % eventName,\
-          '\nto runnum: %d  tstamp: %s  tsec: %d  fid: %s' % (runnum, tstamp, tsec, fid)
+    print('Method convertCheetahEventName converts Cheetah event name %s' % eventName,\
+          '\nto runnum: %d  tstamp: %s  tsec: %d  fid: %s' % (runnum, tstamp, tsec, fid))
 
 ##-----------------------------
 ##-----------------------------
@@ -685,7 +686,7 @@ def usage() : return 'Use command: python %s <test-number>, where <test-number> 
 ##-----------------------------
 
 def main() :    
-    print '\n%s\n' % usage()
+    print('\n%s\n' % usage())
     if len(sys.argv) != 2 : test_01()
     elif sys.argv[1]=='1' : test_01()
     elif sys.argv[1]=='2' : test_02()

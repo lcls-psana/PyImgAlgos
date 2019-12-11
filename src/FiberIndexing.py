@@ -31,6 +31,7 @@ See:
 
 Created on Oct 7, 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 
 import sys
@@ -171,14 +172,14 @@ def parameters_of_primitive_vectors(a1, a2, a3) :
 def print_primitive_vectors(a1, a2, a3, fmt='%10.6f') :
     """Prints three primitive vectors and their derived parameters.
     """
-    print '\nIn %s' % sys._getframe().f_code.co_name
-    print 'primitive vectors:\n  a1 = (%s)\n  a2 = (%s)\n  a3 = (%s)' %\
+    print('\nIn %s' % sys._getframe().f_code.co_name)
+    print('primitive vectors:\n  a1 = (%s)\n  a2 = (%s)\n  a3 = (%s)' %\
            (', '.join([fmt % v for v in a1]),\
             ', '.join([fmt % v for v in a2]),\
-            ', '.join([fmt % v for v in a3]))
+            ', '.join([fmt % v for v in a3])))
     a, b, c, alp, bet, gam = parameters_of_primitive_vectors(a1, a2, a3)
-    print 'Derived parameters of primitive vectors:\n',\
-           'a=%.3f  b=%.3f  c=%.3f  alp=%.2f  bet=%.2f  gam=%.2f' % (a, b, c, alp, bet, gam)
+    print('Derived parameters of primitive vectors:\n',\
+           'a=%.3f  b=%.3f  c=%.3f  alp=%.2f  bet=%.2f  gam=%.2f' % (a, b, c, alp, bet, gam))
 
 #------------------------------
 
@@ -281,23 +282,23 @@ def q_components(X, Y, Z, evald_rad=0.5) :
 def print_nda(nda, cmt, fmt=' %8.4f') :
     """Prints ndarray and its shape with preceded comment.
     """
-    print '\n%s.shape: %s' % (cmt, str(nda.shape)),
+    print('\n%s.shape: %s' % (cmt, str(nda.shape)), end=' ')
 
     if len(nda.shape)==1 :
-        for c in nda : print fmt % c,
+        for c in nda : print(fmt % c, end=' ')
 
     elif len(nda.shape)==2 : 
         for row in nda :
-            print '\nrow: ',
-            for c in row : print fmt % c,
+            print('\nrow: ', end=' ')
+            for c in row : print(fmt % c, end=' ')
             
     elif len(nda.shape)==3 : 
         for layer in nda :
-            print '\n(3d) layer: ',
+            print('\n(3d) layer: ', end=' ')
             for row in layer :
-                print '\nrow: ',
-                for c in row : print fmt % c,
-    print '\n'
+                print('\nrow: ', end=' ')
+                for c in row : print(fmt % c, end=' ')
+    print('\n')
     
 #------------------------------
 
@@ -306,10 +307,10 @@ def print_omega_dr(omega_deg, dr, drmax=1) :
     """
     lst_dr = [d for d in dr.flatten() if math.fabs(d)<drmax]       
     if len(lst_dr) > 1:
-        print 'omega=%.2f degree, lst_dr: ' % (omega_deg),
-        for dr in lst_dr : print ' %.2f' % dr,
-        print ''
-    else : print 'omega=%.2f degree, lst_dr is empty'% (omega_deg)
+        print('omega=%.2f degree, lst_dr: ' % (omega_deg), end=' ')
+        for dr in lst_dr : print(' %.2f' % dr, end=' ')
+        print('')
+    else : print('omega=%.2f degree, lst_dr is empty'% (omega_deg))
     
 #------------------------------
 
@@ -445,7 +446,7 @@ def make_lookup_table_v2(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
             dr, qv, qh, qt, ql = q_components(xrot2, yrot1, zrot2, evald_rad)
         
             txt = str_omega_drhkl(ind, beta_deg, omega_deg, dr, r, qv, qh, qt, ql, h, k, l, sigma_ql)
-            print txt,
+            print(txt, end=' ')
             if fout is not None : fout.write(txt)
         
             lut[iomega,:] += fill_row(dr, qv, qh, h, k, l, sigma_ql, sigma_qt, bpq)
@@ -458,11 +459,11 @@ def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
                  hmax=3, kmax=2, lmax=1, cdtype=np.float32, fmt = '%10.6f',\
                  hmin=None, kmin=None, lmin=None) :
 
-    print '\nIn %s' % sys._getframe().f_code.co_name
-    print 'reciprocal space primitive vectors:\n  b1 = (%s)\n  b2 = (%s)\n  b3 = (%s)' %\
+    print('\nIn %s' % sys._getframe().f_code.co_name)
+    print('reciprocal space primitive vectors:\n  b1 = (%s)\n  b2 = (%s)\n  b3 = (%s)' %\
            (', '.join([fmt % v for v in b1]),\
             ', '.join([fmt % v for v in b2]),\
-            ', '.join([fmt % v for v in b3]))
+            ', '.join([fmt % v for v in b3])))
 
     x, y, z, rarr, harr, karr, larr = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype, hmin, kmin, lmin)
 
@@ -471,14 +472,14 @@ def lattice_node_radius(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 
     r_nodes = sorted(dic_r_hkl.keys())
 
-    print '\n%s\nTable of lattice node parameters sorted by radius' % (80*'_')
+    print('\n%s\nTable of lattice node parameters sorted by radius' % (80*'_'))
 
-    if lmax==0 : print '( h, k) R(h,k)[1/A]'
-    else       : print '( h, k, l) R(h,k,l)[1/A]'
+    if lmax==0 : print('( h, k) R(h,k)[1/A]')
+    else       : print('( h, k, l) R(h,k,l)[1/A]')
     for rnode in sorted(dic_r_hkl.keys()) :
         hkl = dic_r_hkl[rnode]
-        if lmax==0 : print '(%2i,%2i) %6.4f' % (hkl[0], hkl[1], rnode)
-        else       : print '(%2i,%2i,%2i) %6.4f' % (hkl[0], hkl[1], hkl[2], rnode) 
+        if lmax==0 : print('(%2i,%2i) %6.4f' % (hkl[0], hkl[1], rnode))
+        else       : print('(%2i,%2i,%2i) %6.4f' % (hkl[0], hkl[1], hkl[2], rnode)) 
 
 #------------------------------
 
@@ -488,8 +489,8 @@ def test_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
 
     from Detector.GlobalUtils import print_ndarr
 
-    print '\nIn %s' % sys._getframe().f_code.co_name
-    print '%s\nTest lattice with default parameters' % (80*'_')
+    print('\nIn %s' % sys._getframe().f_code.co_name)
+    print('%s\nTest lattice with default parameters' % (80*'_'))
 
     x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype, hmin, kmin, lmin)
 
@@ -531,8 +532,8 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     import matplotlib.pyplot as plt
     import pyimgalgos.GlobalGraphics as gg
     
-    print '\nIn %s' % sys._getframe().f_code.co_name
-    print '%s\nTest lattice with default parameters' % (80*'_')
+    print('\nIn %s' % sys._getframe().f_code.co_name)
+    print('%s\nTest lattice with default parameters' % (80*'_'))
 
     x, y, z, r, h, k, l = lattice(b1, b2, b3, hmax, kmax, lmax, cdtype, hmin, kmin, lmin)
 
@@ -590,9 +591,9 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
         #dir_movie = 'movie'
         #os.system('mkdir %s'% dir_movie)
         cmd = 'convert -delay %f %slattice-rotated-beta*.png movie.gif' % (delay, prefix)
-        print 'Wait for completion of the command: %s' % cmd
+        print('Wait for completion of the command: %s' % cmd)
         os.system(cmd)
-        print 'DONE!'
+        print('DONE!')
     
     gg.show()
 
@@ -624,7 +625,7 @@ def make_index_table(prefix='./v01-') :
          + '<sample-to-detector distance> = k*100um/100mm)'\
          + '\n# 3*sigma_ql = %.6f 1/A\n' % (3*sigma_ql)\
          + '\n# 3*sigma_qt = %.6f 1/A\n' % (3*sigma_qt)
-    print rec
+    print(rec)
     fout.write(rec)
 
     #------------------------------
@@ -653,7 +654,7 @@ def make_index_table(prefix='./v01-') :
            (str(b1), str(b2), str(b3))
 
     rec = '%s\n%s\n%s\n' % (msg1, msg2, msg3)
-    print rec
+    print(rec)
     fout.write(rec)
 
     fout.write('\n# %s\n\n' % (89*'_'))
@@ -684,12 +685,12 @@ def make_index_table(prefix='./v01-') :
     bpbeta2 = BinPars((180., 230.), 11, vtype=np.float32, endpoint=True)
     str_beta = 'for-beta:%s' % (bpbeta.strrange)
      
-    print '\n%s\nIndexing lookup table\n' % (91*'_')
+    print('\n%s\nIndexing lookup table\n' % (91*'_'))
     lut  = make_lookup_table_v2(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_ql, sigma_qt, fout, bpq, bpomega, bpbeta, hmin, kmin, lmin)
     lut2 = make_lookup_table_v2(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_ql, sigma_qt, fout, bpq, bpomega, bpbeta2, hmin, kmin, lmin)
 
     fout.close()
-    print '\nIndexing lookup table is saved in the file: %s' % fname
+    print('\nIndexing lookup table is saved in the file: %s' % fname)
 
     #------------------------------
     # produce and save plots
@@ -722,7 +723,7 @@ def make_index_table(prefix='./v01-') :
 
     qh_weight = zip(bpq.bincenters, arrhi)
     fname = '%sarr-qh-weight-%s.npy' % (prefix, str_beta)
-    print 'Save qh:weigt array in file %s' % fname
+    print('Save qh:weigt array in file %s' % fname)
     np.save(fname, qh_weight)
 
 #------------------------------
@@ -733,10 +734,10 @@ def check_triclinic_primitive_vectors(a,b,c,alp,bet,gam,vrb=True) :
        3) reitrive parameters of primitive vectors,
        4) compare with input and print results of comparison.
     """
-    print 50*'_'
-    if vrb : print '\nIn %s' % (sys._getframe().f_code.co_name)
-    print 'Input parameters of primitive vectors:\n',\
-           'a=%.3f  b=%.3f  c=%.3f  alp=%.2f  bet=%.2f  gam=%.2f' % (a, b, c, alp, bet, gam)
+    print(50*'_')
+    if vrb : print('\nIn %s' % (sys._getframe().f_code.co_name))
+    print('Input parameters of primitive vectors:\n',\
+           'a=%.3f  b=%.3f  c=%.3f  alp=%.2f  bet=%.2f  gam=%.2f' % (a, b, c, alp, bet, gam))
     a1, a2, a3 = triclinic_primitive_vectors(a,b,c,alp,bet,gam)
     if vrb : print_primitive_vectors(a1, a2, a3, fmt='%10.6f')
     ra, rb, rc, ralp, rbet, rgam = parameters_of_primitive_vectors(a1, a2, a3)
@@ -747,8 +748,8 @@ def check_triclinic_primitive_vectors(a,b,c,alp,bet,gam,vrb=True) :
     and fabs(c-rc) < DIF\
     and fabs(alp-ralp) < DIF\
     and fabs(bet-rbet) < DIF\
-    and fabs(gam-rgam) < DIF : print 'Test os OK'
-    else : print 'WARNING test is failed'
+    and fabs(gam-rgam) < DIF : print('Test os OK')
+    else : print('WARNING test is failed')
 
 #------------------------------
 
@@ -768,7 +769,7 @@ def test_triclinic_primitive_vectors(vrb=True) :
 if __name__ == "__main__" :
     import sys; global sys
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s:' % tname
+    print(50*'_', '\nTest %s:' % tname)
 
     if   tname == '0' : make_index_table()
     elif tname == '1' : test_triclinic_primitive_vectors()

@@ -31,6 +31,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 
 Created by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 import numpy as np
 #------------------------------
@@ -134,7 +135,7 @@ def entropy_cpo(signal):
 
 def test_entropy():
 
-    print 'In %s' % sys._getframe().f_code.co_name
+    print('In %s' % sys._getframe().f_code.co_name)
 
     from pyimgalgos.NDArrGenerators import random_standard
     from pyimgalgos.GlobalUtils import print_ndarr
@@ -150,9 +151,9 @@ def test_entropy():
     ent2 = entropy_v1(arr_int16);  t2_sec = time()
     ent3 = entropy_cpo(arr_int16); t3_sec = time()
 
-    print 'entropy(arr_int16)     = %.6f, time=%.6f sec' % (ent1, t1_sec-t0_sec)
-    print 'entropy_v1(arr_int16)  = %.6f, time=%.6f sec' % (ent2, t2_sec-t1_sec)
-    print 'entropy_cpo(arr_int16) = %.6f, time=%.6f sec' % (ent3, t3_sec-t2_sec)
+    print('entropy(arr_int16)     = %.6f, time=%.6f sec' % (ent1, t1_sec-t0_sec))
+    print('entropy_v1(arr_int16)  = %.6f, time=%.6f sec' % (ent2, t2_sec-t1_sec))
+    print('entropy_cpo(arr_int16) = %.6f, time=%.6f sec' % (ent3, t3_sec-t2_sec))
 
 #------------------------------
 
@@ -160,7 +161,7 @@ if __name__ == "__main__" :
     import sys; global sys
 
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s' % tname
+    print(50*'_', '\nTest %s' % tname)
     if   tname == '0': test_entropy()
     elif tname == '1': test_entropy()
     else : sys.exit('Test %s is not implemented' % tname)

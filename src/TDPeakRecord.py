@@ -79,6 +79,7 @@ See:
 
 Created in 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 
 #--------------------------------
 
@@ -147,7 +148,7 @@ class TDPeakRecord :
 
        if sp.nfields == 33 :
 
-         print 'XXX: nfields = ', sp.nfields 
+         print('XXX: nfields = ', sp.nfields) 
 
 
          fmt = '%8s  %3d  %10s %8s  %10d  %9d  %6d'+\
@@ -169,16 +170,16 @@ class TDPeakRecord :
     def print_peak_data_short(sp) :
         """Prints short subset of data
         """    
-        print '%7d %s %3d %3d %3d %7.1f %7.1f %3d %6d %6d %7.1f %7.1f' % \
-              (sp.evnum, sp.reg, sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix, sp.x, sp.y, sp.r, sp.phi)   
+        print('%7d %s %3d %3d %3d %7.1f %7.1f %3d %6d %6d %7.1f %7.1f' % \
+              (sp.evnum, sp.reg, sp.seg, sp.row, sp.col, sp.amax, sp.atot, sp.npix, sp.x, sp.y, sp.r, sp.phi))   
 
 #------------------------------
 
     def print_peak_data(sp) :
         """Prints input data string(line)
         """    
-        for field in sp.fields : print field,
-        print ''
+        for field in sp.fields : print(field, end=' ')
+        print('')
 
 #------------------------------
 
@@ -207,7 +208,7 @@ class TDPeakRecord :
     def print_attrs(sp) :
         msg = 'Attributes of %s, pixel size[um] =%8.2f' % (sp.__class__.__name__, sp.pixel_size)
         #msg += ', line:  \n%s' % (sp.line)
-        print msg
+        print(msg)
 
 #------------------------------
 
@@ -241,12 +242,12 @@ def test_tdpeakrecord() :
         event = fc.next()
         lst_peaks = event.get_objs()
 
-        print '%s Event# %6d %s' % (4*'_', evnum, 4*'_')
+        print('%s Event# %6d %s' % (4*'_', evnum, 4*'_'))
         #print '%s\n %s\n%s\n%s' % (71*'_', sp.fc.hdr[:70], lst_peaks[0].line[:71], sp.fc.hdr[72:])
 
         for peak in lst_peaks :
             #print peak.line.rstrip('\n')[73:]
-            print peak.line
+            print(peak.line)
 
 #--------------------------------
 

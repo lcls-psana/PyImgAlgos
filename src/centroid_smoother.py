@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 from skbeam.core.accumulators.histogram import Histogram
 from PSCalib.CalibFileFinder import make_calib_file_name, find_calib_file
@@ -151,7 +152,7 @@ if __name__ == "__main__":
         for p in peaks:
             centroids.append([p[6], p[7]])
 
-    print '%d total peaks.' % len(centroids)
+    print('%d total peaks.' % len(centroids))
     centroids = np.array(centroids)
 
     calib = CentroidSmootherCalib()

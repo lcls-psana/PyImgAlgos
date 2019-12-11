@@ -41,6 +41,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 
 Created on Nov 23, 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 import numpy as np
 import math
 
@@ -149,12 +150,12 @@ def aranged_array(shape=(40,60), dtype=np.uint32) :
 def print_ndarr(nda, name='', first=0, last=5) :
     """Prints array attributes, title, and a few elements in a single line. 
     """    
-    if nda is None : print '%s: %s' % (name, nda)
+    if nda is None : print('%s: %s' % (name, nda))
     elif isinstance(nda, tuple) : print_ndarr(np.array(nda), 'ndarray from tuple: %s' % name)
     elif isinstance(nda, list)  : print_ndarr(np.array(nda), 'ndarray from list: %s' % name)
-    elif not isinstance(nda, np.ndarray) : print '%s: %s' % (name, type(nda))
-    else: print '%s:  shape:%s  size:%d  dtype:%s %s...' % \
-         (name, str(nda.shape), nda.size, nda.dtype, nda.flatten()[first:last])
+    elif not isinstance(nda, np.ndarray) : print('%s: %s' % (name, type(nda)))
+    else: print('%s:  shape:%s  size:%d  dtype:%s %s...' % \
+         (name, str(nda.shape), nda.size, nda.dtype, nda.flatten()[first:last]))
 
 #-----------------------------
 
@@ -231,6 +232,6 @@ if __name__ == '__main__':
     print_ndarr(random_standard(), 'random_standard')
     print_ndarr(aranged_array(), 'aranged_array')
     #print_ndarr(, '')
-    print 'Test is completed'
+    print('Test is completed')
 
 #-----------------------------

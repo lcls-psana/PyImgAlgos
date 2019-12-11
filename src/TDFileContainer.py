@@ -128,6 +128,7 @@ See:
 
 Created in 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #------------------------------
 __version__ = "$Revision$"
 # $Source$
@@ -154,7 +155,7 @@ class TDFileContainer :
            objtype (TD*Recor) - object type used for data record processing/access
            pbits   (int) - print control bit-word; pbits & 256 - tracking
         """
-        if pbits & 256 : print 'c-tor of class %s' % self.__class__.__name__
+        if pbits & 256 : print('c-tor of class %s' % self.__class__.__name__)
         self.indhdr = indhdr
         self.objtype = objtype
         self.pbits = pbits
@@ -183,7 +184,7 @@ class TDFileContainer :
     def __del__(self) :
         """d-tor
         """
-        if self.pbits & 256 : print 'd-tor of class %s' % self.__class__.__name__
+        if self.pbits & 256 : print('d-tor of class %s' % self.__class__.__name__)
         pass
 
 ##-----------------------------
@@ -198,23 +199,23 @@ class TDFileContainer :
     def print_content(self, nlines=None) :
         """ Prints content of the file-container; by default-entire file.
         """
-        if self.pbits & 256 : print """default method of class %s""" % self.__class__.__name__
+        if self.pbits & 256 : print("""default method of class %s""" % self.__class__.__name__)
 
-        print '\n', 120*'_', '\n%s holds data from file:\n  %s\n' % (self.__class__.__name__, self.fname)
+        print('\n', 120*'_', '\n%s holds data from file:\n  %s\n' % (self.__class__.__name__, self.fname))
         for i,rec in enumerate(self.lst_of_recs) :
             if nlines is not None and i>nlines : break
-            print rec,
-        print 'etc.' if nlines is not None else 'End of file'
+            print(rec, end=' ')
+        print('etc.' if nlines is not None else 'End of file')
 
 ##-----------------------------
 
     def print_attrs(self) :
-        print 'Attributes of the class %s object' % self.__class__.__name__
-        print '  fname : %s' % self.fname,\
+        print('Attributes of the class %s object' % self.__class__.__name__)
+        print('  fname : %s' % self.fname,\
               '\n  pbits : %d' % self.pbits,\
               '\n  hdr   : %s' % self.hdr,\
               '\n  nrecs : %d' % len(self.lst_of_recs),\
-              '\n  Auto-defined grnum index in the record data : %d' % self.igrnum
+              '\n  Auto-defined grnum index in the record data : %d' % self.igrnum)
 
 ##-----------------------------
 
@@ -226,7 +227,7 @@ class TDFileContainer :
         self.lst_of_recs = []
         for rec in f : self.lst_of_recs.append(rec.replace(',',' '))
         f.close()
-        if self.pbits & 256 : print 'File loading time %.3f sec' % (time()-t0_sec)
+        if self.pbits & 256 : print('File loading time %.3f sec' % (time()-t0_sec))
 
 ##-----------------------------
 
@@ -237,7 +238,7 @@ class TDFileContainer :
         f=open(fname,'r')
         self.lst_of_recs = f.readlines()
         f.close()
-        if self.pbits & 256 : print 'File loading time %.3f sec' % (time()-t0_sec)
+        if self.pbits & 256 : print('File loading time %.3f sec' % (time()-t0_sec))
 
 ##-----------------------------
 
@@ -255,7 +256,7 @@ class TDFileContainer :
 
                 self.hdr = rec.lstrip('#').rstrip('\n')
                 self.igrnum = self.hdr.split().index(self.indhdr)
-                if self.pbits & 256 : print 'self.igrnum', self.igrnum
+                if self.pbits & 256 : print('self.igrnum', self.igrnum)
             return None
 
         # partly split data fields and return group number
@@ -267,7 +268,7 @@ class TDFileContainer :
     def _group_indexing(self) :
         """loops over list of records, makes lists for indexing
         """
-        if self.pbits & 256 : print '_group_indexing'
+        if self.pbits & 256 : print('_group_indexing')
         t0_sec = time()
 
         self.count = 0
@@ -298,8 +299,8 @@ class TDFileContainer :
         self.lst_nrecords.append(self.count) # add for last record
 
         if self.pbits & 256 :
-            print 'Last group %d contains %d records' % (self.grnum, self.count)
-            print 'Group indexing time %.3f sec' % (time()-t0_sec)
+            print('Last group %d contains %d records' % (self.grnum, self.count))
+            print('Group indexing time %.3f sec' % (time()-t0_sec))
 
 ##-----------------------------
 # This is time consuming operation
@@ -355,8 +356,8 @@ class TDFileContainer :
         nrecords          = self.lst_nrecords[self.indlst_curr]
 
         if self.pbits & 256 : 
-            print 'grnum_curr=%d  indlst_curr=%d  begin=%d  nrecords=%d' %\
-                  (self.grnum_curr, self.indlst_curr, begin, nrecords)
+            print('grnum_curr=%d  indlst_curr=%d  begin=%d  nrecords=%d' %\
+                  (self.grnum_curr, self.indlst_curr, begin, nrecords))
 
         evt_recs = self.lst_of_recs[begin:begin+nrecords]
         #print '%s\nList of records for group %d' % (80*'_', self.grnum)
@@ -369,7 +370,7 @@ class TDFileContainer :
     def group(self, grnum=None) :
         """returns current or specified group
         """
-        if self.pbits & 256 : print 'group(evnum=%s)' % str(grnum)
+        if self.pbits & 256 : print('group(evnum=%s)' % str(grnum))
         if grnum is not None :
             if not (grnum in self.lst_grnum) : return None
             self.indlst_curr = self.lst_grnum.index(grnum)        
@@ -380,7 +381,7 @@ class TDFileContainer :
     def next(self) :
         """returns next group
         """
-        if self.pbits & 256 : print 'next group'
+        if self.pbits & 256 : print('next group')
 
         if  self.first_iteration :
             self.first_iteration = False
@@ -390,8 +391,8 @@ class TDFileContainer :
             self.indlst_curr += 1
             return self._group_for_index()
         else :
-            if self.pbits : print 'WARNING: %s.next() reached the end of the list, return None'%\
-               self.__class__.__name__
+            if self.pbits : print('WARNING: %s.next() reached the end of the list, return None'%\
+               self.__class__.__name__)
             return None
 
 ##-----------------------------
@@ -399,7 +400,7 @@ class TDFileContainer :
     def previous(self) :
         """returns previous group
         """
-        if self.pbits & 256 : print 'previous group'
+        if self.pbits & 256 : print('previous group')
 
         if  self.first_iteration :
             self.first_iteration = False
@@ -409,8 +410,8 @@ class TDFileContainer :
             self.indlst_curr -= 1
             return self._group_for_index()
         else :
-            if self.pbits : print 'WARNING: %s.previous() reached the beginning of the list, return None'%\
-               self.__class__.__name__
+            if self.pbits : print('WARNING: %s.previous() reached the beginning of the list, return None'%\
+               self.__class__.__name__)
             return None
 
 
@@ -470,15 +471,15 @@ def do_work() :
 
     for grpnum in fc.group_num_iterator() :
         group = fc.next()
-        print '%s\nGroup %d  ' % (80*'_', grpnum)
+        print('%s\nGroup %d  ' % (80*'_', grpnum))
         for record in group() :
-            print ' ',
+            print(' ', end=' ')
             record.print_short()
 
         for i, peak in enumerate(group()) :
-            print '  peak#%2d  bkgd=%5.1f  rms=%5.1f  S/N=%5.1f' % (i, peak.bkgd, peak.rms, peak.son)
+            print('  peak#%2d  bkgd=%5.1f  rms=%5.1f  S/N=%5.1f' % (i, peak.bkgd, peak.rms, peak.son))
         
-    print '\nTime to iterate using next() %.3f sec' % (time()-t0_sec)
+    print('\nTime to iterate using next() %.3f sec' % (time()-t0_sec))
 
     #t0_sec = time()
     #groups = fc.list_of_groups()  

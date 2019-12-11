@@ -8,6 +8,7 @@ part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 
 #------------------------------
 #  Module's version from SVN --
@@ -83,7 +84,7 @@ class tahometer (object) :
         msg = '\n%s: List of input parameters\n  dn %6d\n  print_bits: %4d' % \
               (__name__, self.m_dn, self.m_print_bits)
         #logging.info( __name__+ ': ' + msg )
-        print msg
+        print(msg)
 
 
     def print_event_record( self ) :
@@ -99,7 +100,7 @@ class tahometer (object) :
         rec = '%s: run:%04d  evt:%06d  t[sec]:%10.3f  dt[sec]:%10.3f  n/t[1/sec]:%10.3f  dn/dt[1/sec]:%10.3f' % \
               (__name__, self.run, self.counter, t_sec, dt_sec, rate, drate)
         #logging.info( rec )
-        print rec
+        print(rec)
 
 #-----------------------------
 #-----------------------------

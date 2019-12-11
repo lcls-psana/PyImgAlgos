@@ -52,6 +52,7 @@ part of it, please give an appropriate acknowledgment.
 
 Created in 2015 by Mikhail Dubrovin
 """
+from __future__ import print_function
 #--------------------------------
 
 import sys
@@ -162,11 +163,11 @@ def plot_peaks_on_img(peaks, axim, iX, iY, color='w', pbits=0, lw=2) :
     #anorm = np.average(peaks,axis=0)[4] if len(peaks)>1 else peaks[0][4] if peaks.size>0 else 100    
     for rec in peaks :
         s, r, c, amax, atot, npix = rec[0:6]
-        if pbits & 1 : print 's, r, c, amax, atot, npix=', s, r, c, amax, atot, npix
+        if pbits & 1 : print('s, r, c, amax, atot, npix=', s, r, c, amax, atot, npix)
         inds = (int(s),int(r),int(c)) if iX.ndim>2 else (int(r),int(c))
         x=iX[inds]
         y=iY[inds]
-        if pbits & 2 : print ' x,y=',x,y        
+        if pbits & 2 : print(' x,y=',x,y)        
         xyc = (y,x)
         #r0  = 2+3*atot/anorm
         r0  = 5
@@ -341,7 +342,7 @@ def drawRectangle(axes, xy, width, height, linewidth=1, color='w') :
 
 def save(fname='img.png', do_save=True, pbits=0377) :
     if not do_save : return
-    if pbits & 1 : print 'Save plot in file: %s' % fname 
+    if pbits & 1 : print('Save plot in file: %s' % fname) 
     plt.savefig(fname)
 
 #--------------------------------
@@ -353,7 +354,7 @@ def savefig(fname='img.png', do_print=True) :
 
 def save_fig(fig, fname='img.png', do_save=True, pbits=0377) :
     if not do_save : return
-    if pbits & 1 : print 'Save plot in file: %s' % fname 
+    if pbits & 1 : print('Save plot in file: %s' % fname) 
     fig.savefig(fname)
 
 #--------------------------------
@@ -380,7 +381,7 @@ def main() :
 
     arr = getRandomImage()
     if len(sys.argv)==1   :
-        print 'Use command > python %s <test-number [1-5]>' % sys.argv[0]
+        print('Use command > python %s <test-number [1-5]>' % sys.argv[0])
         sys.exit ('Add <test-number> in command line...')
 
     elif sys.argv[1]=='1' : plotImage(arr, amp_range=(100,300))
@@ -390,7 +391,7 @@ def main() :
     elif sys.argv[1]=='5' : plotImageLarge(arr, amp_range=(100,300), figsize=(10,10))
     elif sys.argv[1]=='6' : plotImageLarge(getArrangedImage(shape=(40,60)), figsize=(10,10))
     else :
-        print 'Non-expected arguments: sys.argv=', sys.argv
+        print('Non-expected arguments: sys.argv=', sys.argv)
         sys.exit ('Check input parameters')
 
     move(500,10)

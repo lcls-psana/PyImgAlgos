@@ -38,6 +38,7 @@ part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -70,7 +71,7 @@ def valueToIndexProtected(V, VRange) :
 def divideArraysSafely(num, den) :
     """Per evement divides numpy arrays result = num/den. Protected for 0 values. Arrays should have the same size."""
     if num.shape != den.shape :
-        print 'divideArraysSafely: non-equal array shapes for numerator and denumerator: ', num.shape, den.shape
+        print('divideArraysSafely: non-equal array shapes for numerator and denumerator: ', num.shape, den.shape)
     num_corr =  np.select([den<1], [0], default=num)    
     den_corr =  np.select([den<1], [1], default=den)    
     return num_corr/den_corr
@@ -179,16 +180,16 @@ def MakeImage(shape=(1024,1024)) :
     # Create test image - a sinc function, centered in the middle of
     # the image
     # Integrating in phi about center, the integral will become sin(x)
-    print "Creating test image",
+    print("Creating test image", end=' ')
 
     xsize, ysize = shape
     ratio = float(ysize)/float(xsize)
-    print 'ratio = ', ratio
+    print('ratio = ', ratio)
     xmin, xmax = -4, 6
     ymin, ymax = -7*ratio, 3*ratio
 
-    print '\nxmin, xmax, xsize = ', xmin, xmax, xsize
-    print '\nymin, ymax, ysize = ', ymin, ymax, ysize
+    print('\nxmin, xmax, xsize = ', xmin, xmax, xsize)
+    print('\nymin, ymax, ysize = ', ymin, ymax, ysize)
 
     xarr = np.linspace(xmin, xmax, xsize)
     yarr = np.linspace(ymin, ymax, ysize)
@@ -210,7 +211,7 @@ def mainTest() :
     angint = AngularIntegrator()
     angint.setParameters(xsize, ysize, xc=xsize*0.4, yc=ysize*0.7, rmin=0, rmax=1000, nbins=1000, mask=mask)
     #angint.setParameters(xsize, ysize, rmin=1, rmax=1200, nbins=200, mask=mask)
-    print "Time consumed for indexing = %.3f sec" % (time()-t0_sec)
+    print("Time consumed for indexing = %.3f sec" % (time()-t0_sec))
 
     drawImage(angint.getRBinIndexMap(), figsize=(10,6))
 
@@ -218,7 +219,7 @@ def mainTest() :
 
     t0_sec = time()
     bincent, integral = angint.getRadialHistogramArrays(image)
-    print "Time consumed for intensity binning = %.3f sec" % (time()-t0_sec)
+    print("Time consumed for intensity binning = %.3f sec" % (time()-t0_sec))
 
     #plt.plot(bincent, integral)
     drawGraph(bincent, integral)

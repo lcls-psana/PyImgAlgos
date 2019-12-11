@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import numpy as np
@@ -14,7 +15,7 @@ import psana
 #------------------------------
 
 def list_of_times_default(run):
-    print 'Default list of times for entire run'
+    print('Default list of times for entire run')
     return run.times()
 
 #------------------------------
@@ -89,7 +90,7 @@ class EventViewer :
         self.list_index += 1
         if self.list_index >= self.list_len :
             self.list_index = self.list_len-1
-            print 'Counter reached the last event in the list'
+            print('Counter reached the last event in the list')
             return    
         self.plot_current('next')
 
@@ -99,7 +100,7 @@ class EventViewer :
         self.list_index -= 1
         if self.list_index < 0 :
             self.list_index = 0
-            print 'Counter reached the first event in the list'
+            print('Counter reached the first event in the list')
             return
         self.plot_current('previous')
 
@@ -163,7 +164,7 @@ class EventViewer :
 
         if mode==1 and self.click_counter >1 : return
 
-        print 'Navigation keys: n-next, b-previous, e-exit'
+        print('Navigation keys: n-next, b-previous, e-exit')
 
 #------------------------------
 
@@ -171,7 +172,7 @@ class EventViewer :
         """Interface method can be re-implemented in sub-class
         """
         self.count_msg += 1
-        if self.count_msg < 5 : print 'EventViewer.get_img(...)'        
+        if self.count_msg < 5 : print('EventViewer.get_img(...)')        
 
         for dtype in self.list_of_dtypes :
             img = evt.get(dtype, src, key)
@@ -189,7 +190,7 @@ import CalibManager.AppDataPath as apputils
 def do_test() :
 
     path_psana_cfg = apputils.AppDataPath('pyimgalgos/scripts/psana-cspad-ds2-image-producer.cfg').path()
-    print 'Path to psana cfg file: %s' % path_psana_cfg
+    print('Path to psana cfg file: %s' % path_psana_cfg)
     psana.setConfigFile(path_psana_cfg)
 
     ds = psana.DataSource('exp=cxif5315:run=169:idx')

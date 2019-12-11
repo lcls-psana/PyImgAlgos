@@ -33,6 +33,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
+from __future__ import print_function
 
 #------------------------------
 
@@ -79,7 +80,7 @@ class PeakStore :
               '\n prefix: %s' % str(self.prefix) +\
               '\n fname: %s' % str(self.fname) +\
               '\n title: %s' % self.header
-        print msg
+        print(msg)
 
 ##-----------------------------
 
@@ -97,13 +98,13 @@ class PeakStore :
         if self.fname is not None :
             self.fout = open(self.fname,'w')
             self.fout.write('%s\n' % self.header)
-            if self.pbits & 1 : print 'Open output file with peaks: %s' % self.fname
+            if self.pbits & 1 : print('Open output file with peaks: %s' % self.fname)
 
 ##-----------------------------
 
     def close_file(self) :  
         self.fout.close()
-        if self.pbits & 1 : print 'Close file %s with %d peaks' % (self.fname, self.counter)
+        if self.pbits & 1 : print('Close file %s with %d peaks' % (self.fname, self.counter))
 
 ##-----------------------------
 
@@ -116,7 +117,7 @@ class PeakStore :
         else :
             self.header = '# %s %s' % (header, add_header )
 
-        if self.pbits & 2 : print 'Hdr : %s' % (self.header)
+        if self.pbits & 2 : print('Hdr : %s' % (self.header))
 
 ##-----------------------------
 
@@ -142,7 +143,7 @@ class PeakStore :
         if self.fout is not None : self.fout.write('%s\n' % rec)
         self.counter += 1
         #self.evt_peaks.append(peak)
-        if self.pbits & 2 : print '%7d: %s' % (self.counter, rec)
+        if self.pbits & 2 : print('%7d: %s' % (self.counter, rec))
     
 #------------------------------
     
@@ -151,7 +152,7 @@ class PeakStore :
         """
         rec = cmt if cmt[0] == '#' else '# %s' % (cmt)
         if self.fout is not None : self.fout.write('%s\n' % rec)
-        if self.pbits & 2 : print rec
+        if self.pbits & 2 : print(rec)
 
 #------------------------------
 #------------------------------
@@ -165,14 +166,14 @@ def test_PeakStore() :
              (21,22,23,24,25),
              (31,32,33,34,35))
  
-    print '\nEXAMPLE #1'
+    print('\nEXAMPLE #1')
     ps1 = PeakStore('expNNNNN', 5, prefix='xxx', header=None, add_header='TitV1 TitV2 TitV3 ...', pbits=255)
     for peak in peaks :
         rec = '%d %d %f ...' % (peak[0], peak[2], peak[3])
         ps1.save_peak(peak_rec=rec)
 
 
-    print '\nEXAMPLE #2'
+    print('\nEXAMPLE #2')
     ps2 = PeakStore('expNNNNN', 5, prefix='xxxxxx', header='V1 V2 V3 V4 V5', add_header='', pbits=255)
     for peak in peaks :
         rec = '%d %d %f ...' % (peak[0], peak[2], peak[3])
