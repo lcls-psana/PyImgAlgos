@@ -239,7 +239,7 @@ def test_tdpeakrecord() :
         counter += 1
         if counter > 10 : break
 
-        event = fc.next()
+        event = next(fc)
         lst_peaks = event.get_objs()
 
         print('%s Event# %6d %s' % (4*'_', evnum, 4*'_'))

@@ -141,7 +141,7 @@ def example_equidistant() :
     nevts = 10                     # number of events in this test
     ashape = (32,185,388)          # data array shape
 
-    spec = HSpectrum((vmin, vmax), nbins, pbits=0377)
+    spec = HSpectrum((vmin, vmax), nbins, pbits=0o377)
 
     for ev in range(nevts) :
       arr = random_standard_array(ashape, mu, sigma)
@@ -170,7 +170,7 @@ def example_varsize() :
     nevts = 10                           # number of events in this test
     ashape = (32,185,388)                # data array shape
 
-    spec = HSpectrum(edges, pbits=0377)
+    spec = HSpectrum(edges, pbits=0o377)
 
     for ev in range(nevts) :
       arr = random_standard_array(ashape, mu, sigma)

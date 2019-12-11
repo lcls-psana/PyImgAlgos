@@ -577,7 +577,7 @@ def test_01() :
     winds = [(s, 10, 155, 20, 358) for s in (0,1)]
     data = random_standard(shape=shape1, mu=300, sigma=50)
     bkgd = random_standard(shape=shape1, mu=100, sigma=10)
-    cdata = subtract_bkgd(data, bkgd, mask=None, winds=winds, pbits=0377)
+    cdata = subtract_bkgd(data, bkgd, mask=None, winds=winds, pbits=0o377)
 
 ##-----------------------------
 

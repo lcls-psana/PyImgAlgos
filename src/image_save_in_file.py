@@ -70,7 +70,7 @@ class image_save_in_file (object) :
         if self.m_print_bits & 1 : self.print_input_pars()
 
         if self.m_mode > 0 :
-            pbits = 0377 if self.m_print_bits & 16 else 0
+            pbits = 0o377 if self.m_print_bits & 16 else 0
             self.afe = ArrFileExchange(self.m_ofname, self.m_mode, pbits)
 
         self.list_of_dtypes = [

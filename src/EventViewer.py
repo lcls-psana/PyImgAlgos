@@ -194,7 +194,7 @@ def do_test() :
     psana.setConfigFile(path_psana_cfg)
 
     ds = psana.DataSource('exp=cxif5315:run=169:idx')
-    run = ds.runs().next()
+    run = next(ds.runs())
     src = psana.Source('DetInfo(CxiDs2.0:Cspad.0)')
     key ='cspad_img'
     

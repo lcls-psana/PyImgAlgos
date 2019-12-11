@@ -24,14 +24,14 @@ import GlobalGraphics as gg # for test purpose
 
 #------------------------------
 
-def random_normal(shape=(1300,1340), mu=200, sigma=25, pbits=0377) :
+def random_normal(shape=(1300,1340), mu=200, sigma=25, pbits=0o377) :
     arr = mu + sigma*np.random.standard_normal(size=shape)
     if pbits & 1 : print('Created arr.shape=', arr.shape)
     return arr
 
 #------------------------------
 
-def random_exponential(shape=(1300,1340), a0=100, pbits=0377) :
+def random_exponential(shape=(1300,1340), a0=100, pbits=0o377) :
     arr = a0*np.random.standard_exponential(size=shape)
     if pbits & 1 : print('Created arr.shape=', arr.shape)
     return arr
@@ -106,7 +106,7 @@ def peaks_on_ring(shape=(1300, 1340), npeaks=3) :
 
 #------------------------------
 
-def rings_sinc(shape=(1024,1024), pbits=0377) :
+def rings_sinc(shape=(1024,1024), pbits=0o377) :
     # Create test image - a sinc function, centered in the middle of
     if pbits & 1 : print("Creating test image", end=' ')
 
@@ -145,7 +145,7 @@ def cspad2x1_arr() :
 
 #------------------------------
 
-def cspad_nparr(n2x1=32, pbits=0377) :
+def cspad_nparr(n2x1=32, pbits=0o377) :
     """returns test np.array for cspad"""
     segs, rows, cols = 32, 185, 388
     arr2x1 = cspad2x1_arr()

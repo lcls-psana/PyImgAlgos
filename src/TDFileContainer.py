@@ -470,7 +470,7 @@ def do_work() :
     t0_sec = time()
 
     for grpnum in fc.group_num_iterator() :
-        group = fc.next()
+        group = next(fc)
         print('%s\nGroup %d  ' % (80*'_', grpnum))
         for record in group() :
             print(' ', end=' ')

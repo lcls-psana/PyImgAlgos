@@ -340,7 +340,7 @@ def drawRectangle(axes, xy, width, height, linewidth=1, color='w') :
 
 #------------------------------
 
-def save(fname='img.png', do_save=True, pbits=0377) :
+def save(fname='img.png', do_save=True, pbits=0o377) :
     if not do_save : return
     if pbits & 1 : print('Save plot in file: %s' % fname) 
     plt.savefig(fname)
@@ -348,11 +348,11 @@ def save(fname='img.png', do_save=True, pbits=0377) :
 #--------------------------------
 
 def savefig(fname='img.png', do_print=True) :
-    save(fname, do_save=True, pbits=0377 if do_print else 0)
+    save(fname, do_save=True, pbits=0o377 if do_print else 0)
 
 #------------------------------
 
-def save_fig(fig, fname='img.png', do_save=True, pbits=0377) :
+def save_fig(fig, fname='img.png', do_save=True, pbits=0o377) :
     if not do_save : return
     if pbits & 1 : print('Save plot in file: %s' % fname) 
     fig.savefig(fname)

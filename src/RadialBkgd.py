@@ -160,7 +160,7 @@ def test01(ntest, prefix='fig-v01') :
     t0_sec = time()
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
-    mask = geo.get_pixel_mask(mbits=0377).flatten() 
+    mask = geo.get_pixel_mask(mbits=0o377).flatten() 
     print('Time to retrieve geometry %.3f sec' % (time()-t0_sec))
 
     t0_sec = time()
@@ -239,7 +239,7 @@ def test02(ntest, prefix='fig-v01') :
 
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
-    mask = geo.get_pixel_mask(mbits=0377).flatten() 
+    mask = geo.get_pixel_mask(mbits=0o377).flatten() 
 
     t0_sec = time()
     rb = RadialBkgd(X, Y, mask) # v0
@@ -310,7 +310,7 @@ def test03(ntest, prefix='fig-v01') :
 
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
-    mask = geo.get_pixel_mask(mbits=0377).flatten() 
+    mask = geo.get_pixel_mask(mbits=0o377).flatten() 
 
     t0_sec = time()
 
