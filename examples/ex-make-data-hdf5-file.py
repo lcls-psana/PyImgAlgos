@@ -11,7 +11,7 @@ def make_data_hdf5_t(tname='0', dsname='exp=xpptut15:run=54:smd', ofname='run54.
     dsource  = psana.MPIDataSource(dsname)
     cspaddet = psana.Detector('cspad')
     smldata  = dsource.small_data(ofname, gather_interval=100)
-    run = dsource.runs().next()
+    run = next(dsource.runs())
 
     data_sum = None
     for nevt,t in enumerate(run.times()):

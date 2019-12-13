@@ -97,7 +97,7 @@ def test(ntest) :
 
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
-    mask = geo.get_pixel_mask(mbits=0377).flatten() 
+    mask = geo.get_pixel_mask(mbits=0o377).flatten() 
 
     print('Time to retrieve geometry %.3f sec' % (time()-t0_sec))
 

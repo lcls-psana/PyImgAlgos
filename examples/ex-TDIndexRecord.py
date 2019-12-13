@@ -13,7 +13,7 @@ fc.print_content(nlines=50)
 
 for i, grpnum in enumerate(fc.group_num_iterator()) :
     #if i>1000 : break
-    group = fc.next()
+    group = next(fc)
     #group.print_attrs()    
     print('%s\nOrientation group %d\n %s' % (80*'_', grpnum, fc.hdr))
     # Iterate over records in the group

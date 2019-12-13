@@ -21,7 +21,7 @@ def do_work() :
     t0_sec = time()
 
     for grpnum in fc.group_num_iterator() :
-        group = fc.next()
+        group = next(fc)
         print('%s\nEvent %d  ' % (80*'_', grpnum))
         for i, pk in enumerate(group()) :
             print('  peak#%2d  %s  %s  t[nsec]=%8d  seg=%2d  row=%3d  col=%3d  %s  bkgd=%5.1f  rms=%5.1f  S/N=%5.1f  r=%6.1f  phi=%6.1f' % \

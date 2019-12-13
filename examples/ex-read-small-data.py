@@ -73,7 +73,7 @@ if args.cfg:
     setConfigFile(args.cfg)
 
 ds = DataSource('%s:idx'%args.exprun)
-run = ds.runs().next()
+run = next(ds.runs())
 times = run.times()
 
 for sd in smallData:
