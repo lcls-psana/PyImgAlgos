@@ -2,6 +2,7 @@
 
 #------------------------------
 #import sys
+from __future__ import print_function
 from time import time, sleep
 import psana
 import numpy as np
@@ -54,7 +55,7 @@ for i,evt in enumerate(ds.events()) :
     spec.fill(nda)
 
     dt = time()-t0_sec
-    print 'Event %3d processing time %.3f sec' % (i, dt)
+    print('Event %3d processing time %.3f sec' % (i, dt))
     arr_dt.append(dt)
 
     if DO_PLOT :
@@ -80,7 +81,7 @@ print_ndarr(histarr, 'histarr')
 
 nparr_dt = np.array(arr_dt)
 
-print 'Number of events with data processed = %d' % len(arr_dt)
-print 'Average time per event dt/event=%.3f sec, RMS(dt)=%.3f sec' % (nparr_dt.mean(), nparr_dt.std())
+print('Number of events with data processed = %d' % len(arr_dt))
+print('Average time per event dt/event=%.3f sec, RMS(dt)=%.3f sec' % (nparr_dt.mean(), nparr_dt.std()))
 
 #------------------------------

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 from pyimgalgos.EventViewer import EventViewer
@@ -23,7 +24,7 @@ class EventViewerApp (EventViewer) :
 #------------------------------
 
 def list_of_times_selected(run):
-    print 'List of selected times'
+    print('List of selected times')
 
     lst_sel_t = []
 
@@ -45,7 +46,7 @@ def list_of_times_selected(run):
         if t.fiducial() == lst_fids[-1] : break
     
         if t.fiducial() in lst_fids :
-            print '%5d:  fid: %d  %d(sec)  %d(nsec)' % (i, t.fiducial(), t.seconds(), t.nanoseconds())
+            print('%5d:  fid: %d  %d(sec)  %d(nsec)' % (i, t.fiducial(), t.seconds(), t.nanoseconds()))
 
             lst_sel_t.append(t)
 
@@ -60,7 +61,7 @@ import CalibManager.AppDataPath as apputils
 def do_work() :
 
     path_psana_cfg = apputils.AppDataPath('pyimgalgos/scripts/psana-cspad-ds2-image-producer.cfg').path()
-    print 'Path to psana cfg file: %s' % path_psana_cfg
+    print('Path to psana cfg file: %s' % path_psana_cfg)
     psana.setConfigFile(path_psana_cfg)
 
     ds = psana.DataSource('exp=cxif5315:run=169:idx')

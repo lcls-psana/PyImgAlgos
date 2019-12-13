@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ##-----------------------------
+from __future__ import print_function
 from pyimgalgos.TDFileContainer import TDFileContainer
 from pyimgalgos.TDIndexRecord   import TDIndexRecord
 ##-----------------------------
@@ -14,10 +15,10 @@ for i, grpnum in enumerate(fc.group_num_iterator()) :
     #if i>1000 : break
     group = fc.next()
     #group.print_attrs()    
-    print '%s\nOrientation group %d\n %s' % (80*'_', grpnum, fc.hdr)
+    print('%s\nOrientation group %d\n %s' % (80*'_', grpnum, fc.hdr))
     # Iterate over records in the group
     for rec in group() : # group() or group.get_objs()
-        print rec.line.rstrip('\n')
+        print(rec.line.rstrip('\n'))
         #rec.print_short()
         #print rec.index, rec.beta, rec.omega, rec.h, rec.k, rec.l, rec.dr, rec.R, rec.qv, rec.qh, rec.P
 

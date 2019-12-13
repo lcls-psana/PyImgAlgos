@@ -2,6 +2,7 @@
 """
 Author: Chris O'Grady
 """
+from __future__ import print_function
 
 from psana import *
 import numpy
@@ -29,9 +30,9 @@ def getSmallData(file):
         if line.startswith('#'):
             if line.count(',') == 0: cheetahFile=False
             if cheetahFile:
-                print '*** Found cheetah small data file'
+                print('*** Found cheetah small data file')
             else:
-                print '*** Found psana small data file'
+                print('*** Found psana small data file')
             line = line[2:-1]
             line = line.replace('eventData->','')
             fieldNames = line.split()
@@ -39,7 +40,7 @@ def getSmallData(file):
             removeChars = [',','[',']','(',')']
             for rc in removeChars:
                 fieldNames = [fname.replace(rc,'') for fname in fieldNames]
-            print 'Small data fieldnames:',fieldNames
+            print('Small data fieldnames:',fieldNames)
         else:
             fields = line.split()
             fields = [field.replace(',','') for field in fields]
@@ -80,16 +81,16 @@ for sd in smallData:
         if sd.frameNumber==5:
             evt = getPsanaEvent(sd)
             if evt is None:
-                print '*** Failed to find event'
+                print('*** Failed to find event')
             else:
-                print '*** Jumped to analyze event with ID:',evt.get(EventId)
+                print('*** Jumped to analyze event with ID:',evt.get(EventId))
             break
     else:
         if sd.Npix==56:
             et = EventTime((sd.timesec<<32)|sd.timensec,sd.fiduc)
             evt = run.event(et)
             if evt is None:
-                print '*** Failed to find event'
+                print('*** Failed to find event')
             else:
-                print '*** Jumped to analyze event with ID:',evt.get(EventId)
+                print('*** Jumped to analyze event with ID:',evt.get(EventId))
             break

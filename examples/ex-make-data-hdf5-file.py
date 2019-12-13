@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 #------------------------------
 # https://confluence.slac.stanford.edu/display/PSDM/MPI+Parallelization
@@ -44,7 +45,7 @@ def make_data_hdf5(tname='0', dsname='exp=xpptut15:run=54:smd', ofname='run54.h5
     data_sum = None
     for nevt,evt in enumerate(dsource.events()):
 
-        if nevt%1000==0 : print 'Event %d'%nevt
+        if nevt%1000==0 : print('Event %d'%nevt)
 
         if tname == '3' : # for amo86615:run=197 (Chuck) 
           if nevt>78141: break
@@ -81,7 +82,7 @@ if __name__ == "__main__" :
     import sys; global sys
     import numpy as np; global np
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s' % tname
+    print(50*'_', '\nTest %s' % tname)
     if   tname == '0': make_data_hdf5(tname, 'exp=cxif5315:run=129:smd', 'smd-cxif5315-r129-dark.h5',        det='CxiDs2.0:Cspad.0')
     elif tname == '1': make_data_hdf5(tname, 'exp=cxif5315:run=169:smd', 'smd-cxif5315-r169-raw.h5',         det='CxiDs2.0:Cspad.0')
     elif tname == '2': make_data_hdf5(tname, 'exp=cxif5315:run=169:smd', 'smd-cxif5315-r169-calib-fde.h5',   det='CxiDs2.0:Cspad.0')

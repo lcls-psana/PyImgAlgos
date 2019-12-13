@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 import numpy as np
@@ -8,7 +9,7 @@ import pyimgalgos.GlobalGraphics as gg
 #------------------------------
 
 def do_work(path='img-averaged.npy') :
-    print 'Load image from file %s' % path
+    print('Load image from file %s' % path)
     img = np.load(path)
     #ave, rms = img.mean(), img.std()
     #amin, amax = ave-1*rms, ave+10*rms
@@ -24,7 +25,7 @@ def do_work(path='img-averaged.npy') :
 #------------------------------
 
 def usage() :
-    print  'Usage: %s <image-file-name>.npy' % str(sys.argv[0])
+    print('Usage: %s <image-file-name>.npy' % str(sys.argv[0]))
     
 #------------------------------
 

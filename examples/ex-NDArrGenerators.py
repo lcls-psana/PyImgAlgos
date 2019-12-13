@@ -1,3 +1,4 @@
+from __future__ import print_function
 #------------------------------
 ### #!/usr/bin/env python
 
@@ -59,9 +60,9 @@ def ex_add_ring(ntest) :
 def ex_add_random_peaks(ntest) : 
     img = random_standard(shape=(500, 500), mu=0, sigma=10)
     peaks = add_random_peaks(img, npeaks=10, amean=100, arms=50, wmean=1.5, wrms=0.3)
-    print 'peaks:'
+    print('peaks:')
     for i, (r0, c0, a0, sigma) in enumerate(peaks) :
-        print '  %04d  row=%6.1f  col=%6.1f  amp=%6.1f  sigma=%6.3f' % (i, r0, c0, a0, sigma)
+        print('  %04d  row=%6.1f  col=%6.1f  amp=%6.1f  sigma=%6.3f' % (i, r0, c0, a0, sigma))
     plot_image(img)
 
 #------------------------------
@@ -69,7 +70,7 @@ def ex_add_random_peaks(ntest) :
 if __name__ == "__main__" :
     import sys; global sys
     tname = sys.argv[1] if len(sys.argv) > 1 else '0'
-    print 50*'_', '\nTest %s:' % tname
+    print(50*'_', '\nTest %s:' % tname)
     if   tname == '0' : ex_random_standard(tname); ex_add_random_peaks(tname); ex_add_ring(tname)
     elif tname == '1' : ex_random_standard(tname)
     elif tname == '2' : ex_random_exponential(tname)
@@ -79,7 +80,7 @@ if __name__ == "__main__" :
     elif tname == '6' : ex_aranged_array(tname)
     elif tname == '7' : ex_add_ring(tname)
     elif tname == '8' : ex_add_random_peaks(tname)
-    else : print 'Not-recognized test name: %s' % tname
+    else : print('Not-recognized test name: %s' % tname)
     sys.exit('End of test %s' % tname)
  
 #------------------------------

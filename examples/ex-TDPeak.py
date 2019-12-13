@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ##-----------------------------
+from __future__ import print_function
 from pyimgalgos.TDFileContainer import TDFileContainer
 from time import time
 #from pyimgalgos.TDPeak          import TDPeak - is used by default
@@ -21,10 +22,10 @@ def do_work() :
 
     for grpnum in fc.group_num_iterator() :
         group = fc.next()
-        print '%s\nEvent %d  ' % (80*'_', grpnum)
+        print('%s\nEvent %d  ' % (80*'_', grpnum))
         for i, pk in enumerate(group()) :
-            print '  peak#%2d  %s  %s  t[nsec]=%8d  seg=%2d  row=%3d  col=%3d  %s  bkgd=%5.1f  rms=%5.1f  S/N=%5.1f  r=%6.1f  phi=%6.1f' % \
-                  (i, pk.exp, pk.time, pk.tnsec, pk.seg, pk.row, pk.col, pk.reg, pk.bkgd, pk.rms, pk.son, pk.r, pk.phi)
+            print('  peak#%2d  %s  %s  t[nsec]=%8d  seg=%2d  row=%3d  col=%3d  %s  bkgd=%5.1f  rms=%5.1f  S/N=%5.1f  r=%6.1f  phi=%6.1f' % \
+                  (i, pk.exp, pk.time, pk.tnsec, pk.seg, pk.row, pk.col, pk.reg, pk.bkgd, pk.rms, pk.son, pk.r, pk.phi))
             #rec.print_short()
 
             # Information available through the PeakData object pk
@@ -52,7 +53,7 @@ def do_work() :
             # pk.print_peak_data_short()
             # pk.print_attrs()
         
-    print '\nTime to iterate using next() %.3f sec' % (time()-t0_sec)
+    print('\nTime to iterate using next() %.3f sec' % (time()-t0_sec))
 
     #t0_sec = time()
     #groups = fc.list_of_groups()  

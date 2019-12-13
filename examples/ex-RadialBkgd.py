@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from pyimgalgos.RadialBkgd import RadialBkgd, polarization_factor
 
 import math
@@ -98,7 +99,7 @@ def test(ntest) :
     X, Y, Z = geo.get_pixel_coords()
     mask = geo.get_pixel_mask(mbits=0377).flatten() 
 
-    print 'Time to retrieve geometry %.3f sec' % (time()-t0_sec)
+    print('Time to retrieve geometry %.3f sec' % (time()-t0_sec))
 
     t0_sec = time()
     #rb = RadialBkgd(X, Y, mask) # v0
@@ -110,7 +111,7 @@ def test(ntest) :
     #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(240, -20), radedges=(80000,10000)) # v3
     #rb = RadialBkgd(X, Y, mask, nradbins=3, nphibins=8, phiedges=(-20, 240), radedges=(10000,80000))
 
-    print 'RadialBkgd initialization time %.3f sec' % (time()-t0_sec)
+    print('RadialBkgd initialization time %.3f sec' % (time()-t0_sec))
 
     #print 'npixels_per_bin:',   rb.npixels_per_bin()
     #print 'intensity_per_bin:', rb.intensity_per_bin(arr)
@@ -132,7 +133,7 @@ def test(ntest) :
         t1_sec = time()
         #pf = polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 94e3) # Z=94mm
         pf = polarization_factor(rb.pixel_rad(), rb.pixel_phi(), 91.33e3) # Z=913.3mm
-        print 'Time to evaluate polarization correction factor %.3f sec' % (time()-t1_sec)
+        print('Time to evaluate polarization correction factor %.3f sec' % (time()-t1_sec))
 
         if   ntest ==10 : nda, title = pf,                    'polarization factor'
         elif ntest ==11 : nda, title = arr * pf,              'polarization-corrected averaged data'
@@ -141,7 +142,7 @@ def test(ntest) :
         elif ntest ==14 : nda, title = rb.bkgd_nda_interpol(arr * pf) * mask , 'polarization-corrected interpolated radial background'
         elif ntest ==15 : nda, title = rb.subtract_bkgd_interpol(arr * pf) * mask , 'polarization-corrected interpolated radial background-subtracted data'
 
-    print 'Get %s n-d array time %.3f sec' % (title, time()-t0_sec)
+    print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
 
     img = img_from_pixel_arrays(iX, iY, nda) if not ntest in (21,) else nda[100:300,:]
 
@@ -171,14 +172,14 @@ def test(ntest) :
 
     gg.show()
 
-    print 'End of test for %s' % title    
+    print('End of test for %s' % title)    
 
 #------------------------------
 
 if __name__ == '__main__' :
     import sys
     ntest = int(sys.argv[1]) if len(sys.argv)>1 else 1
-    print 'Test # %d' % ntest
+    print('Test # %d' % ntest)
     test(ntest)
     #sys.exit('End of test')
  

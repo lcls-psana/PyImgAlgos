@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
 import sys
 from pyimgalgos.EventViewer import EventViewer
@@ -13,7 +14,7 @@ import CalibManager.AppDataPath as apputils
 def do_work() :
 
     path_psana_cfg = apputils.AppDataPath('pyimgalgos/scripts/psana-cspad-ds1-image-producer.cfg').path()
-    print 'Path to psana cfg file: %s' % path_psana_cfg
+    print('Path to psana cfg file: %s' % path_psana_cfg)
     psana.setConfigFile(path_psana_cfg)
 
     ds = psana.DataSource('exp=cxii9415:run=33:idx')

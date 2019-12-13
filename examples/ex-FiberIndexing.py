@@ -6,6 +6,7 @@
    - evaluate lattice node parameters sorted by node radius
    - rotate crystal lattice in beta and omega, find nodes close to Evald's sphere and generate look-up table
 """
+from __future__ import print_function
 
 #------------------------------
 from pyimgalgos.FiberIndexing import *
@@ -38,7 +39,7 @@ def make_index_table() :
            (str(b1), str(b2), str(b3))
 
     rec = '%s\n%s\n%s\n' % (msg1, msg2, msg3)
-    print rec
+    print(rec)
     fout.write(rec)
 
     #for line in triclinic_primitive_vectors.__doc__.split('\n') : fout.write('\n# %s' % line)
@@ -56,7 +57,7 @@ def make_index_table() :
          + '\n# 3*sigma_q = %.6f 1/A' % (3*sigma_q)\
          + '\n# %s\n\n' % (89*'_')
 
-    print rec
+    print(rec)
     fout.write(rec)
 
     #test_lattice()
@@ -83,7 +84,7 @@ def make_index_table() :
     lut = make_lookup_table(b1, b2, b3, hmax, kmax, lmax, np.float32, evald_rad, sigma_q, fout, bpq, bpomega, bpbeta)
 
     fout.close()
-    print '\nFile with lookup table is saved: %s' % fname
+    print('\nFile with lookup table is saved: %s' % fname)
 
     img_range = (bpq.vmin, bpq.vmax, bpomega.vmax, bpomega.vmin) 
     axim = gg.plotImageLarge(lut, img_range=img_range, amp_range=None, figsize=(15,13),\
