@@ -98,7 +98,7 @@ class cspad_arr_producer (object) :
 
     def print_dtypes( self ) :
         msg = '\nImplemented data types:'
-        for k,v in cspad_arr_producer.dic_dtypes.iteritems() :
+        for k,v in cspad_arr_producer.dic_dtypes.items() :
             msg += '\n%10s : %10s' % (k,v)
         print(msg)
         
@@ -181,7 +181,7 @@ class cspad_arr_producer (object) :
                 return
 
             nQuads = data_tot.quads_shape()[0]
-            data = map(data_tot.quads, range(nQuads)) # makes list of <psana.CsPad.ElementV2 objects
+            data = list(map(data_tot.quads, range(nQuads))) # makes list of <psana.CsPad.ElementV2 objects
 
         else:
             data = evt.get(TypeId.Type.Id_CspadElement, self.m_src)
@@ -271,7 +271,7 @@ class cspad_arr_producer (object) :
         try:
             # older versions may not have all methods
             msg +=  '\n  roiMask       : [%s]' % ', '.join([hex(self.config.roiMask(q)) for q in range(4)])
-            msg +=  '\n  numAsicsStored: %s' % str(map(self.config.numAsicsStored, range(4)))
+            msg +=  '\n  numAsicsStored: %s' % str(list(map(self.config.numAsicsStored, range(4))))
         except:
             pass
 

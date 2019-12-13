@@ -32,6 +32,7 @@ See:
 Created on Oct 7, 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 
 import sys
@@ -43,7 +44,7 @@ import numpy as np
 #------------------------------
 #------------------------------
 
-class BinPars() :
+class BinPars(object) :
     """ Bin parameters storage
     """
     def __init__(self, edges, nbins, vtype=np.float32, endpoint=False):
@@ -56,9 +57,9 @@ class BinPars() :
         self.endpoint   = endpoint
         self.binedges   = np.linspace(vmin, vmax, nbins, endpoint=endpoint, dtype=vtype)
         self.bincenters = self.binedges + self.halfbinw
-        self.inds       = range(self.binedges.size)
-        self.indedges   = zip(self.inds, self.binedges)          
-        self.indcenters = zip(self.inds, self.bincenters)          
+        self.inds       = list(range(self.binedges.size))
+        self.indedges   = list(zip(self.inds, self.binedges))          
+        self.indcenters = list(zip(self.inds, self.bincenters))          
         self.strrange   ='%.0f-%.0f-%d' % (vmin, vmax, nbins)
 
 #------------------------------
@@ -207,9 +208,9 @@ def lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     """
     #print '\nIn %s' % sys._getframe().f_code.co_name
 
-    lst_h = range(-hmax, hmax+1) if hmin is None else range(hmin, hmax+1)
-    lst_k = range(-kmax, kmax+1) if kmin is None else range(kmin, kmax+1)
-    lst_l = range(-lmax, lmax+1) if lmin is None else range(lmin, lmax+1)
+    lst_h = list(range(-hmax, hmax+1)) if hmin is None else list(range(hmin, hmax+1))
+    lst_k = list(range(-kmax, kmax+1)) if kmin is None else list(range(kmin, kmax+1))
+    lst_l = list(range(-lmax, lmax+1)) if lmin is None else list(range(lmin, lmax+1))
     
     x1d = np.array([b1[0]*h for h in lst_h], dtype=cdtype)
     y1d = np.array([b1[1]*h for h in lst_h], dtype=cdtype)
@@ -553,7 +554,7 @@ def plot_lattice(b1 = (1.,0.,0.), b2 = (0.,1.,0.), b3 = (0.,0.,1.),\
     ax.set_ylabel('Reciprocal y ($1/\AA$)', fontsize=18)
     gg.save_fig(fig, '%sreciprocal-space-lattice.png' % prefix, pbits=1)
 
-    lst_omega = range(0,180,2) if do_movie else range(0,11,10)
+    lst_omega = list(range(0,180,2)) if do_movie else list(range(0,11,10))
     #lst_omega = range(0,180,5) if do_movie else range(0,13,11)
     #lst_omega = range(0,180,45) if do_movie else range(0,13,11)
 
@@ -721,7 +722,7 @@ def make_index_table(prefix='./v01-') :
 
     gg.save_fig(fighi, '%splot-his-prob-vs-qh-%s.png' % (prefix, str_beta), pbits=1)
 
-    qh_weight = zip(bpq.bincenters, arrhi)
+    qh_weight = list(zip(bpq.bincenters, arrhi))
     fname = '%sarr-qh-weight-%s.npy' % (prefix, str_beta)
     print('Save qh:weigt array in file %s' % fname)
     np.save(fname, qh_weight)

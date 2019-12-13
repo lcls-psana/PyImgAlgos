@@ -69,7 +69,7 @@ from CalibManager.PlotImgSpeWidget import add_stat_text
 
 #------------------------------
 
-class Storage :
+class Storage(object) :
     def __init__(self) :
         pass
 

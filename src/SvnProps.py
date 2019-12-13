@@ -29,7 +29,7 @@ import sys
 
 #------------------------------
 
-class SvnProps :
+class SvnProps(object) :
     def __init__(self) : 
         self.updated  = "2014-05-28"
         self.revision = "$Revision$"

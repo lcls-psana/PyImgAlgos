@@ -32,6 +32,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 Created by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 import numpy as np
 #------------------------------

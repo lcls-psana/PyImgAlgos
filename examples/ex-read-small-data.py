@@ -8,7 +8,7 @@ from psana import *
 import numpy
 import time
 
-class SmallData:
+class SmallData(object):
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
 

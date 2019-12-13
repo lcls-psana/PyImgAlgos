@@ -80,6 +80,7 @@ See:
 Created in 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 
 #--------------------------------
 
@@ -89,7 +90,7 @@ import math
 
 #------------------------------
 
-class TDPeakRecord :
+class TDPeakRecord(object) :
 
     def __init__(sp, line, pixel_size = 109.92) :  
         """Parse the string of parameters to values

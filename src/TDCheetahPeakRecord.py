@@ -78,7 +78,7 @@ from pyimgalgos.GlobalUtils import convertCheetahEventName, src_from_rc8x8
 
 #------------------------------
 
-class TDCheetahPeakRecord :
+class TDCheetahPeakRecord(object) :
 
     def __init__(sp, line) :  
         """Parse the string of parameters to values

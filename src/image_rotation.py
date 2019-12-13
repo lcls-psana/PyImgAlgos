@@ -2,6 +2,7 @@
 #------------------------------
 
 from __future__ import print_function
+from __future__ import division
 import os
 import sys
 import math
@@ -11,7 +12,7 @@ import numpy as np
 
 #------------------------------
 
-class Store :
+class Store(object) :
     """Store of shared parameters.
     """
     def __init__(self) :
@@ -49,7 +50,7 @@ def image_rotation(arr, phi_deg, center=None, oshape=(3000,3000)) :
 
     #scale = float(L)
 
-    xc, yc = center if center is not None else (sizex/2, sizey/2) 
+    xc, yc = center if center is not None else (sizex//2, sizey//2) 
 
     xarr = np.arange(math.floor(-xc), math.floor(sizex-xc))
     yarr = np.arange(math.floor(-yc), math.floor(sizey-yc))
@@ -78,7 +79,7 @@ def image_rotation(arr, phi_deg, center=None, oshape=(3000,3000)) :
     sp.image = np.zeros(oshape, dtype=arr.dtype)
     sp.count = np.zeros(oshape, dtype=np.int)
 
-    unused_lst = map(_fillimg, irows, icols, arr)
+    unused_lst = list(map(_fillimg, irows, icols, arr))
 
     countpro = np.select([sp.count<1], [-1], default=sp.count)
     arr_rot = np.select([countpro>0], [sp.image/countpro], default=0)

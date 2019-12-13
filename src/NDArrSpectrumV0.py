@@ -49,6 +49,7 @@ Revision: $Revision$
 
 """
 from __future__ import print_function
+from __future__ import division
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -77,7 +78,7 @@ def arr_varbin_indexes(arr, edges) :
     nbins = len(edges)-1
     dtype = np.int32 if nbins>256 else np.int16
     conds = [arr<edge for edge in edges]
-    ivals  = np.array(range(len(edges)), dtype=dtype)
+    ivals  = np.array(list(range(len(edges))), dtype=dtype)
     ivals -= 1 
     ivals[0] = 0 # re-define index for underflow
     return np.select(conds, ivals, default=nbins-1)
@@ -89,7 +90,7 @@ BINS_VARSIZE     = 1
 
 #------------------------------
 
-class NDArrSpectrum :
+class NDArrSpectrum(object) :
     def __init__(self, edges, nbins=None, pbits=0) :
         """ Constructor
         @param edges - sequence of bin edges
@@ -132,7 +133,7 @@ class NDArrSpectrum :
         for d in self.ashape : self.asize *=d
         self.hshape = (self.asize, self.nbins)
         self.histarr = np.zeros(self.hshape, dtype=np.uint16)
-        self.pix_inds = np.array(range(self.asize), dtype=np.uint32)
+        self.pix_inds = np.array(list(range(self.asize)), dtype=np.uint32)
         if self.pbits & 1 :
             print('n-d array shape = %s, size = %d, dtype = %s' % (str(self.ashape), self.asize, str(nda.dtype)))
             print('histogram shape = %s, size = %d, dtype = %s' % (str(self.hshape), self.histarr.size, str(self.histarr.dtype)))

@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 
 
@@ -48,7 +49,7 @@ def cm_epix(img, rms, maxCorr=30, histoRange=30, colrow=3,
       maskedImg -= maskedImg.mean()
 
     if colrow % 2 == 1:
-        rs = maskedImg.reshape(704 / 2 , 768 * 2 , order='F')
+        rs = maskedImg.reshape(704 // 2 , 768 * 2 , order='F')
         rscount = np.ma.count_masked(rs, axis=0)
         rsmed = np.ma.median(rs, axis=0)
         rsmed[abs(rsmed) > maxCorr] = 0

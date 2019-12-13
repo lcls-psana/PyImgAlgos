@@ -39,6 +39,7 @@ part of it, please give an appropriate acknowledgment.
 @author Mikhail S. Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -74,11 +75,11 @@ def divideArraysSafely(num, den) :
         print('divideArraysSafely: non-equal array shapes for numerator and denumerator: ', num.shape, den.shape)
     num_corr =  np.select([den<1], [0], default=num)    
     den_corr =  np.select([den<1], [1], default=den)    
-    return num_corr/den_corr
+    return old_div(num_corr,den_corr)
 
 #------------------------------
 
-class AngularIntegrator :
+class AngularIntegrator(object) :
     """Angular integration of a 2D numpy array"""
     
     def __init__(self):

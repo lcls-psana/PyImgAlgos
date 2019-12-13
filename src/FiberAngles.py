@@ -67,13 +67,14 @@ See:
 Created in 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 
 ##-----------------------------
 import numpy as np
 import math # pi, sin, sqrt, ceil, floor, fabs
 ##-----------------------------
 
-class Storage :
+class Storage(object) :
     """Storage class for local data exchange between methods.
     """
     def __init__(self) :
@@ -140,7 +141,7 @@ def fraser(arr, beta_deg, z, center=None, oshape=(1500,1500)) :
     sizex = arr.shape[0]
     sizey = arr.shape[1]
 
-    xc, yc = center if center is not None else (sizex/2, sizey/2) 
+    xc, yc = center if center is not None else (sizex//2, sizey//2) 
 
     xarr = np.arange(math.floor(-xc), math.floor(sizex-xc))
     yarr = np.arange(math.floor(-yc), math.floor(sizey-yc))
@@ -179,7 +180,7 @@ def fraser(arr, beta_deg, z, center=None, oshape=(1500,1500)) :
     sp.image = np.zeros(oshape, dtype=arr.dtype)
     sp.count = np.zeros(oshape, dtype=np.int)
 
-    unused_lst = map(_fillimg, irows, icols, arr)
+    unused_lst = list(map(_fillimg, irows, icols, arr))
 
     #print 'arr.shape: ', arr.shape
     #print 's3rot.shape: ', s3rot.shape

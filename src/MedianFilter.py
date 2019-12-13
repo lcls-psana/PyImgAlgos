@@ -29,6 +29,7 @@ Revision: $Revision$
 
 """
 from __future__ import print_function
+from __future__ import division
 
 #--------------------------------
 __version__ = "$Revision$"
@@ -45,7 +46,7 @@ def reshape_nda_to_3d(arr) :
     """
     sh = arr.shape
     if len(sh)<4 : return arr
-    arr.shape = (arr.size/sh[-1]/sh[-2], sh[-2], sh[-1])
+    arr.shape = (arr.size//sh[-1]//sh[-2], sh[-2], sh[-1])
     return arr
 
 #------------------------------
@@ -117,7 +118,7 @@ def slope_2darr(shape=(185,388), axis=0, dtype=np.float) :
     """Returns n-d array monotonicly raising along axis=0 or 1"""
     imax,jmax = shape
     if axis==0 :
-        arr1d = range(imax)
+        arr1d = list(range(imax))
         return np.array([arr1d for j in range(jmax)])
     else :
         arr1d = np.ones(imax)

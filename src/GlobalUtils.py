@@ -94,6 +94,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 Created by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 
 ##-----------------------------
 
@@ -106,7 +107,7 @@ from time import time, strptime, strftime, localtime, mktime
 
 #------------------------------
 
-class Storage :
+class Storage(object) :
     """Store for shared parameters."""
     def __init__(self) :
         self.Image     = None
@@ -134,7 +135,7 @@ def shape_as_2d(sh) :
     """Returns 2-d shape for n-d shape if n>2, otherwise returns unchanged shape.
     """
     if len(sh)<3 : return sh
-    return (size_from_shape(sh)/sh[-1], sh[-1])
+    return (size_from_shape(sh)//sh[-1], sh[-1])
 
 ##-----------------------------
 
@@ -142,7 +143,7 @@ def shape_as_3d(sh) :
     """Returns 3-d shape for n-d shape if n>3, otherwise returns unchanged shape.
     """
     if len(sh)<4 : return sh
-    return (size_from_shape(sh)/sh[-1]/sh[-2], sh[-2], sh[-1])
+    return (size_from_shape(sh)//sh[-1]//sh[-2], sh[-2], sh[-1])
 
 ##-----------------------------
 
@@ -450,7 +451,7 @@ def cspad_psana_from_cctbx(nda_in) :
     """
     asics, rows, colsh = shape_in = (64,185,194)
     size = asics * rows * colsh
-    segs, cols = asics/2, colsh*2
+    segs, cols = asics//2, colsh*2
     
     if nda_in.size != size :
         raise ValueError('Input array size: %d is not consistent with cspad size: %d' % (nda_in.size, size))
@@ -474,7 +475,7 @@ def cspad_cctbx_from_psana(nda_in) :
     """
     segs, rows, cols = shape_in = (32,185,388)
     size = segs * rows * cols
-    colsh = cols/2
+    colsh = cols//2
 
     if nda_in.size != size :
         raise ValueError('Input array size: %d is not consistent with cspad size: %d' % (nda_in.size, size))
@@ -482,7 +483,7 @@ def cspad_cctbx_from_psana(nda_in) :
     if nda_in.shape != shape_in:
         raise ValueError('Input array shape: %s is not consistent with cspad shape: %s' % (nda_in.shape, shape_in))
 
-    nda_out = np.empty((segs*2, rows, cols/2), dtype=nda_in.dtype)
+    nda_out = np.empty((segs*2, rows, cols//2), dtype=nda_in.dtype)
     for s in range(segs) :
         a=s*2 # ASIC[0] in segment
         nda_out[a,:,:]   = nda_in[s,:,0:colsh]

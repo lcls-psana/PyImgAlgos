@@ -48,6 +48,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 Created in 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 
 import sys
@@ -56,7 +57,7 @@ from pyimgalgos.HBins import HBins
 
 #------------------------------
 
-class HSpectrum :
+class HSpectrum(object) :
     def __init__(self, edges, nbins=None, pbits=0) :
         """ Constructor
         - edges - sequence of bin edges
@@ -91,7 +92,7 @@ class HSpectrum :
         self.asize  = nda.size
         self.hshape = (self.asize, self.hbins.nbins())
         self.histarr = np.zeros(self.hshape, dtype=np.uint16) # huge size array
-        self.pix_inds = np.array(range(self.asize), dtype=np.uint32)
+        self.pix_inds = np.array(list(range(self.asize)), dtype=np.uint32)
         if self.pbits & 1 :
             print('n-d array shape = %s, size = %d, dtype = %s' % (str(self.ashape), self.asize, str(nda.dtype)))
             print('histogram shape = %s, size = %d, dtype = %s' % (str(self.hshape), self.histarr.size, str(self.histarr.dtype)))

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 import numpy as np
 from skbeam.core.accumulators.histogram import Histogram
 from PSCalib.CalibFileFinder import make_calib_file_name, find_calib_file

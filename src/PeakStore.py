@@ -42,7 +42,7 @@ from time import strftime, localtime #, gmtime
 
 #------------------------------
 
-class PeakStore :
+class PeakStore(object) :
 
     def __init__(self, par='cxiNNNNN', runnum=0, prefix=None, header=None, add_header='Evnum etc...' , pbits=0) :  
         """Constructor parameters are used to generate file name, set header and object verbosity.

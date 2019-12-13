@@ -37,7 +37,7 @@ __version__ = "$Revision$"
 ##-----------------------------
 ##-----------------------------
 
-class TDGroup :
+class TDGroup(object) :
     """Gets in constructor a list of text data records and converts them in a list of objects 
     """
     def __init__(self, recs, objtype, pbits=0) :

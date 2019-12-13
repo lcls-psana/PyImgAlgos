@@ -60,6 +60,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 Created on 2016-01-15 by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 
 import math
@@ -67,7 +68,7 @@ import numpy as np
 
 #------------------------------
 
-class HBins() :
+class HBins(object) :
     """Hystogram-style bin parameters holder
     """
     def __init__(self, edges, nbins=None, vtype=np.float32):
@@ -279,7 +280,7 @@ class HBins() :
             else :            
                 conds = np.array([arr>edge for edge in self.binedges()], dtype=np.bool)
 
-            inds1d = range(-1, self._nbins)
+            inds1d = list(range(-1, self._nbins))
             inds1d[0] = indmin # re-define index for underflow
             inds = np.array(len(arr)*inds1d, dtype=np.int32)
             inds.shape = (len(arr),self._nbins+1)

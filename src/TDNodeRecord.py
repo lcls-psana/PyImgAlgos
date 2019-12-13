@@ -56,7 +56,7 @@ import math
 
 #------------------------------
 
-class TDNodeRecord :
+class TDNodeRecord(object) :
 
     def __init__(sp, line) : # , sigma_q = 0.000484) :  
         """Parse the string of parameters to values

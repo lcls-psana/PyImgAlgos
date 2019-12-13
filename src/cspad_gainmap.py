@@ -8,6 +8,7 @@ part of it, please give an appropriate acknowledgment.
 
 @author Christopher O'Grady
 """
+from __future__ import division
 
 #------------------------------
 #  Module's version from SVN --
@@ -43,7 +44,7 @@ class cspad_gainmap (object) :
             for (row,col), value in np.ndenumerate(gm):
                 for i in range(16):
                     iasic = i%2
-                    i2x1 = i/2
+                    i2x1 = i//2
                     if (gm[row][col] & (1<<i)):
                         # hi gain
                         self.gm[i2x1+iquad*8][row][col+iasic*194]=1

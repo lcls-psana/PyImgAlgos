@@ -42,6 +42,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 Created on Nov 23, 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 import numpy as np
 import math
 
@@ -65,7 +66,7 @@ def shape_as_2d(sh) :
     """Returns 2-d shape for n-d shape if n>2, otherwise returns unchanged shape.
     """
     if len(sh)<3 : return sh
-    return (size_from_shape(sh)/sh[-1], sh[-1])
+    return (size_from_shape(sh)//sh[-1], sh[-1])
 
 #-----------------------------
 
@@ -73,7 +74,7 @@ def shape_as_3d(sh) :
     """Returns 3-d shape for n-d shape if n>3, otherwise returns unchanged shape.
     """
     if len(sh)<4 : return sh
-    return (size_from_shape(sh)/sh[-1]/sh[-2], sh[-2], sh[-1])
+    return (size_from_shape(sh)//sh[-1]//sh[-2], sh[-2], sh[-1])
 
 #-----------------------------
 
@@ -209,7 +210,7 @@ def add_random_peaks(arr2d, npeaks=10, amean=100, arms=50, wmean=2, wrms=0.1) :
     a0    = amean + arms*rand_std[0,:] 
     sigma = wmean + wrms*rand_std[0,:] 
 
-    peaks = zip(r0, c0, a0, sigma)
+    peaks = list(zip(r0, c0, a0, sigma))
 
     for r0, c0, a0, sigma in peaks :
         add_ring(arr2d, amp=a0, row=r0, col=c0, rad=0, sigma=sigma)

@@ -62,6 +62,7 @@ Revision: $Revision$
 
 """
 from __future__ import print_function
+from __future__ import division
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -116,7 +117,7 @@ def polarization_factor(rad, phi_deg, z) :
 
 #------------------------------
 
-class RadialBkgd() :
+class RadialBkgd(object) :
     def __init__(self, xarr, yarr, mask=None, radedges=None, nradbins=100, phiedges=(0,360), nphibins=32) :
         """Parameters
            - mask     - n-d array with mask
@@ -317,7 +318,7 @@ class RadialBkgd() :
         points_rad, points_phi = np.meshgrid(rad_nodes, phi_nodes)
         if verb : print('points_phi.shape', points_phi.shape)
         if verb : print('points_rad.shape', points_rad.shape)
-        points = np.array(zip(points_phi.flatten(), points_rad.flatten())) 
+        points = np.array(list(zip(points_phi.flatten(), points_rad.flatten()))) 
         if verb : print('points.shape', points.shape)
 
         values = val_nodes.flatten()

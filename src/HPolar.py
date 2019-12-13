@@ -61,6 +61,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 Created in 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 
 import math
@@ -113,7 +114,7 @@ def polarization_factor(rad, phi_deg, z) :
 
 #------------------------------
 
-class HPolar() :
+class HPolar(object) :
     def __init__(self, xarr, yarr, mask=None, radedges=None, nradbins=100, phiedges=(0,360), nphibins=32) :
         """Parameters
            - mask     - n-d array with mask

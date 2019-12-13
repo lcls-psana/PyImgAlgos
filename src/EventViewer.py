@@ -33,7 +33,7 @@ def fig_axes(figsize=(13,12), title='Image', dpi=80, \
 
 #------------------------------
 
-class EventViewer :
+class EventViewer(object) :
     list_of_dtypes = [psana.ndarray_float32_2, \
                       psana.ndarray_float64_2, \
                       psana.ndarray_int16_2, \

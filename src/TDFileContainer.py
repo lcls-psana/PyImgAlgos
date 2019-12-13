@@ -130,6 +130,7 @@ Created in 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
 #------------------------------
+from builtins import object
 __version__ = "$Revision$"
 # $Source$
 ##-----------------------------
@@ -144,7 +145,7 @@ from pyimgalgos.TDPeakRecord  import TDPeakRecord
 ##-----------------------------
 ##-----------------------------
 
-class TDFileContainer :
+class TDFileContainer(object) :
     """ Load and hold record list from file and provide access by group index
     """
     def __init__(self, fname, indhdr='Evnum', objtype=TDPeakRecord, pbits=0) :
@@ -378,7 +379,7 @@ class TDFileContainer :
 
 ##-----------------------------
 
-    def next(self) :
+    def __next__(self) :
         """returns next group
         """
         if self.pbits & 256 : print('next group')

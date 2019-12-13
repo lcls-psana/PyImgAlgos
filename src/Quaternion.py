@@ -31,6 +31,7 @@ See:
 Created in April 2016 by Mikhail Dubrovin
 """
 from __future__ import print_function
+from __future__ import division
 #------------------------------
 
 import numpy as np
@@ -52,7 +53,7 @@ def sin_cos(angle_deg) :
 #------------------------------
 #------------------------------
 
-class Quaternion :
+class Quaternion(object) :
     def __init__(self, w=1, x=0, y=0, z=0) :
         self.w = w
         self.x = x
@@ -68,7 +69,7 @@ class Quaternion :
 
 #------------------------------
 
-class Vector :
+class Vector(object) :
     def __init__(self, x, y, z) :
         self.u = self.x = x
         self.v = self.y = y
@@ -83,7 +84,7 @@ class Vector :
 
 #------------------------------
 
-class Matrix :
+class Matrix(object) :
     def __init__(self, m00=1, m01=0, m02=0,\
                        m10=0, m11=1, m12=0,\
                        m20=0, m21=0, m22=1) :

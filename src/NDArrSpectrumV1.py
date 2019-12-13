@@ -51,6 +51,7 @@ Revision: $Revision$
 
 """
 from __future__ import print_function
+from __future__ import division
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -61,7 +62,7 @@ from pyimgalgos.HBins import HBins
 
 #------------------------------
 
-class NDArrSpectrum :
+class NDArrSpectrum(object) :
     def __init__(self, edges, nbins=None, pbits=0) :
         """ Constructor
         - edges - sequence of bin edges
@@ -96,7 +97,7 @@ class NDArrSpectrum :
         self.asize  = nda.size
         self.hshape = (self.asize, self.hbins.nbins())
         self.histarr = np.zeros(self.hshape, dtype=np.uint16) # huge size array
-        self.pix_inds = np.array(range(self.asize), dtype=np.uint32)
+        self.pix_inds = np.array(list(range(self.asize)), dtype=np.uint32)
         if self.pbits & 1 :
             print('n-d array shape = %s, size = %d, dtype = %s' % (str(self.ashape), self.asize, str(nda.dtype)))
             print('histogram shape = %s, size = %d, dtype = %s' % (str(self.hshape), self.histarr.size, str(self.histarr.dtype)))
