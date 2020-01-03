@@ -8,100 +8,100 @@ from pyimgalgos.HBins import HBins
 #------------------------------
 
 class TestSomething(unittest.TestCase) :
- 
+
     def setUp(self) :
         """Called before each test
         """
-	#print 'in %s' % sys._getframe().f_code.co_name
+        #print 'in %s' % sys._getframe().f_code.co_name
         self.he = HBins((1,5), nbins=4) # Equal bins
         self.hv = HBins((1, 2, 4, 8))   # Variable bins
 
     def tearDown(self) :
         """Called after each test
         """
-	#print 'in %s' % sys._getframe().f_code.co_name
+        #print 'in %s' % sys._getframe().f_code.co_name
         #self.he = None
         #self.hv = None
- 
+
     def test_nbins(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         #print self.he.nbins()
         #print self.hv.nbins()
         self.assertEqual(self.he.nbins(),4)
         self.assertEqual(self.hv.nbins(),3)
 
     def test_vmin(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertEqual(self.he.vmin(),1)
         self.assertEqual(self.hv.vmin(),1)
 
     def test_vmax(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertEqual(self.he.vmax(),5)
         self.assertEqual(self.hv.vmax(),8)
 
     def test_equalbins(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertTrue(self.he.equalbins())
         self.assertFalse(self.hv.equalbins())
 
     def test_limits(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertTrue(np.array_equal(self.he.limits(),(1,5)))
         self.assertTrue(np.array_equal(self.hv.limits(),(1,8)))
 
     def test_binedges(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertTrue(np.array_equal(self.he.binedges(),(1,2,3,4,5)))
         self.assertTrue(np.array_equal(self.hv.binedges(),(1,2,4,8)))
 
     def test_binedgesleft(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertTrue(np.array_equal(self.he.binedgesleft(),(1,2,3,4)))
         self.assertTrue(np.array_equal(self.hv.binedgesleft(),(1,2,4)))
 
     def test_binedgesright(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertTrue(np.array_equal(self.he.binedgesright(),(2,3,4,5)))
         self.assertTrue(np.array_equal(self.hv.binedgesright(),(2,4,8)))
 
     def test_bincenters(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertTrue(np.array_equal(self.he.bincenters(),(1.5, 2.5, 3.5, 4.5)))
         self.assertTrue(np.array_equal(self.hv.bincenters(),(1.5, 3, 6)))
 
     def test_binwidth(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertEqual(self.he.binwidth(),1)
         self.assertTrue(np.array_equal(self.hv.binwidth(),(1, 2, 4)))
 
     def test_halfbinw(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertEqual(self.he.halfbinw(),0.5)
         self.assertTrue(np.array_equal(self.hv.halfbinw(),(0.5, 1, 2)))
 
     def test_strrange(self):
-	print 'in %s' % sys._getframe().f_code.co_name
+        print 'in %s' % sys._getframe().f_code.co_name
         self.assertEqual(self.he.strrange(),'1-5-4')
         self.assertEqual(self.hv.strrange(),'1-8-3')
 
     def test_bin_index(self):
-        self.assertEqual(self.he.bin_index(-1.5), 0) 
-        self.assertEqual(self.he.bin_index(1),    0) 
-        self.assertEqual(self.he.bin_index(1.5),  0) 
-        self.assertEqual(self.he.bin_index(2),    1) 
-        self.assertEqual(self.he.bin_index(4.5),  3) 
-        self.assertEqual(self.he.bin_index(5),    3) 
-        self.assertEqual(self.he.bin_index(8),    3) 
+        self.assertEqual(self.he.bin_index(-1.5), 0)
+        self.assertEqual(self.he.bin_index(1),    0)
+        self.assertEqual(self.he.bin_index(1.5),  0)
+        self.assertEqual(self.he.bin_index(2),    1)
+        self.assertEqual(self.he.bin_index(4.5),  3)
+        self.assertEqual(self.he.bin_index(5),    3)
+        self.assertEqual(self.he.bin_index(8),    3)
         self.assertEqual(self.he.bin_index(9),    3)
 
-        self.assertEqual(self.he.bin_index(-1.5,edgemode=1),-1) 
-        self.assertEqual(self.he.bin_index(1,   edgemode=1), 0) 
-        self.assertEqual(self.he.bin_index(1.5, edgemode=1), 0) 
-        self.assertEqual(self.he.bin_index(2,   edgemode=1), 1) 
-        self.assertEqual(self.he.bin_index(4.5, edgemode=1), 3) 
-        self.assertEqual(self.he.bin_index(5,   edgemode=1), 4) 
-        self.assertEqual(self.he.bin_index(8,   edgemode=1), 4) 
+        self.assertEqual(self.he.bin_index(-1.5,edgemode=1),-1)
+        self.assertEqual(self.he.bin_index(1,   edgemode=1), 0)
+        self.assertEqual(self.he.bin_index(1.5, edgemode=1), 0)
+        self.assertEqual(self.he.bin_index(2,   edgemode=1), 1)
+        self.assertEqual(self.he.bin_index(4.5, edgemode=1), 3)
+        self.assertEqual(self.he.bin_index(5,   edgemode=1), 4)
+        self.assertEqual(self.he.bin_index(8,   edgemode=1), 4)
         self.assertEqual(self.he.bin_index(9,   edgemode=1), 4)
 
         self.assertEqual(self.hv.bin_index(-1.5), 0)
@@ -123,11 +123,11 @@ class TestSomething(unittest.TestCase) :
         self.assertEqual(self.hv.bin_index(9,   edgemode=1), 3)
 
     def test_bin_indexes(self):
-        self.assertTrue(np.array_equal(self.he.bin_indexes((-1.5, 1, 1.5, 2, 4.5, 5, 8, 9)), (0, 0, 0, 1, 3, 3, 3, 3))) 
-        self.assertTrue(np.array_equal(self.hv.bin_indexes((-1.5, 1, 1.5, 2, 4.5, 5, 8, 9)), (0, 0, 0, 1, 2, 2, 2, 2))) 
+        self.assertTrue(np.array_equal(self.he.bin_indexes((-1.5, 1, 1.5, 2, 4.5, 5, 8, 9)), (0, 0, 0, 1, 3, 3, 3, 3)))
+        self.assertTrue(np.array_equal(self.hv.bin_indexes((-1.5, 1, 1.5, 2, 4.5, 5, 8, 9)), (0, 0, 0, 1, 2, 2, 2, 2)))
 
-        self.assertTrue(np.array_equal(self.he.bin_indexes((-1.5, 1, 1.5, 2, 4.5, 5, 8, 9), 1), (-1, 0, 0, 1, 3, 4, 4, 4))) 
-        self.assertTrue(np.array_equal(self.hv.bin_indexes((-1.5, 1, 1.5, 2, 4.5, 5, 8, 9), 1), (-1, 0, 0, 1, 2, 2, 3, 3))) 
+        self.assertTrue(np.array_equal(self.he.bin_indexes((-1.5, 1, 1.5, 2, 4.5, 5, 8, 9), 1), (-1, 0, 0, 1, 3, 4, 4, 4)))
+        self.assertTrue(np.array_equal(self.hv.bin_indexes((-1.5, 1, 1.5, 2, 4.5, 5, 8, 9), 1), (-1, 0, 0, 1, 2, 2, 3, 3)))
 
 #------------------------------
 
