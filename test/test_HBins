@@ -1,4 +1,5 @@
 #!@PYTHON@
+from __future__ import print_function
 
 import sys
 import unittest
@@ -24,64 +25,64 @@ class TestSomething(unittest.TestCase) :
         #self.hv = None
 
     def test_nbins(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         #print self.he.nbins()
         #print self.hv.nbins()
         self.assertEqual(self.he.nbins(),4)
         self.assertEqual(self.hv.nbins(),3)
 
     def test_vmin(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertEqual(self.he.vmin(),1)
         self.assertEqual(self.hv.vmin(),1)
 
     def test_vmax(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertEqual(self.he.vmax(),5)
         self.assertEqual(self.hv.vmax(),8)
 
     def test_equalbins(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertTrue(self.he.equalbins())
         self.assertFalse(self.hv.equalbins())
 
     def test_limits(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertTrue(np.array_equal(self.he.limits(),(1,5)))
         self.assertTrue(np.array_equal(self.hv.limits(),(1,8)))
 
     def test_binedges(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertTrue(np.array_equal(self.he.binedges(),(1,2,3,4,5)))
         self.assertTrue(np.array_equal(self.hv.binedges(),(1,2,4,8)))
 
     def test_binedgesleft(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertTrue(np.array_equal(self.he.binedgesleft(),(1,2,3,4)))
         self.assertTrue(np.array_equal(self.hv.binedgesleft(),(1,2,4)))
 
     def test_binedgesright(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertTrue(np.array_equal(self.he.binedgesright(),(2,3,4,5)))
         self.assertTrue(np.array_equal(self.hv.binedgesright(),(2,4,8)))
 
     def test_bincenters(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertTrue(np.array_equal(self.he.bincenters(),(1.5, 2.5, 3.5, 4.5)))
         self.assertTrue(np.array_equal(self.hv.bincenters(),(1.5, 3, 6)))
 
     def test_binwidth(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertEqual(self.he.binwidth(),1)
         self.assertTrue(np.array_equal(self.hv.binwidth(),(1, 2, 4)))
 
     def test_halfbinw(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertEqual(self.he.halfbinw(),0.5)
         self.assertTrue(np.array_equal(self.hv.halfbinw(),(0.5, 1, 2)))
 
     def test_strrange(self):
-        print 'in %s' % sys._getframe().f_code.co_name
+        print('in %s' % sys._getframe().f_code.co_name)
         self.assertEqual(self.he.strrange(),'1-5-4')
         self.assertEqual(self.hv.strrange(),'1-8-3')
 
