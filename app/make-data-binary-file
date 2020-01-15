@@ -2,6 +2,7 @@
 ####!@PYTHON@
 ###
 #------------------------------
+from __future__ import print_function
 import os
 import sys
 from optparse import OptionParser
@@ -32,7 +33,7 @@ def make_data_binary_file(dsname   = 'exp=xpptut15:run=54',\
     f = open(ofname,'wb')
 
     for nevt, evt in enumerate(ds.events()):
-       if nevt%100==0 : print 'Event %d'%nevt
+       if nevt%100==0 : print('Event %d'%nevt)
        if nevt < nev_min : continue
        if nevt >= nev_max : break
        data = det.calib(evt) if do_calib else\
@@ -49,7 +50,7 @@ def make_data_binary_file(dsname   = 'exp=xpptut15:run=54',\
        f.write(data.tobytes())
 
     f.close()
-    print '%d datasets saved file %s' % (nevt, ofname)
+    print('%d datasets saved file %s' % (nevt, ofname))
 
 #------------------------------
 
@@ -62,7 +63,7 @@ def read_data_from_binary_file(ifname   = 'data.bin',\
        Binary file does not have shape, so image size in pixels and data type should be provided.
     """
 
-    print 'Read file %s' % ifname
+    print('Read file %s' % ifname)
 
     BUF_SIZE_BYTE = npixels*2
 
@@ -70,7 +71,7 @@ def read_data_from_binary_file(ifname   = 'data.bin',\
     buf = f.read()
     f.close()
     nmax = len(buf)/BUF_SIZE_BYTE
-    print 'len(buf)', len(buf), 'nmax', nmax
+    print('len(buf)', len(buf), 'nmax', nmax)
 
     for nevt in range(nmax) :
         nda = np.frombuffer(buf, dtype=dtype, count=npixels, offset=nevt*BUF_SIZE_BYTE)
@@ -80,20 +81,20 @@ def read_data_from_binary_file(ifname   = 'data.bin',\
 #------------------------------
 
     def print_raw(args, opts, defs) :
-        print 'Command:', ' '.join(sys.argv)
-        print '  opts: ', opts
-        print '  defs: ', defs
-        print '  args: ', args
+        print('Command:', ' '.join(sys.argv))
+        print('  opts: ', opts)
+        print('  defs: ', defs)
+        print('  args: ', args)
 
 #------------------------------
 
 def print_pars(args, opts, defs) :
     """Prints input parameters"""
-    print 'Command:', ' '.join(sys.argv)+\
+    print('Command:', ' '.join(sys.argv)+\
           '\nwith argument list %s and optional parameters:\n' % str(args)+\
-          '<key>      <value>              <default>'
+          '<key>      <value>              <default>')
     for k,v in opts.items() :
-        print '%s %s %s' % (k.ljust(10), str(v).ljust(20), str(defs[k]).ljust(20))
+        print('%s %s %s' % (k.ljust(10), str(v).ljust(20), str(defs[k]).ljust(20)))
 
 #------------------------------
 

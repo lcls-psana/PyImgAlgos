@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import numpy as np             
 import sys
 import os
@@ -62,7 +63,7 @@ def do_main() :
         if size != nda.size : print_exit(3, size, nda.size) 
         nda.shape = shape 
 
-    print 'Convert %s to %s with shape=%s' % (finp, fout, str(shape))
+    print('Convert %s to %s with shape=%s' % (finp, fout, str(shape)))
 
     np.save(fout, nda)
 

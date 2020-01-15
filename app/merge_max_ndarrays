@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import numpy as np             
 import sys
 import os
@@ -63,7 +64,7 @@ def do_main() :
     nda = None
 
     for i, file in enumerate(list_of_files) :
-        print 'Load array from file %s' % file
+        print('Load array from file %s' % file)
         if i<1 : nda = np.loadtxt(file, dtype=np.float)
         else   : nda = np.maximum(nda, np.loadtxt(file, dtype=np.float))
         #    nda2 = np.loadtxt(file, dtype=np.float)
@@ -72,9 +73,9 @@ def do_main() :
         #    nda = np.maximum(nda, nda2)
         #    print nda [0,0:5]
 
-    print 'nda.shape =\n', nda.shape
+    print('nda.shape =\n', nda.shape)
 
-    print 'Save files %s.txt and %s.npy' % (ofname, ofname)
+    print('Save files %s.txt and %s.npy' % (ofname, ofname))
 
     np.savetxt('%s.txt' % ofname, nda, fmt = "%f")
 

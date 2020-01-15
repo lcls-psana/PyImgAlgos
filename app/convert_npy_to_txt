@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 #import h5py                    
+from __future__ import print_function
 import numpy as np             
 import sys
 import os
@@ -36,7 +37,7 @@ def do_main() :
 
     nda =  np.load(finp)
 
-    print 'Convert %s to %s' % (finp, fout)
+    print('Convert %s to %s' % (finp, fout))
 
     if   nda.size == 32*185*388 : nda.shape = (32*185, 388)
     elif nda.size ==  2*185*388 :
