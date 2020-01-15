@@ -3,6 +3,7 @@
 ###
 #------------------------------
 from __future__ import print_function
+from __future__ import division
 import os
 import sys
 from optparse import OptionParser
@@ -70,7 +71,7 @@ def read_data_from_binary_file(ifname   = 'data.bin',\
     f = open(ifname,'rb')
     buf = f.read()
     f.close()
-    nmax = len(buf)/BUF_SIZE_BYTE
+    nmax = len(buf)//BUF_SIZE_BYTE
     print('len(buf)', len(buf), 'nmax', nmax)
 
     for nevt in range(nmax) :
