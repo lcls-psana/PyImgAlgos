@@ -11,6 +11,7 @@ part of it, please give an appropriate acknowledgment.
 """
 from __future__ import print_function
 from __future__ import division
+from __future__ import absolute_import
 #--------------------------------
 __version__ = "$Revision$"
 #--------------------------------
@@ -21,7 +22,7 @@ import sys
 import math
 import numpy as np
 
-import GlobalGraphics as gg # for test purpose
+from . import GlobalGraphics as gg # for test purpose
 
 #------------------------------
 
