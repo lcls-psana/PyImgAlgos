@@ -100,9 +100,10 @@ def bincount(map_bins, map_weights=None, length=None) :
     return np.bincount(map_bins.flatten(), weights, length)
 
 
-def polarization_factor(rad, phi_deg, z) :
+def polarization_factor(rad, phi_deg, z, vertical=False):
     """Returns per-pixel polarization factors, assuming that detector is perpendicular to Z.
     """
+    _phi_deg = np.array(phi_deg + 90) if vertical else phi_deg
     phi = np.deg2rad(phi_deg)
     ones = np.ones_like(rad)
     theta = np.arctan2(rad, z)

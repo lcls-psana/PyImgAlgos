@@ -13,6 +13,10 @@ reverse time order.
 
 =======
 
+Tag: V01-00-12
+2020-09-14 Mikhail S. Dubrovin
+- HPolar in polarization_factor add parameter for polarization orientation
+
 Tag: V01-00-11
 2019-08-29 Mikhail S. Dubrovin
 - Graphics.py - remove depricated plt.hold
