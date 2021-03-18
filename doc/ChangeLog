@@ -12,6 +12,13 @@ Please describe any modifications that you made to the package in the
 reverse time order.
 
 =======
+2021-02-18 Mikhail S. Dubrovin
+Tag: V02-00-01
+- src/GlobalGraphics.py - fix method move_fig for changed backend
+- src/GlobalUtils.py - add method info_command_line_parameters(parser)
+
+Tag: V02-00-00 - Valerio & Co. py2->py3
+Tag: V01-01-00
 
 Tag: V01-00-13
 2020-09-14 Mikhail S. Dubrovin
