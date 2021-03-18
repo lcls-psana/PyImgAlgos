@@ -77,9 +77,16 @@ Usage::
     save_image_tiff(image, fname='image.tiff', verb=True) # 16-bit tiff
     save_image_file(image, fname='image.png', verb=True) # gif, pdf, eps, png, jpg, jpeg, tiff (8-bit only)
 
+    res = divide_protected(num, den, vsub_zero=0)
+
     # Create directory
     # ==================
     create_directory('work-dir')
+
+    # Info
+    # ==================
+    s = info_command_line_parameters(parser)
+    print_command_line_parameters(parser)
 
     # Test
     # ======================
@@ -528,18 +535,25 @@ def create_directory(dir) :
 
 #------------------------------
 
-def print_command_line_parameters(parser) :
-    """Prints input arguments and optional parameters"""
+def info_command_line_parameters(parser):
+    """Returns str with info about input arguments and optional parameters"""
     (popts, pargs) = parser.parse_args()
     args = pargs                             # list of positional arguments
     opts = vars(popts)                       # dict of options
     defs = vars(parser.get_default_values()) # dict of default options
 
-    print('Command:\n ', ' '.join(sys.argv)+\
-          '\nArgument list: %s\nOptional parameters:\n' % str(args)+\
-          '  <key>      <value>              <default>')
-    for k,v in opts.items() :
-        print('  %s %s %s' % (k.ljust(10), str(v).ljust(20), str(defs[k]).ljust(20)))
+    s = 'Command: %s\n' % ' '.join(sys.argv)\
+      + '\nArgument list: %s\nOptional parameters:' % str(args)\
+      + '\n  <key>      <value>              <default>'
+    for k,v in opts.items():
+      s += '\n  %s %s %s' % (k.ljust(10), str(v).ljust(20), str(defs[k]).ljust(20))
+    return s
+
+#------------------------------
+
+def print_command_line_parameters(parser):
+    """Prints input arguments and optional parameters"""
+    print(info_command_line_parameters(parser))
 
 #------------------------------
 
