@@ -360,12 +360,22 @@ def save_fig(fig, fname='img.png', do_save=True, pbits=0o377) :
 #--------------------------------
 
 def move(x0=200,y0=100) :
-    plt.get_current_fig_manager().window.move(x0, y0)
+    #plt.get_current_fig_manager().window.move(x0, y0)
+    move_fig(plt.gcf(), x0, y0)
 
 #--------------------------------
 
 def move_fig(fig, x0=200, y0=100) :
-    fig.canvas.manager.window.move(x0, y0)
+    #print('matplotlib.get_backend()', matplotlib.get_backend())
+    backend = matplotlib.get_backend()
+    if backend == 'TkAgg': # this is our case
+        fig.canvas.manager.window.wm_geometry("+%d+%d" % (x0, y0))
+    elif backend == 'WXAgg':
+        fig.canvas.manager.window.SetPosition((x0, y0))
+    else:
+        # This works for QT and GTK
+        # You can also use window.setGeometry
+        fig.canvas.manager.window.move(x0, y0)
 
 #--------------------------------
 
