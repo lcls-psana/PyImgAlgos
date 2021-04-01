@@ -1,4 +1,3 @@
-#!@PYTHON@
 ####!/usr/bin/env python
 #------------------------------
 """
@@ -10,6 +9,8 @@ Usage::
     # Import
     # ------
     from pyimgalgos.HPolar import HPolar
+
+    #from psana.pyalgos.generic.HPolar import HPolar #lcls2
 
     # Initialization
     # --------------
@@ -29,7 +30,7 @@ Usage::
     int   = hp.bin_intensity(nda)
     arr1d = hp.bin_avrg(nda)
     arr2d = hp.bin_avrg_rad_phi(nda, do_transp=True)
-    pixav = hp.pixel_avrg(nda)
+    pixav = hp.pixel_avrg(nda, subs_value=0)
     pixav = hp.pixel_avrg_interpol(nda, method='linear') # method='nearest' 'cubic'
 
     # Print attributes and n-d arrays
@@ -40,10 +41,11 @@ Usage::
     # Global methods
     # --------------
     from pyimgalgos.HPolar import polarization_factor, divide_protected, cart2polar, polar2cart, bincount
+    #from psana.pyalgos.generic.HPolar import polarization_factor, divide_protected, cart2polar, polar2cart, bincount
 
     polf = polarization_factor(rad, phi, z, vertical=False)
     result = divide_protected(num, den, vsub_zero=0)
-    r, theta = cart2polar(x, y)
+   r, theta = cart2polar(x, y)
     x, y = polar2cart(r, theta)
     bin_values = bincount(map_bins, map_weights=None, length=None)
 
@@ -51,23 +53,24 @@ See:
   - :py:class:`HBins`
   - :py:class:`HPolar`
   - :py:class:`HSpectrum`
-  - :py:class:`NDArrSpectrum`
   - :py:class:`RadialBkgd`
   - `Radial background <https://confluence.slac.stanford.edu/display/PSDMInternal/Radial+background+subtraction+algorithm>`_.
 
-This software was developed for the SIT project.
+This software was developed for the LCLS2 project.
 If you use all or part of it, please give an appropriate acknowledgment.
 
 Created in 2015 by Mikhail Dubrovin
 """
-from __future__ import print_function
-from __future__ import division
 #------------------------------
+from __future__ import print_function
+#from __future__ import division
 
 import math
 import numpy as np
 from pyimgalgos.HBins import HBins
-
+from Detector.GlobalUtils import print_ndarr
+#from psana.pyalgos.generic.NDArrUtils import print_ndarr
+#from psana.pyalgos.generic.HBins import HBins
 #------------------------------
 
 def divide_protected(num, den, vsub_zero=0) :
@@ -98,11 +101,11 @@ def polar2cart(r, theta) :
 def bincount(map_bins, map_weights=None, length=None) :
     """Wrapper for numpy.bincount with protection of weights and alattening numpy arrays
     """
-    weights = None if map_weights is None else map_weights.flatten()
-    return np.bincount(map_bins.flatten(), weights, length)
+    weights = None if map_weights is None else map_weights.ravel()
+    return np.bincount(map_bins.ravel(), weights, length)
 
 
-def polarization_factor(rad, phi_deg, z, vertical=False):
+def polarization_factor(rad, phi_deg, z, vertical=False) :
     """Returns per-pixel polarization factors, assuming that detector is perpendicular to Z.
     """
     _phi_deg = np.array(phi_deg + 90) if vertical else phi_deg
@@ -124,7 +127,7 @@ class HPolar(object) :
            - radedges - radial bin edges for corrected region in the same units of xarr;
                         default=None - all radial range
            - nradbins - number of radial bins
-           - phiedges - phi ange bin edges for corrected region.
+           - phiedges - phi angle bin edges for corrected region.
                         default=(0,360)
                         Difference of the edge limits should not exceed +/-360 degree 
            - nphibins - number of angular bins
@@ -145,25 +148,26 @@ class HPolar(object) :
         
         npbins = self.pb.nbins()
         nrbins = self.rb.nbins()
-        ntbins = npbins*nrbins
+        self.ntbins = npbins*nrbins # total number of bins in r-phi array
         
-        self.irad = self.rb.bin_indexes(self.rad, edgemode=1)        
+        self.irad = self.rb.bin_indexes(self.rad, edgemode=1)
         self.iphi = self.pb.bin_indexes(self.phi, edgemode=1)
 
-        cond = np.logical_and(\
+        self.cond = np.logical_and(\
                np.logical_and(self.irad > -1, self.irad < nrbins),
                np.logical_and(self.iphi > -1, self.iphi < npbins)
                )
 
         if mask is not None : 
-            cond = np.logical_and(cond, mask.astype(np.bool).flatten())
+            self.cond = np.logical_and(self.cond, mask.astype(np.bool).ravel())
 
-        self.iseq = np.select((cond,), (self.iphi*nrbins + self.irad,), ntbins).flatten()
+        # index ntbins stands for overflow bin
+        self.iseq = np.select((self.cond,), (self.iphi*nrbins + self.irad,), self.ntbins).ravel()
 
-        self.npix_per_bin = np.bincount(self.iseq, weights=None, minlength=None)
+        #self.npix_per_bin = np.bincount(self.iseq, weights=None, minlength=None)
+        self.npix_per_bin = np.bincount(self.iseq, weights=None, minlength=self.ntbins+1)
 
         self.griddata = None
-        self.print_ndarr = None
 
 
     def _set_rad_bins(self, radedges, nradbins) :
@@ -191,13 +195,10 @@ class HPolar(object) :
 
     def print_ndarrs(self) :
         print('%s n-d arrays:' % self.__class__.__name__)
-        if self.print_ndarr is None :
-            from Detector.GlobalUtils import print_ndarr
-            self.print_ndarr = print_ndarr
-        self.print_ndarr(self.rad, '  rad')
-        self.print_ndarr(self.phi, '  phi')
-        self.print_ndarr(self.mask,'  mask')
-        #print 'Phi limits: ', phiedges[0], phiedges[-1]
+        print_ndarr(self.rad, '  rad')
+        print_ndarr(self.phi, '  phi')
+        print_ndarr(self.mask,'  mask')
+        #print('Phi limits: ', phiedges[0], phiedges[-1])
 
 
     def obj_radbins(self) :
@@ -216,7 +217,7 @@ class HPolar(object) :
 
 
     def pixel_irad(self) :
-        """Returns 1-d numpy array of pixel radial indexes."""
+        """Returns 1-d numpy array of pixel radial indexes [-1,nrbins] - extended edgemode."""
         return self.irad
 
 
@@ -231,12 +232,15 @@ class HPolar(object) :
 
 
     def pixel_iphi(self) :
-        """Returns 1-d numpy array of pixel angular indexes."""
+        """Returns 1-d numpy array of pixel angular indexes [-1,npbins] - extended edgemode."""
         return self.iphi
 
 
     def pixel_iseq(self) :
-        """Returns 1-d numpy array of sequentially (in rad and phi) numerated pixel indexes."""
+        """Returns 1-d numpy array of sequentially (in rad and phi) numerated pixel indexes [0,ntbins].
+           WARNING: pixels outside the r-phi region of interest marked by the index ntbins, 
+                    ntbins - total number of r-phi bins, which exceeds allowed range of r-phi indices...
+        """
         return self.iseq
 
 
@@ -245,40 +249,56 @@ class HPolar(object) :
         return self.npix_per_bin
 
 
-    def _flatten_(self, nda) :
+    def _ravel_(self, nda) :
         if len(nda.shape)>1 :
             #nda.shape = self.shapeflat
-            return nda.flatten() # return flatten copy in order to preserve input array shape
+            return nda.ravel() # return ravel copy in order to preserve input array shape
         return nda
 
 
     def bin_intensity(self, nda) :
         """Returns 1-d numpy array of total pixel intensity per bin for input array nda."""
-        return np.bincount(self.iseq, weights=self._flatten_(nda), minlength=None)
+        #return np.bincount(self.iseq, weights=self._ravel_(nda), minlength=None)
+        return np.bincount(self.iseq, weights=self._ravel_(nda), minlength=self.ntbins+1) # +1 for overflow bin
 
 
     def bin_avrg(self, nda) :
-        """Returns 1-d numpy array of averaged in bin intensity for input array nda."""
-        num = self.bin_intensity(self._flatten_(nda))
+        """Returns 1-d numpy array of averaged in r-phi bin intensities for input image array nda.
+           WARNING array range [0, nrbins*npbins + 1], where +1 bin intensity is for all off ROI pixels.
+        """
+        num = self.bin_intensity(self._ravel_(nda))
         den = self.bin_number_of_pixels()
+        #print_ndarr(nda, name='ZZZ bin_avrg: nda', first=0, last=5)
+        #print_ndarr(num, name='ZZZ bin_avrg: num', first=0, last=5)
+        #print_ndarr(den, name='ZZZ bin_avrg: den', first=0, last=5)
         return divide_protected(num, den, vsub_zero=0)
 
 
     def bin_avrg_rad_phi(self, nda, do_transp=True) :
         """Returns 2-d (rad,phi) numpy array of averaged in bin intensity for input array nda."""
-        arr_rphi = self.bin_avrg(self._flatten_(nda))[:-1]
+        arr_rphi = self.bin_avrg(self._ravel_(nda))[:-1] # -1 removes off ROI bin
         arr_rphi.shape = (self.pb.nbins(), self.rb.nbins())
         return np.transpose(arr_rphi) if do_transp else arr_rphi
 
 
-    def pixel_avrg(self, nda) :
-        """Returns 1-d numpy array of per-pixel background for input array nda."""
-        bin_avrg= self.bin_avrg(self._flatten_(nda))
-        return np.array([bin_avrg[i] for i in self.iseq])
+    def pixel_avrg(self, nda, subs_value=0) :
+        """Makes r-phi histogram of intensities from input image array and
+           projects r-phi averaged intensities back to image.
+           Returns ravel 1-d numpy array of per-pixel intensities taken from r-phi histogram.
+           - nda - input (2-d or 1-d-ravel) pixel array.
+           - subs_value - value sabstituted for pixels out of ROI defined by the min/max in r-phi.
+        """
+        bin_avrg= self.bin_avrg(self._ravel_(nda))
+        return np.select((self.cond,), (bin_avrg[self.iseq],), subs_value).ravel()
+        #return np.array([bin_avrg[i] for i in self.iseq]) # iseq may be outside the bin_avrg range
 
 
-    def pixel_avrg_interpol(self, nda, method='linear', verb=False) : # 'nearest' 'cubic'
-        """Returns 1-d numpy array of per-pixel interpolated background for averaged input data."""
+    def pixel_avrg_interpol(self, nda, method='linear', verb=False, subs_value=0) : # 'nearest' 'cubic'
+        """Makes r-phi histogram of intensities from input image and
+           projects r-phi averaged intensities back to image with per-pixel interpolation.
+           Returns 1-d numpy array of per-pixel interpolated intensities taken from r-phi histogram.
+           - subs_value - value sabstituted for pixels out of ROI defined by the min/max in r-phi.
+        """
 
         #if not is360 : raise ValueError('Interpolation works for 360 degree coverage ONLY') 
 
@@ -287,7 +307,7 @@ class HPolar(object) :
             self.griddata = griddata
 
         # 1) get values in bin centers
-        binv = self.bin_avrg_rad_phi(self._flatten_(nda), do_transp=False)
+        binv = self.bin_avrg_rad_phi(self._ravel_(nda), do_transp=False)
 
         # 2) add values in bin edges
         
@@ -317,15 +337,16 @@ class HPolar(object) :
         points_rad, points_phi = np.meshgrid(rad_nodes, phi_nodes)
         if verb : print('points_phi.shape', points_phi.shape)
         if verb : print('points_rad.shape', points_rad.shape)
-        points = np.array(zip(points_phi.flatten(), points_rad.flatten())) 
-        if verb : print('points.shape', points.shape)
+        points = np.vstack((points_phi.ravel(), points_rad.ravel())).T
+        values = val_nodes.ravel()
+        if verb :
+            #print('points:', points)
+            print('points.shape', points.shape)
+            print('values.shape', values.shape)
 
-        values = val_nodes.flatten()
-        if verb : print('values.shape', values.shape)
-
-        # 4) return interpolated data on (phi, rad) grid
+        # 5) return interpolated data on (phi, rad) grid
         grid_vals = self.griddata(points, values, (self.phi, self.rad), method=method)
-        return np.select((self.iseq<self.pb.nbins()*self.rb.nbins(),), (grid_vals,), default=0)
+        return np.select((self.iseq<self.ntbins,), (grid_vals,), default=subs_value)
 
 #------------------------------
 #------------------------------
@@ -340,6 +361,8 @@ def data_geo(ntest) :
     from time import time
     from PSCalib.NDArrIO import save_txt, load_txt
     from PSCalib.GeometryAccess import GeometryAccess
+    #from psana.pscalib.calib.NDArrIO import save_txt, load_txt
+    #from psana.pscalib.geometry.GeometryAccess import GeometryAccess
 
     dir       = '/reg/g/psdm/detector/alignment/cspad/calib-cxi-camera2-2016-02-05'
     #fname_nda = '%s/nda-water-ring-cxij4716-r0022-e000001-CxiDs2-0-Cspad-0-ave.txt' % dir
@@ -369,19 +392,57 @@ def data_geo(ntest) :
 
 #------------------------------
 
+def usage(ntest=None) :
+    s = ''
+    if ntest is None      : s+='\n Tests for radial 1-d binning of entire image'
+    if ntest in (None, 1) : s+='\n  1 - averaged data'
+    if ntest in (None, 2) : s+='\n  2 - pixel radius value'
+    if ntest in (None, 3) : s+='\n  3 - pixel phi value'
+    if ntest in (None, 4) : s+='\n  4 - pixel radial bin index'
+    if ntest in (None, 5) : s+='\n  5 - pixel phi bin index'
+    if ntest in (None, 6) : s+='\n  6 - pixel sequential (rad and phi) bin index'
+    if ntest in (None, 7) : s+='\n  7 - mask'
+    if ntest in (None, 8) : s+='\n  8 - averaged radial-phi intensity'
+    if ntest in (None, 9) : s+='\n  9 - interpolated radial intensity'
+
+    if ntest is None      : s+='\n Test for 2-d (default) binning of the rad-phi range of entire image'
+    if ntest in (None,21) : s+='\n 21 - averaged data'
+    if ntest in (None,24) : s+='\n 24 - pixel radial bin index'
+    if ntest in (None,25) : s+='\n 25 - pixel phi bin index'
+    if ntest in (None,26) : s+='\n 26 - pixel sequential (rad and phi) bin index'
+    if ntest in (None,28) : s+='\n 28 - averaged radial-phi intensity'
+    if ntest in (None,29) : s+='\n 29 - averaged radial-phi interpolated intensity'
+    if ntest in (None,30) : s+='\n 30 - r-phi'
+
+    if ntest is None      : s+='\n Test for 2-d binning of the restricted rad-phi range of entire image'
+    if ntest in (None,41) : s+='\n 41 - averaged data'
+    if ntest in (None,44) : s+='\n 44 - pixel radial bin index'
+    if ntest in (None,45) : s+='\n 45 - pixel phi bin index'
+    if ntest in (None,46) : s+='\n 46 - pixel sequential (rad and phi) bin index'
+    if ntest in (None,48) : s+='\n 48 - averaged radial-phi intensity'
+    if ntest in (None,49) : s+='\n 49 - averaged radial-phi interpolated intensity'
+    if ntest in (None,50) : s+='\n 50 - r-phi'
+
+    return s
+
+
+#------------------------------
+
 def test01(ntest, prefix='fig-v01') :
     """Test for radial 1-d binning of entire image.
     """
     from time import time
     import pyimgalgos.GlobalGraphics as gg
     from PSCalib.GeometryAccess import img_from_pixel_arrays
+    #import psana.pyalgos.generic.Graphics as gg
+    #from psana.pscalib.geometry.GeometryAccess import img_from_pixel_arrays
 
     arr, geo = data_geo(ntest)
 
     t0_sec = time()
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
-    mask = geo.get_pixel_mask(mbits=0o377).flatten() 
+    mask = geo.get_pixel_mask(mbits=0o377).ravel()
     print('Time to retrieve geometry %.3f sec' % (time()-t0_sec))
 
     t0_sec = time()
@@ -394,13 +455,13 @@ def test01(ntest, prefix='fig-v01') :
     elif ntest == 2 : nda, title = hp.pixel_rad(),        'pixel radius value'
     elif ntest == 3 : nda, title = hp.pixel_phi(),        'pixel phi value'
     elif ntest == 4 : nda, title = hp.pixel_irad() + 2,   'pixel radial bin index' 
-    elif ntest == 5 : nda, title = hp.pixel_iphi() + 2,   'pixel phi bin index'
+    elif ntest == 5 : nda, title = hp.pixel_iphi() + 1,   'pixel phi bin index'
     elif ntest == 6 : nda, title = hp.pixel_iseq() + 2,   'pixel sequential (rad and phi) bin index'
     elif ntest == 7 : nda, title = mask,                  'mask'
     elif ntest == 8 : nda, title = hp.pixel_avrg(nda),    'averaged radial intensity'
     elif ntest == 9 : nda, title = hp.pixel_avrg_interpol(arr) * mask , 'interpolated radial intensity'
     else :
-        print('Test %d is not implemented' % ntest) 
+        print('Test %d is not implemented' % ntest)
         return
         
     print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
@@ -426,7 +487,7 @@ def test01(ntest, prefix='fig-v01') :
 
     gg.show()
 
-    print('End of test for %s' % title)    
+    print('End of test for %s' % title)
 
 #------------------------------
 
@@ -437,21 +498,23 @@ def test02(ntest, prefix='fig-v01') :
     from time import time
     import pyimgalgos.GlobalGraphics as gg
     from PSCalib.GeometryAccess import img_from_pixel_arrays
+    #import psana.pyalgos.generic.Graphics as gg
+    #from psana.pscalib.geometry.GeometryAccess import img_from_pixel_arrays
 
     arr, geo = data_geo(ntest)
 
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
-    mask = geo.get_pixel_mask(mbits=0o377).flatten() 
+    mask = geo.get_pixel_mask(mbits=0o377).ravel()
 
     t0_sec = time()
     #hp = HPolar(X, Y, mask) # v0
     hp = HPolar(X, Y, mask, nradbins=500) # , nphibins=8, phiedges=(-20, 240), radedges=(10000,80000))
     print('HPolar initialization time %.3f sec' % (time()-t0_sec))
 
-    #print 'bin_number_of_pixels:',   hp.bin_number_of_pixels()
-    #print 'bin_intensity:', hp.bin_intensity(arr)
-    #print 'bin_avrg:',   hp.bin_avrg(arr)
+    #print('bin_number_of_pixels:',   hp.bin_number_of_pixels())
+    #print('bin_intensity:', hp.bin_intensity(arr))
+    #print('bin_avrg:',   hp.bin_avrg(arr))
 
     t0_sec = time()
     nda, title = arr, None
@@ -461,10 +524,10 @@ def test02(ntest, prefix='fig-v01') :
     elif ntest == 26 : nda, title = hp.pixel_iseq() + 2,   'pixel sequential (rad and phi) bin index'
     #elif ntest == 27 : nda, title = mask,                  'mask'
     elif ntest == 28 : nda, title = hp.pixel_avrg(nda),    'averaged radial intensity'
-    elif ntest == 29 : nda, title = hp.pixel_avrg_interpol(nda), 'averaged radial interpolated intensity'
+    elif ntest == 29 : nda, title = hp.pixel_avrg_interpol(nda) * mask, 'averaged radial interpolated intensity'
     elif ntest == 30 : nda, title = hp.bin_avrg_rad_phi(nda),'r-phi'
     else :
-        print('Test %d is not implemented' % ntest) 
+        print('Test %d is not implemented' % ntest)
         return
 
     print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
@@ -490,7 +553,7 @@ def test02(ntest, prefix='fig-v01') :
 
     gg.show()
 
-    print('End of test for %s' % title)    
+    print('End of test for %s' % title)
 
 #------------------------------
 
@@ -500,12 +563,14 @@ def test03(ntest, prefix='fig-v01') :
     from time import time
     import pyimgalgos.GlobalGraphics as gg
     from PSCalib.GeometryAccess import img_from_pixel_arrays
+    #import psana.pyalgos.generic.Graphics as gg
+    #from psana.pscalib.geometry.GeometryAccess import img_from_pixel_arrays
 
     arr, geo = data_geo(ntest)
 
     iX, iY = geo.get_pixel_coord_indexes()
     X, Y, Z = geo.get_pixel_coords()
-    mask = geo.get_pixel_mask(mbits=0o377).flatten() 
+    mask = geo.get_pixel_mask(mbits=0o377).ravel()
 
     t0_sec = time()
 
@@ -514,9 +579,9 @@ def test03(ntest, prefix='fig-v01') :
 
     print('HPolar initialization time %.3f sec' % (time()-t0_sec))
 
-    #print 'bin_number_of_pixels:',   hp.bin_number_of_pixels()
-    #print 'bin_intensity:', hp.bin_intensity(arr)
-    #print 'bin_avrg:',   hp.bin_avrg(arr)
+    #print('bin_number_of_pixels:',   hp.bin_number_of_pixels())
+    #print('bin_intensity:', hp.bin_intensity(arr))
+    #print('bin_avrg:',   hp.bin_avrg(arr))
 
     t0_sec = time()
     nda, title = arr, None
@@ -525,11 +590,11 @@ def test03(ntest, prefix='fig-v01') :
     elif ntest == 45 : nda, title = hp.pixel_iphi() + 2,   'pixel phi bin index'
     elif ntest == 46 : nda, title = hp.pixel_iseq() + 2,   'pixel sequential (rad and phi) bin index'
     #elif ntest == 47 : nda, title = mask,                  'mask'
-    elif ntest == 48 : nda, title = hp.pixel_avrg(nda),    'averaged radial intensity'
-    elif ntest == 49 : nda, title = hp.pixel_avrg_interpol(nda), 'averaged radial interpolated intensity'
+    elif ntest == 48 : nda, title = hp.pixel_avrg(nda, subs_value=180), 'averaged radial intensity'
+    elif ntest == 49 : nda, title = hp.pixel_avrg_interpol(nda, verb=True) * mask, 'averaged radial interpolated intensity'
     elif ntest == 50 : nda, title = hp.bin_avrg_rad_phi(nda),'r-phi'
     else :
-        print('Test %d is not implemented' % ntest) 
+        print('Test %d is not implemented' % ntest)
         return
 
     print('Get %s n-d array time %.3f sec' % (title, time()-t0_sec))
@@ -555,21 +620,25 @@ def test03(ntest, prefix='fig-v01') :
 
     gg.show()
 
-    print('End of test for %s' % title)    
+    print('End of test for %s' % title)
 
 #------------------------------
 
 if __name__ == '__main__' :
     import sys
+
+    #if len(sys.argv) == 1 : print(usage())
+    print(usage())
+
     ntest = int(sys.argv[1]) if len(sys.argv)>1 else 1
-    print('Test # %d' % ntest)
+    print('Test # %d: %s' % (ntest, usage(ntest)))
 
     prefix = 'fig-v01-cspad-HPolar'
 
     if   ntest<20 : test01(ntest, prefix)
     elif ntest<40 : test02(ntest, prefix)
     elif ntest<60 : test03(ntest, prefix)
-    else : print('Test %d is not implemented' % ntest)     
+    else : print('Test %d is not implemented' % ntest)
     #sys.exit('End of test')
  
 #------------------------------

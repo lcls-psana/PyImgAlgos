@@ -1,17 +1,25 @@
 #--------------------------------------------------------------------------
 # File and Version Information:
-#  $Id$
 #
 # Description:
 #  ChangeLog file for package pyimgalgos
 #------------------------------------------------------------------------
 
-Package author: Mikhail S. Dubrovin
+Package author: Mikhail Dubrovin
 
 Please describe any modifications that you made to the package in the
 reverse time order.
 
-=======
+#---
+
+2021-04-01 Mikhail S. Dubrovin
+Tag: V02-00-02
+- HPolar.py
+  - grab version from lcls2 with fixes for edge bins
+  - return lcls1 includes
+  - replace flatten with ravel
+- src/Graphics.py - add methods dict_subset, pp_hist, fig_axes, update figure, fix move_fig
+
 2021-02-18 Mikhail S. Dubrovin
 Tag: V02-00-01
 - src/GlobalGraphics.py - fix method move_fig for changed backend
