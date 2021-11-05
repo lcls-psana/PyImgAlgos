@@ -12,6 +12,10 @@ reverse time order.
 
 #---
 
+2021-11-05 Mikhail S. Dubrovin
+Tag: V02-00-03
+- code cleaning, add a few methods in src/GlobalGraphics.py, Graphics.py
+
 2021-04-01 Mikhail S. Dubrovin
 Tag: V02-00-02
 - HPolar.py

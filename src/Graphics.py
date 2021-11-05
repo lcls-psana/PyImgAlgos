@@ -1,6 +1,6 @@
 #!@PYTHON@
 ####!/usr/bin/env python
-#------------------------------
+
 """:py:class:`Graphics` wrapping methods for matplotlib
 =======================================================
 
@@ -45,7 +45,7 @@ If you use all or part of it, please give an appropriate acknowledgment.
 Created in 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
-#------------------------------
+
 import numpy as np
 
 import matplotlib
@@ -57,7 +57,6 @@ import matplotlib.pyplot  as plt
 
 from CalibManager.PlotImgSpeWidget import add_stat_text
 
-#---
 
 def dict_subset(d, keys):
     return {k:v for k,v in d.items() if k in keys}
@@ -100,27 +99,22 @@ def pp_hist(axis, x, **kwa):
             'orientation', 'rwidth', 'log', 'color', 'label', 'stacked', 'hold')))
 
 
-#------------------------------
-
 def move_fig(fig, x0=200, y0=100):
     #fig.canvas.manager.window.move(x0, y0)
     fig.canvas.manager.window.geometry('+%d+%d' % (x0, y0)) # in previous version of matplotlib
 
-#------------------------------
 
 def move(x0=200,y0=100):
     move_fig(plt.gcf(), x0, y0)
     #plt.get_current_fig_manager().window.move(x0, y0)
     #plt.get_current_fig_manager().window.geometry('+%d+%d' % (x0, y0))
 
-#------------------------------
 
 def add_axes(fig, axwin=(0.05, 0.03, 0.87, 0.93)):
     """Add axes to figure from input list of windows.
     """
     return fig.add_axes(axwin)
 
-#------------------------------
 
 def fig_img_axes(fig=None, win_axim=(0.08,  0.05, 0.89, 0.93)):
     """ Returns figure and image axes
@@ -129,14 +123,12 @@ def fig_img_axes(fig=None, win_axim=(0.08,  0.05, 0.89, 0.93)):
     axim = _fig.add_axes(win_axim)
     return _fig, axim
 
-#------------------------------
 
 def fig_axes(fig, windows=((0.05,  0.03, 0.87, 0.93), (0.923, 0.03, 0.02, 0.93))):
     """ Returns list of figure axes for input list of windows
     """
     return [fig.add_axes(w) for w in windows]
 
-#------------------------------
 
 def fig_img_cbar_axes(fig=None,\
              win_axim=(0.05,  0.03, 0.87, 0.93),\
@@ -148,19 +140,45 @@ def fig_img_cbar_axes(fig=None,\
     axcb = _fig.add_axes(win_axcb)
     return _fig, axim, axcb
 
-#------------------------------
+
+def fig_axim_axcb_imsh(figsize=(13,12), title='Image', dpi=80,\
+                       win_axim=(0.05,  0.03, 0.87, 0.93),\
+                       win_axcb=(0.923, 0.03, 0.02, 0.93),\
+                       arr2d=np.zeros((10,10)), origin='upper'):
+    """ Creates and returns figure, axes for image and color bar, imshow object
+    """
+    fig  = plt.figure(figsize=figsize, dpi=dpi, facecolor='w', edgecolor='w', frameon=True)
+    axim = fig.add_axes(win_axim)
+    axcb = fig.add_axes(win_axcb)
+    fig.canvas.set_window_title(title)
+    imsh = axim.imshow(arr2d, interpolation='nearest', aspect='auto', origin=origin)
+    return fig, axim, axcb, imsh
+
+
+FYMIN, FYMAX = 0.050, 0.90
+def fig_img_cbar_hist_axes(fig=None,\
+                      win_axim=(0.02,  FYMIN, 0.8,  FYMAX),\
+                      win_axcb=(0.915, FYMIN, 0.01, FYMAX),\
+                      win_axhi=(0.76,  FYMIN, 0.15, FYMAX),\
+                      **kwa):
+    """ Returns figure and axes for image, color bar, and spectral histogram
+    """
+    _fig = figure() if fig is None else fig
+    return _fig,\
+           _fig.add_axes(win_axim, **kwa),\
+           _fig.add_axes(win_axcb, **kwa),\
+           _fig.add_axes(win_axhi, **kwa)
+
 
 def set_win_title(fig, titwin='Image'):
     fig.canvas.set_window_title(titwin)
 
-#------------------------------
 
 def add_title_labels_to_axes(axes, title=None, xlabel=None, ylabel=None, fslab=14, fstit=20, color='k'):
     if title  is not None: axes.set_title(title, color=color, fontsize=fstit)
     if xlabel is not None: axes.set_xlabel(xlabel, fontsize=fslab)
     if ylabel is not None: axes.set_ylabel(ylabel, fontsize=fslab)
 
-#------------------------------
 
 def show(mode=None):
     #plt.hold(True)
@@ -169,29 +187,24 @@ def show(mode=None):
     plt.pause(0.001) # hack to make it work... othervise show() does not work...
     plt.show()
 
-#------------------------------
 
 def draw():
     plt.draw()
 
-#------------------------------
 
 def draw_fig(fig):
     fig.canvas.draw()
 
-#------------------------------
 
 def save_plt(fname='img.png', verb=True):
     if verb: print('Save plot in file: %s' % fname)
     plt.savefig(fname)
 
-#------------------------------
 
 def save_fig(fig, fname='img.png', verb=True):
     if verb: print('Save figure in file: %s' % fname)
     fig.savefig(fname)
 
-#------------------------------
 
 def hist(axhi, arr, bins=None, amp_range=None, weights=None, color=None, log=False):
     """Makes historgam from input array of values (arr), which are sorted in number of bins (bins) in the range (amp_range=(amin,amax))
@@ -203,7 +216,6 @@ def hist(axhi, arr, bins=None, amp_range=None, weights=None, color=None, log=Fal
     add_stat_text(axhi, wei, bins)
     return hi
 
-#------------------------------
 
 def imshow(axim, img, amp_range=None, extent=None,\
            interpolation='nearest', aspect='auto', origin='upper',\
@@ -217,7 +229,6 @@ def imshow(axim, img, amp_range=None, extent=None,\
     if amp_range is not None: imsh.set_clim(amp_range[0],amp_range[1])
     return imsh
 
-#------------------------------
 
 def colorbar(fig, imsh, axcb, orientation='vertical', amp_range=None):
     """
@@ -228,7 +239,6 @@ def colorbar(fig, imsh, axcb, orientation='vertical', amp_range=None):
     cbar = fig.colorbar(imsh, cax=axcb, orientation=orientation)
     return cbar
 
-#------------------------------
 
 def imshow_cbar(fig, axim, axcb, img, amin=None, amax=None, extent=None,\
                 interpolation='nearest', aspect='auto', origin='upper',\
@@ -252,36 +262,30 @@ def imshow_cbar(fig, axim, axcb, img, amin=None, amax=None, extent=None,\
       cbar.set_clim(cmin, cmax)
     return imsh, cbar
 
-#------------------------------
-#------------------------------
-#------------------------------
-#------------------------------
 
 def test01():
     """ imshow
     """
     img = random_standard(shape=(40,60), mu=200, sigma=25)
-    #fig = figure(figsize=(6,5), title='Test imshow', dpi=80, facecolor='w', edgecolor='w', frameon=True, move=(100,10))    
+    #fig = figure(figsize=(6,5), title='Test imshow', dpi=80, facecolor='w', edgecolor='w', frameon=True, move=(100,10))
     #axim = add_axes(fig, axwin=(0.10, 0.08, 0.85, 0.88))
     fig, axim = fig_img_axes()
     move_fig(fig, x0=200, y0=100)
     imsh = imshow(axim, img, amp_range=None, extent=None,\
            interpolation='nearest', aspect='auto', origin='upper',\
-           orientation='horizontal', cmap='jet') 
+           orientation='horizontal', cmap='jet')
 
-#------------------------------
 
 def test02():
     """ hist
     """
     mu, sigma = 200, 25
     arr = random_standard((500,), mu, sigma)
-    #fig = figure(figsize=(6,5), title='Test hist', dpi=80, facecolor='w', edgecolor='w', frameon=True, move=(100,10))    
+    #fig = figure(figsize=(6,5), title='Test hist', dpi=80, facecolor='w', edgecolor='w', frameon=True, move=(100,10))
     #axhi = add_axes(fig, axwin=(0.10, 0.08, 0.85, 0.88))
     fig, axhi = fig_img_axes()
     his = hist(axhi, arr, bins=100, amp_range=(mu-6*sigma,mu+6*sigma), weights=None, color=None, log=False)
 
-#------------------------------
 
 def test03():
     """ Update image in the event loop
@@ -299,13 +303,12 @@ def test03():
        if imsh is None:
            imsh = imshow(axim, img, amp_range=None, extent=None,\
                   interpolation='nearest', aspect='auto', origin='upper',\
-                  orientation='horizontal', cmap='jet') 
+                  orientation='horizontal', cmap='jet')
        else:
            imsh.set_data(img)
-       show(mode=1)  # !!!!!!!!!!       
-       #draw_fig(fig) # !!!!!!!!!!
+       show(mode=1)
+       #draw_fig(fig)
 
-#------------------------------
 
 def test04():
     """ Update histogram in the event loop
@@ -322,10 +325,9 @@ def test04():
        set_win_title(fig, 'Event %d' % i)
        his = hist(axhi, arr, bins=100, amp_range=(mu-6*sigma,mu+6*sigma), weights=None, color=None, log=False)
 
-       show(mode=1) # !!!!!!!!!!
-       #draw(fig)    # !!!!!!!!!!
+       show(mode=1)
+       #draw(fig)
 
-#------------------------------
 
 def test05():
     """ Update image with color bar in the event loop
@@ -346,13 +348,9 @@ def test05():
            imsh.set_data(img)
            ave, rms = img.mean(), img.std()
            imsh.set_clim(ave-1*rms, ave+3*rms)
-       show(mode=1)  # !!!!!!!!!!       
-       #draw_fig(fig) # !!!!!!!!!!
+       show(mode=1)
+       #draw_fig(fig)
 
-#------------------------------
-#------------------------------
-#------------------------------
-#------------------------------
 
 def test_selected():
 
@@ -378,19 +376,17 @@ def test_selected():
     show()
     sys.exit(msg)
 
-#------------------------------
 
 def test_all():
     test01()
     test02()
     show()
 
-#------------------------------
 
 if __name__ == "__main__":
     test_selected()
     #test_all()
     print('End of test')
 
-#------------------------------
+# EOF
 
