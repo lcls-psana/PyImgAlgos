@@ -100,8 +100,17 @@ def pp_hist(axis, x, **kwa):
 
 
 def move_fig(fig, x0=200, y0=100):
-    #fig.canvas.manager.window.move(x0, y0)
-    fig.canvas.manager.window.geometry('+%d+%d' % (x0, y0)) # in previous version of matplotlib
+    #fig.canvas.manager.window.geometry('+%d+%d' % (x0, y0)) # in previous version of matplotlib
+    backend = matplotlib.get_backend()
+    #logger.debug('matplotlib.get_backend(): %s' % backend)
+    if backend == 'TkAgg': # this is our case
+        fig.canvas.manager.window.wm_geometry("+%d+%d" % (x0, y0))
+    elif backend == 'WXAgg':
+        fig.canvas.manager.window.SetPosition((x0, y0))
+    else:
+        # This works for QT and GTK
+        # You can also use window.setGeometry
+        fig.canvas.manager.window.move(x0, y0)
 
 
 def move(x0=200,y0=100):
@@ -259,7 +268,7 @@ def imshow_cbar(fig, axim, axcb, img, amin=None, amax=None, extent=None,\
     cbar = fig.colorbar(imsh, cax=axcb, orientation=orientation)
     if cmin is not None:
       imsh.set_clim(cmin, cmax)
-      cbar.set_clim(cmin, cmax)
+      #cbar.set_clim(cmin, cmax)
     return imsh, cbar
 
 

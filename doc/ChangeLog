@@ -10,7 +10,9 @@ Package author: Mikhail Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
-#---
+2022-01-07 Mikhail S. Dubrovin
+Tag: V02-00-04
+- src/Graphics.py - use backend dependent move_fig, remove cbar.set_clim (missing in py3era matplotlib)
 
 2021-11-05 Mikhail S. Dubrovin
 Tag: V02-00-03
