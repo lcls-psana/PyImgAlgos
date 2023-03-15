@@ -10,6 +10,10 @@ Package author: Mikhail Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+2022-03-14 Mikhail Dubrovin
+Tag: V02-00-05
+- src/GlobalGraphics.py - fig.canvas.set_window_title > fig.canvas.manager.set_window_title
+
 2022-01-07 Mikhail S. Dubrovin
 Tag: V02-00-04
 - src/Graphics.py - use backend dependent move_fig, remove cbar.set_clim (missing in py3era matplotlib)

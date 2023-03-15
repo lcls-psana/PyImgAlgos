@@ -54,9 +54,10 @@ Created in 2015 by Mikhail Dubrovin
 """
 from __future__ import print_function
 
-
 import sys
 import numpy as np
+import os
+os.environ['LIBGL_ALWAYS_INDIRECT'] = '1' # get rid of libGL error: unable to load driver: swrast_dri.so
 
 import matplotlib
 #if matplotlib.get_backend() != 'Qt4Agg': matplotlib.use('Qt4Agg')
@@ -82,7 +83,7 @@ def fig_axes(figsize=(13,12), title='Image', dpi=80, \
     fig  = plt.figure(figsize=figsize, dpi=dpi, facecolor='w', edgecolor='w', frameon=True)
     axim = fig.add_axes(win_axim)
     axcb = fig.add_axes(win_axcb)
-    fig.canvas.set_window_title(title)
+    fig.canvas.manager.set_window_title(title)
     store.fig, store.axim, store.axcb = fig, axim, axcb
     return fig, axim, axcb
 
@@ -105,7 +106,7 @@ def fig_axim_axcb_imsh(figsize=(13,12), title='Image', dpi=80,\
     fig  = plt.figure(figsize=figsize, dpi=dpi, facecolor='w', edgecolor='w', frameon=True)
     axim = fig.add_axes(win_axim)
     axcb = fig.add_axes(win_axcb)
-    fig.canvas.set_window_title(title)
+    fig.canvas.manager.set_window_title(title)
     imsh = axim.imshow(arr2d, interpolation='nearest', aspect='auto', origin=origin)
     return fig, axim, axcb, imsh
 
@@ -198,7 +199,7 @@ def plot_imgcb(fig, axim, axcb, imsh, arr2d, amin=None, amax=None, origin='upper
     cmax = amax if amax is not None else ave+3*rms if ave is not None else None
     if cmin is not None: imsh.set_clim(cmin, cmax)
     colb = fig.colorbar(imsh, cax=axcb) # , orientation='horizontal')
-    if title is not None: fig.canvas.set_window_title(title)
+    if title is not None: fig.canvas.manager.set_window_title(title)
 
 
 def plot_img(img, mode=None, amin=None, amax=None, cmap='inferno'):
@@ -301,7 +302,7 @@ def plotHistogram(arr, amp_range=None, figsize=(6,6), bins=None, title='', windo
     axhi = fig.add_axes(window)
     hbins = bins if bins is not None else 100
     hi = axhi.hist(arr.flatten(), bins=hbins, range=amp_range) #, log=logYIsOn)
-    #fig.canvas.set_window_title(title)
+    #fig.canvas.manager.set_window_title(title)
     axhi.set_title(title, color='k', fontsize=20)
     return fig, axhi, hi
 
@@ -314,8 +315,8 @@ def hist1d(arr, bins=None, amp_range=None, weights=None, color=None, show_stat=T
     #print 'hist1d: title=%s, size=%d' % (title, arr.size)
     if arr.size==0: return None, None, None
     fig = plt.figure(figsize=figsize, dpi=80, facecolor='w', edgecolor='w', frameon=True)
-    if   titwin is not None: fig.canvas.set_window_title(titwin)
-    elif title  is not None: fig.canvas.set_window_title(title)
+    if   titwin is not None: fig.canvas.manager.set_window_title(titwin)
+    elif title  is not None: fig.canvas.manager.set_window_title(title)
     axhi = fig.add_axes(axwin)
     hbins = bins if bins is not None else 100
     hi = axhi.hist(arr.flatten(), bins=hbins, range=amp_range, weights=weights, color=color, log=log) #, log=logYIsOn)
@@ -340,7 +341,7 @@ def plotImage(arr, img_range=None, amp_range=None, figsize=(12,5), title='Image'
     colb = fig.colorbar(imsh, pad=0.005, fraction=0.1, shrink=1, aspect=20)
     if amp_range is not None: imsh.set_clim(amp_range[0],amp_range[1])
     #axim.set_title(title, color='b', fontsize=20)
-    fig.canvas.set_window_title(title)
+    fig.canvas.manager.set_window_title(title)
 
 
 def plotImageLarge(arr, img_range=None, amp_range=None, figsize=(12,10), title='Image', origin='upper', window=(0.05,  0.03, 0.94, 0.94), cmap='inferno'):
@@ -352,13 +353,13 @@ def plotImageLarge(arr, img_range=None, amp_range=None, figsize=(12,10), title='
     #else:
     #    ave, rms = arr.mean(), arr.std()
     #    imsh.set_clim(ave-1*rms, ave+5*rms)
-    fig.canvas.set_window_title(title)
+    fig.canvas.manager.set_window_title(title)
     return axim
 
 
 def plotImageAndSpectrum(arr, amp_range=None, cmap='inferno'): #range=(0,500)
     fig  = plt.figure(figsize=(15,5), dpi=80, facecolor='w', edgecolor='w', frameon=True)
-    fig.canvas.set_window_title('Image And Spectrum ' + u'\u03C6')
+    fig.canvas.manager.set_window_title('Image And Spectrum ' + u'\u03C6')
 
     ax1   = plt.subplot2grid((10,10), (0,4), rowspan=10, colspan=6)
     axim1 = ax1.imshow(arr, interpolation='nearest', aspect='auto', cmap=cmap)
