@@ -62,6 +62,10 @@ def dict_subset(d, keys):
     return {k:v for k,v in d.items() if k in keys}
 
 
+def set_win_title(fig, titwin='Image'):
+    fig.canvas.manager.set_window_title(titwin)
+
+
 def figure(**kwa):
     """ Creates and returns figure.
         figsize=(13,12), title='Image', dpi=80, facecolor='w', edgecolor='w', frameon=True
@@ -70,7 +74,7 @@ def figure(**kwa):
                                          'linewidth', 'subplotpars', 'tight_layout', 'constrained_layout')))
     move = kwa.get('move', None)
     title = kwa.get('title', '')
-    if title: fig.canvas.set_window_title(title)
+    if title: set_win_title(fig, title)
     if move: move_fig(fig, x0=move[0], y0=move[1])
     return fig
 
@@ -159,7 +163,7 @@ def fig_axim_axcb_imsh(figsize=(13,12), title='Image', dpi=80,\
     fig  = plt.figure(figsize=figsize, dpi=dpi, facecolor='w', edgecolor='w', frameon=True)
     axim = fig.add_axes(win_axim)
     axcb = fig.add_axes(win_axcb)
-    fig.canvas.set_window_title(title)
+    set_win_title(fig, title)
     imsh = axim.imshow(arr2d, interpolation='nearest', aspect='auto', origin=origin)
     return fig, axim, axcb, imsh
 
@@ -177,10 +181,6 @@ def fig_img_cbar_hist_axes(fig=None,\
            _fig.add_axes(win_axim, **kwa),\
            _fig.add_axes(win_axcb, **kwa),\
            _fig.add_axes(win_axhi, **kwa)
-
-
-def set_win_title(fig, titwin='Image'):
-    fig.canvas.set_window_title(titwin)
 
 
 def add_title_labels_to_axes(axes, title=None, xlabel=None, ylabel=None, fslab=14, fstit=20, color='k'):
