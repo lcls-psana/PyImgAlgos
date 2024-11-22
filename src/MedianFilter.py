@@ -73,11 +73,11 @@ def footprint_ring(rank=3) :
 
 def median_filter_ndarr(nda_in, rank=3) :
     """returns 2-d or 3-d array with number of merged photons per pixel.
-       
+
     Parameters
     - nda_in : numpy.array - n-dimensional numpy array
     - rank   : int - radial parameter, pixels within radius less or equal rank will be used to evaluate the median.
-    
+
     use scipy.ndimage.filters.median_filter(input, size=None, footprint=None, output=None, mode='reflect', cval=0.0, origin=0)
     http://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.ndimage.filters.median_filter.html#scipy.ndimage.filters.median_filter
     """
@@ -107,14 +107,14 @@ def median_filter_ndarr(nda_in, rank=3) :
 #------------------------------
 #------------------------------
 
-def random_standard_ndarr(shape=(185,388), mu=50, sigma=10, dtype=np.float) :
+def random_standard_ndarr(shape=(185,388), mu=50, sigma=10, dtype=np.float32) :
     """Returns n-d array of specified shape with random intensities generated for Gaussian parameters.
     """
     return (mu + sigma*np.random.standard_normal(shape)).astype(dtype,copy=False)
 
 #------------------------------
 
-def slope_2darr(shape=(185,388), axis=0, dtype=np.float) :
+def slope_2darr(shape=(185,388), axis=0, dtype=np.float32) :
     """Returns n-d array monotonicly raising along axis=0 or 1"""
     imax,jmax = shape
     if axis==0 :
@@ -130,7 +130,7 @@ def example01() :
     print("""example01 footprint_ring()""")
     fpr = footprint_ring(rank=50)
     if True :
-      import pyimgalgos.GlobalGraphics as gg      
+      import pyimgalgos.GlobalGraphics as gg
       gg.plotImageLarge(fpr, amp_range=None, title='footprint')
       gg.show()
 
@@ -140,8 +140,8 @@ def example02() :
     print("""example02 random_standard_ndarr(shape=(40,40))""")
 
     from time import time
-    #nda = slope_2darr(shape=(5,5), axis=0, dtype=np.float)
-    nda = random_standard_ndarr(shape=(40,40), mu=50, sigma=10, dtype=np.float)
+    #nda = slope_2darr(shape=(5,5), axis=0, dtype=np.float32)
+    nda = random_standard_ndarr(shape=(40,40), mu=50, sigma=10, dtype=np.float32)
     nda[10:30,10:30] = np.zeros((20,20))
     rank=3
     t0_sec = time()
@@ -149,7 +149,7 @@ def example02() :
     print('median_filter_ndarr consumes time %.3f sec at rank=%d and array shape=%s' % (time()-t0_sec, rank, str(nda.shape)))
 
     if True :
-      import pyimgalgos.GlobalGraphics as gg      
+      import pyimgalgos.GlobalGraphics as gg
       gg.plotImageLarge(nda, amp_range=None, title='nda_in')
       gg.plotImageLarge(nda_med, amp_range=None, title='median')
       gg.show()
@@ -160,7 +160,7 @@ def example03() :
     print("""example03 random_standard_ndarr(shape=(32,185,388))""")
 
     from time import time
-    nda = random_standard_ndarr(shape=(32,185,388), mu=50, sigma=10, dtype=np.float)
+    nda = random_standard_ndarr(shape=(32,185,388), mu=50, sigma=10, dtype=np.float32)
     rank=3
     t0_sec = time()
     nda_med = median_filter_ndarr(nda, rank)
@@ -168,7 +168,7 @@ def example03() :
 
     if True :
       seg=1
-      import pyimgalgos.GlobalGraphics as gg      
+      import pyimgalgos.GlobalGraphics as gg
       gg.plotImageLarge(nda[seg,:,:], amp_range=None, title='nda_in')
       gg.plotImageLarge(nda_med[seg,:,:], amp_range=None, title='median')
       gg.show()
@@ -177,7 +177,7 @@ def example03() :
 
 def usage() : return 'Use command: python %s <test-number [1-3]>' % sys.argv[0]
 
-def main() :    
+def main() :
     print('\n%s\n' % usage())
     if len(sys.argv)!= 2  : example01()
     elif sys.argv[1]=='1' : example01()

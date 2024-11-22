@@ -38,8 +38,8 @@ Usage::
     #          = 0 - use indexes  0 and nbins-1 for underflow overflow, respectively
     #          = 1 - use extended indexes -1 and nbins for underflow overflow, respectively
 
-    hb.set_bin_data(data, dtype=np.float) # adds bin data to the HBins object. data size should be equal to hb.nbins()
-    data = bin_data(dtype=np.float)       # returns numpy array of data associated with HBins object.
+    hb.set_bin_data(data, dtype=np.float32) # adds bin data to the HBins object. data size should be equal to hb.nbins()
+    data = bin_data(dtype=np.float32)       # returns numpy array of data associated with HBins object.
 
     # Print methods
     hb.print_attrs_defined()
@@ -291,14 +291,14 @@ class HBins(object):
         return np.bincount(indarr, weights, self.nbins())
 
 
-    def set_bin_data(self, data, dtype=np.float):
+    def set_bin_data(self, data, dtype=np.float32):
         if len(data)!=self.nbins():
             self._bin_data = None
             return
         self._bin_data = np.array(data, dtype)
 
 
-    def bin_data(self, dtype=np.float):
+    def bin_data(self, dtype=np.float32):
         return self._bin_data.astype(dtype)
 
 

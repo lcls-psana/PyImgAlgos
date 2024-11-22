@@ -53,7 +53,7 @@ def ring_xy_random(shape=(1300, 1340)) :
     npy,npx = shape
     xc  = npx/2
     yc  = npy/2
-    
+
     #random = np.random.standard_normal(2)
     random = np.random.random(2)
     #print 'random =', random
@@ -83,7 +83,7 @@ def peaks_on_ring(shape=(1300, 1340), npeaks=3) :
     npy,npx = shape
     xc  = npx/2
     yc  = npy/2
-    
+
     #random = np.random.standard_normal(2)
     random = np.random.random(2)
     #print 'random =', random
@@ -142,8 +142,8 @@ def cspad2x1_arr() :
     #arr2x1.shape = (rows,cols)
 
     arr2x1 = gg.getImageFromIndexArrays(iX,iY,iX+iY)
-    
-    return np.array(arr2x1,dtype=np.float)
+
+    return np.array(arr2x1,dtype=np.float32)
 
 #------------------------------
 

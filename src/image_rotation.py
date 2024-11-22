@@ -20,7 +20,7 @@ class Store(object) :
 
 #------------------------------
 
-sp = Store() 
+sp = Store()
 
 #------------------------------
 
@@ -35,10 +35,10 @@ def _fillimg(r,c,a) :
 
 def image_rotation(arr, phi_deg, center=None, oshape=(3000,3000)) :
     """Rotate 2-d image arr by phi_deg degree
-       Example: image_rotation(arr2d,10); 
+       Example: image_rotation(arr2d,10);
 
        ASSUMPTION:
-       1. by default 2-d arr image center corresponds to (x,y) origin 
+       1. by default 2-d arr image center corresponds to (x,y) origin
        - arr      - [in] 2-d image array
        - phi_deg  - [in] angle phi in degrees
        - center   - [in] center (row,column) location on image, which will be used as (x,y) origin 
@@ -104,12 +104,12 @@ def plot_image(img) :
     if sp.imsh is not None : del sp.imsh
     sp.imsh = None
 
-    gg.plot_imgcb(sp.fig, sp.axim, sp.axcb, sp.imsh, img, amin=amin, amax=amax, title=None) 
+    gg.plot_imgcb(sp.fig, sp.axim, sp.axcb, sp.imsh, img, amin=amin, amax=amax, title=None)
 
-    sp.fig.canvas.set_window_title('Test') 
+    sp.fig.canvas.set_window_title('Test')
     sp.fig.canvas.draw() # re-draw figure content
 
-    gg.show(mode='do not hold') 
+    gg.show(mode='do not hold')
 
 #------------------------------
 
@@ -118,14 +118,14 @@ def test_image_rotation() :
 
     #cent = (750, 750)
     shape = (1501,1501)
-    img = random_standard(shape, mu=200, sigma=25, dtype=np.float)
- 
+    img = random_standard(shape, mu=200, sigma=25, dtype=np.float32)
+
     plot_init()
     for phi in np.linspace(0,360,72, endpoint=False) :
         img_rot = image_rotation(img, phi, center=None, oshape=(2000,2000))
         print('test image rotation for phi(deg)=%.1f shape:%s' % (phi, str(img_rot.shape)))
         plot_image(img_rot)
-    
+
     gg.show()
 
 #------------------------------
@@ -133,5 +133,5 @@ def test_image_rotation() :
 if __name__ == "__main__" :
     test_image_rotation()
     sys.exit('The End')
- 
+
 #------------------------------

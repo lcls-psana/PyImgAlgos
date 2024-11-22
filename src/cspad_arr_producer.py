@@ -1,35 +1,21 @@
-#------------------------------
+
 """User analysis module for pyana framework.
 
-This software was developed for the LCLS project.  If you use all or 
-part of it, please give an appropriate acknowledgment.
-
-@version $Id$
+This software was developed for the LCLS project.
+If you use all or part of it, please give an appropriate acknowledgment.
 
 @author Mikhail S. Dubrovin
 """
 from __future__ import print_function
 
-#------------------------------
-#  Module's version from SVN --
-#------------------------------
 __version__ = "$Revision$"
-# $Source$
 
-#--------------------------------
-#  Imports of standard modules --
-#--------------------------------
 import sys
 import logging
 
-#-----------------------------
-# Imports for other modules --
-#-----------------------------
-#### from pypdsdata import xtc
-
-#### from pypdsdata.xtc import *
 from psana import *
 import numpy as np
+
 
 class cspad_arr_producer (object) :
     """Produces from CSPAD data numpy array of shape=(4, 8, 185, 388) or (185, 388, 2) and specified data type."""
@@ -42,11 +28,10 @@ class cspad_arr_producer (object) :
                    'uint8'  : np.uint8, \
                    'uint16' : np.uint16, \
                    'uint32' : np.uint32, \
-                   'float'  : np.float, \
+                   'float'  : np.float32, \
                    'float32': np.float32, \
                    'double' : np.double \
                   }
-   
 
     def __init__ ( self ) :
         """Class constructor.
@@ -57,7 +42,7 @@ class cspad_arr_producer (object) :
         - dtype_type - string, output array data type
         - key_out    - string, unique keyword for output array identification
         - val_miss   - float,  intensity value substituted for missing in data 2x1s
-        - print_bits - int, bit-word for verbosity control 
+        - print_bits - int, bit-word for verbosity control
         """
 
         self.m_src        = self.configSrc  ('source', '*-*|Cspad-*')
@@ -81,8 +66,8 @@ class cspad_arr_producer (object) :
         except :
             msg = __name__ + ' WARNING: specified data_type = %s is not implemented' % self.m_dtype_str
             print(msg)
-            self.print_dtypes()    
-            self.m_dtype = np.int16 
+            self.print_dtypes()
+            self.m_dtype = np.int16
 
         #if   self.m_dtype_str == 'int'    : self.m_dtype = np.int
         #elif self.m_dtype_str == 'int8'   : self.m_dtype = np.int8
@@ -91,7 +76,7 @@ class cspad_arr_producer (object) :
         #elif self.m_dtype_str == 'uint8'  : self.m_dtype = np.uint8
         #elif self.m_dtype_str == 'uint16' : self.m_dtype = np.uint16
         #elif self.m_dtype_str == 'uint32' : self.m_dtype = np.uint32
-        #elif self.m_dtype_str == 'float'  : self.m_dtype = np.float
+        #elif self.m_dtype_str == 'float'  : self.m_dtype = np.float32
         #elif self.m_dtype_str == 'double' : self.m_dtype = np.double
         #else                              : self.m_dtype = np.int16
 
@@ -101,7 +86,7 @@ class cspad_arr_producer (object) :
         for k,v in cspad_arr_producer.dic_dtypes.items() :
             msg += '\n%10s : %10s' % (k,v)
         print(msg)
-        
+
 
     def beginjob( self, evt, env ) :
         """This method is called once at the beginning of the job. It should
@@ -133,7 +118,7 @@ class cspad_arr_producer (object) :
 
 
     def beginrun( self, evt, env ) :
-        """This optional method is called if present at the beginning 
+        """This optional method is called if present at the beginning
         of the new run.
 
         - evt - event data object
@@ -156,11 +141,11 @@ class cspad_arr_producer (object) :
         self.arr = None
 
         if   self.is_cspad    : self.proc_event_for_cspad    (evt, env)
-        elif self.is_cspad2x2 : self.proc_event_for_cspad2x2 (evt, env)            
+        elif self.is_cspad2x2 : self.proc_event_for_cspad2x2 (evt, env)
 
 
         if self.arr is None :
-            msg =  __name__ + 'WARNING!: image is non-available' 
+            msg =  __name__ + 'WARNING!: image is non-available'
             print(msg)
             return
 
@@ -171,7 +156,7 @@ class cspad_arr_producer (object) :
 
         #print '\ncspad_arr_producer: evt.keys():', evt.keys()
 
-        
+
     def proc_event_for_cspad( self, evt, env ) :
 
         # 1. Get data
@@ -201,7 +186,7 @@ class cspad_arr_producer (object) :
 
             quad_data = q.data()        # shape=(8, 185, 388)
             nsects = quad_data.shape[0]
-            if self.m_print_bits & 32 : print('quad_num=%d  roi_mask(oct)=%o   nsects=%d   data.shape=%s' % (quad_num, roi_mask,  nsects, str(quad_data.shape))) 
+            if self.m_print_bits & 32 : print('quad_num=%d  roi_mask(oct)=%o   nsects=%d   data.shape=%s' % (quad_num, roi_mask,  nsects, str(quad_data.shape)))
 
             # Copy quad data (N<8, 185, 388) -> to CSPAD arr (4, 8, 185, 388) - changing data type
             ind=0
@@ -228,7 +213,7 @@ class cspad_arr_producer (object) :
 
         self.arr[:] = elem.data()[:] # shape= (185, 388, 2) - copy changing data type
 
-        
+
     def endcalibcycle( self, evt, env ) : pass
 
     def endrun( self, evt, env ) : pass
@@ -258,7 +243,7 @@ class cspad_arr_producer (object) :
         print("  roiMask        =", self.config.roiMask())
         print("  numAsicsRead   =", self.config.numAsicsRead())
         print("  numAsicsStored =", self.config.numAsicsStored())
- 
+
 
     def print_config_pars_for_cspad( self, env ) :
         msg  = '%s: List of configuration parameters for CSPAD' % (__name__)
@@ -276,12 +261,10 @@ class cspad_arr_producer (object) :
             pass
 
         #if env.fwkName() == 'pyana':
-        #self.list_of_sections = map(self.config.sections, range(4)) 
+        #self.list_of_sections = map(self.config.sections, range(4))
         #msg +=  '\n  sections      : %s' % str(self.list_of_sections)
 
         #logging.info( msg )
         print(msg)
 
-#-----------------------------
-#-----------------------------
-#-----------------------------
+# EOF

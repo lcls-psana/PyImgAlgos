@@ -18,9 +18,9 @@ Usage::
     shape = ag.shape_as_3d(sh)
     arr2d = ag.reshape_to_2d(nda)
     arr3d = ag.reshape_to_3d(nda)
-    nda = ag.random_standard(shape=(40,60), mu=200, sigma=25, dtype=np.float)
-    nda = ag.random_exponential(shape=(40,60), a0=100, dtype=np.float)
-    nda = ag.random_one(shape=(40,60), dtype=np.float)
+    nda = ag.random_standard(shape=(40,60), mu=200, sigma=25, dtype=np.float32)
+    nda = ag.random_exponential(shape=(40,60), a0=100, dtype=np.float32)
+    nda = ag.random_one(shape=(40,60), dtype=np.float32)
     nda = ag.random_256(shape=(40,60), dtype=np.uint8)
     nda = ag.random_xffffffff(shape=(40,60), dtype=np.uint32, add=0xff000000)
     nda = ag.aranged_array(shape=(40,60), dtype=np.uint32)
@@ -94,7 +94,7 @@ def reshape_to_3d(arr) :
 
 #-----------------------------
 
-def random_standard(shape=(40,60), mu=200, sigma=25, dtype=np.float) :
+def random_standard(shape=(40,60), mu=200, sigma=25, dtype=np.float32) :
     """Returns numpy array of requested shape and type filled with normal distribution for mu and sigma.
     """
     a = mu + sigma*np.random.standard_normal(shape)
@@ -102,19 +102,19 @@ def random_standard(shape=(40,60), mu=200, sigma=25, dtype=np.float) :
 
 #-----------------------------
 
-def random_exponential(shape=(40,60), a0=100, dtype=np.float) :
+def random_exponential(shape=(40,60), a0=100, dtype=np.float32) :
     """Returns numpy array of requested shape and type filled with exponential distribution for width a0.
     """
     a = a0*np.random.standard_exponential(size=shape)
-    return np.require(a, dtype) 
+    return np.require(a, dtype)
 
 #-----------------------------
 
-def random_one(shape=(40,60), dtype=np.float) :
+def random_one(shape=(40,60), dtype=np.float32) :
     """Returns numpy array of requested shape and type filled with random numbers in the range [0,255].
     """
     a = np.random.random(shape)
-    return np.require(a, dtype) 
+    return np.require(a, dtype)
 
 #-----------------------------
 
@@ -178,7 +178,7 @@ def add_ring(arr2d, amp=100, row=4.3, col=5.8, rad=100, sigma=3) :
     """Adds peak Gaussian-shaped peak intensity to numpy array arr2d
        Parameters
        ----------
-       arr2d : np.array - 2-d numpy array 
+       arr2d : np.array - 2-d numpy array
        amp : float - ring intensity
        row : float - ring center row
        col : float - ring center col
@@ -207,8 +207,8 @@ def add_random_peaks(arr2d, npeaks=10, amean=100, arms=50, wmean=2, wrms=0.1) :
     r0 = rand_uni[0,:]*shape[0]
     c0 = rand_uni[1,:]*shape[1]
     rand_std = random_standard(shape=(4,npeaks), mu=0, sigma=1)
-    a0    = amean + arms*rand_std[0,:] 
-    sigma = wmean + wrms*rand_std[0,:] 
+    a0    = amean + arms*rand_std[0,:]
+    sigma = wmean + wrms*rand_std[0,:]
 
     peaks = list(zip(r0, c0, a0, sigma))
 

@@ -15,8 +15,8 @@ Usage::
     from pyimgalgos.NDArrGenerators import random_standard
     from pyimgalgos.GlobalUtils import print_ndarr
 
-    arr_float = random_standard(shape=(1000), mu=200, sigma=25, dtype=np.float)
-    arr_int16 = arr_float.astype(np.int16)  
+    arr_float = random_standard(shape=(1000), mu=200, sigma=25, dtype=np.float32)
+    arr_int16 = arr_float.astype(np.int16)
     print_ndarr(arr_int16, name='arr_int16', first=0, last=10)
 
     print 'entropy(arr_int16)     = %.6f' % entropy(arr_int16)
@@ -49,10 +49,10 @@ def hist_values(nda) :
         return np.bincount(nda.flatten(), weights=None, minlength=1<<16)
 
     elif nda.dtype == np.int16 :
-        unda = nda.astype(np.uint16) # int16 (1,2,-3,0,4,-5,...) -> uint16 (1,2,0,65533,4,65531,...)        
+        unda = nda.astype(np.uint16) # int16 (1,2,-3,0,4,-5,...) -> uint16 (1,2,0,65533,4,65531,...)
         return np.bincount(unda.flatten(), weights=None, minlength=1<<16)
 
-    else : 
+    else :
         sys.exit('method %s get unexpected nda dtype=%s. Use np.uint8 or np.(u)int16'%(FR().f_code.co_name, str(nda.dtype)))
 
 #------------------------------
@@ -63,7 +63,7 @@ def hist_probabilities(nda) :
     #print '%s for array dtype=%s'%(FR().f_code.co_name, str(nda.dtype))
 
     nvals = nda.size
-    ph = np.array(hist_values(nda), dtype=np.float)
+    ph = np.array(hist_values(nda), dtype=np.float32)
     ph /= nvals
     #print 'Check sum of probabilities: %.6f for number of values in array = %d' % (ph.sum(), nvals)
     return ph
@@ -72,11 +72,11 @@ def hist_probabilities(nda) :
 
 def entropy(nda) :
     """Evaluates n-d array entropy using formula from https://en.wikipedia.org/wiki/Entropy_%28information_theory%29
-    """ 
+    """
     unda = None # histogram array indexes must be unsigned
     if   nda.dtype == np.uint8 : unda = nda
     elif nda.dtype == np.uint16: unda = nda
-    elif nda.dtype == np.int16 : unda = nda.astype(np.uint16) # int16 (1,2,-3,0,4,-5,...) -> uint16 (1,2,0,65533,4,65531,...)        
+    elif nda.dtype == np.int16 : unda = nda.astype(np.uint16) # int16 (1,2,-3,0,4,-5,...) -> uint16 (1,2,0,65533,4,65531,...)
 
     prob_h = hist_probabilities(unda)
 
@@ -92,7 +92,7 @@ def entropy(nda) :
 #------------------------------
 ## formula in https://en.wikipedia.org/wiki/Entropy_%28information_theory%29
 ## sums over all (x_i) which is a set of possible values....
-## this method sums over set (one entry) of probabilities 
+## this method sums over set (one entry) of probabilities
 #------------------------------
 
 def entropy_v1(nda) :
@@ -100,16 +100,16 @@ def entropy_v1(nda) :
     """
     #print '%s for array dtype=%s'%(FR().f_code.co_name, str(nda.dtype))
 
-    unda = nda 
+    unda = nda
     if   nda.dtype == np.uint8  : unda = nda
     elif nda.dtype == np.uint16 : unda = nda
-    elif nda.dtype == np.int16  : unda = nda.astype(np.uint16) # int16 (1,2,-3,0,4,-5,...) -> uint16 (1,2,0,65533,4,65531,...)        
+    elif nda.dtype == np.int16  : unda = nda.astype(np.uint16) # int16 (1,2,-3,0,4,-5,...) -> uint16 (1,2,0,65533,4,65531,...)
     else : sys.exit('method %s get unexpected nda dtype=%s. Use np.uint8 or np.(u)int16'%(FR().f_code.co_name, str(nda.dtype)))
 
     hsize = (1<<8) if nda.dtype == np.uint8 else (1<<16)
     vals_h = np.bincount(unda.flatten(), weights=None, minlength=hsize)
-    prob_h = np.array(vals_h, dtype=np.float) / unda.size
-    #prob_nda = prob_h[unda]    
+    prob_h = np.array(vals_h, dtype=np.float32) / unda.size
+    #prob_nda = prob_h[unda]
     #p_log2p_nda = prob_nda * np.log2(prob_nda)
     #ent = -p_log2p_nda.sum()
     p_log2p_nda = [p*np.log2(p) for p in prob_h if p>0]
@@ -142,9 +142,9 @@ def test_entropy():
     from pyimgalgos.GlobalUtils import print_ndarr
     from time import time
 
-    arr_float = random_standard(shape=(100000,), mu=200, sigma=25, dtype=np.float)
+    arr_float = random_standard(shape=(100000,), mu=200, sigma=25, dtype=np.float32)
     arr_int16 = arr_float.astype(np.int16)
-    
+
     print_ndarr(arr_int16, name='arr_int16', first=0, last=10)
 
     t0_sec = time()

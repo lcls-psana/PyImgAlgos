@@ -10,6 +10,20 @@ Package author: Mikhail Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+2024-11-21 Mikhail Dubrovin
+Tag: V02-00-08
+- code cleaning for spaces annd comments, np.float > np.float32
+  app/merge_mask_ndarrays
+  app/merge_max_ndarrays
+  src/Entropy.py
+  src/Graphics.py
+  src/HBins.py
+  src/MedianFilter.py
+  src/NDArrGenerators.py
+  src/TestImageGenerator.py
+  src/cspad_arr_producer.py
+  src/image_rotation.py
+
 2024-01-17 Mikhail Dubrovin
 Tag: V02-00-07
 - src/Graphics.py - fix set_win_title using fig.canvas.manager.set_window_title(titwin)
