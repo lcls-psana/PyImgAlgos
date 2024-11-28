@@ -2,19 +2,13 @@
 #------------------------------
 """TestImageGenerator - a set of methods to generate test images as numpy arrays
 
-This software was developed for the SIT project.  If you use all or 
-part of it, please give an appropriate acknowledgment.
+This software was developed for the SIT project.
+If you use all or part of it, please give an appropriate acknowledgment.
 
 @version $Id$
 
 @author Mikhail S. Dubrovin
 """
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-#--------------------------------
-__version__ = "$Revision$"
-#--------------------------------
 
 from time import time
 import os
@@ -133,7 +127,7 @@ def rings_sinc(shape=(1024,1024), pbits=0o377) :
 def cspad2x1_arr() :
     """returns test np.array for cspad 2x1"""
     rows, cols = 185, 388
-    #arr2x1  = np.ones((rows,cols),dtype=np.int)
+    #arr2x1  = np.ones((rows,cols),dtype=np.int32)
     row2x1 = np.arange(cols)
     col2x1 = np.arange(rows)
     iY, iX = np.meshgrid(row2x1, col2x1)

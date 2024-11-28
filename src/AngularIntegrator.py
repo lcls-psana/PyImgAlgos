@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#------------------------------
 
 """:py:class:`AngularIntegrator` - Evaluate radial histogram for angle-integrated 2-d image
 
@@ -12,7 +11,7 @@ Usage::
     import numpy as np
     img = np.ones((1200,1300), dtype=np.float32)  # generate test image as numpy array of ones of size (rows,cols) = (1200,1300)
     mask = np.ones_like(img)                      # generate test mask for all good pixels
-    
+
     rows, cols = img.shape                        # define shape parameters rows, cols - number of image rows, columns, respectively
     rmin, rmax, nbins =100, 400, 50               # define radial histogram parameters - radial limits and number of equidistant bins
 
@@ -31,18 +30,13 @@ Usage::
 
 @see :py:class:`pypsalg.AngularIntegratorM`
 
-This software was developed for the SIT project.  If you use all or 
+This software was developed for the SIT project.  If you use all or
 part of it, please give an appropriate acknowledgment.
 
 @version $Id$
 
 @author Mikhail S. Dubrovin
 """
-from __future__ import print_function
-from __future__ import division
-#--------------------------------
-__version__ = "$Revision$"
-#--------------------------------
 
 from time import time
 import math
@@ -51,7 +45,6 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-#------------------------------
 
 def valueToIndexProtected(V, VRange) :
     """Returns array of indexes from array of values
@@ -67,21 +60,19 @@ def valueToIndexProtected(V, VRange) :
     #return np.select([V<Vmin,V>Vmax], [0,Nbins-1], default=indarr)
     return np.select([V==Vmax, indarr<0, indarr>Nbins1], [Nbins1, 0, 0], default=indarr)
 
-#------------------------------
 
 def divideArraysSafely(num, den) :
     """Per evement divides numpy arrays result = num/den. Protected for 0 values. Arrays should have the same size."""
     if num.shape != den.shape :
         print('divideArraysSafely: non-equal array shapes for numerator and denumerator: ', num.shape, den.shape)
-    num_corr =  np.select([den<1], [0], default=num)    
-    den_corr =  np.select([den<1], [1], default=den)    
+    num_corr =  np.select([den<1], [0], default=num)
+    den_corr =  np.select([den<1], [1], default=den)
     return old_div(num_corr,den_corr)
 
-#------------------------------
 
 class AngularIntegrator(object) :
     """Angular integration of a 2D numpy array"""
-    
+
     def __init__(self):
         self.center  = None
         self.rrange  = None
@@ -91,10 +82,10 @@ class AngularIntegrator(object) :
         self.rbinind = None
         self.binstat = None
 
-        
+
     def setParameters(self, xsize, ysize, xc=None, yc=None, rmin=None, rmax=None, nbins=None, mask=None):
         """Sets image, radial histogram parameters, and mask if proper normalization on number of actual pixels is desired
-        """   
+        """
         # agregate input parameters
         self.mask    = mask
         self.imshape = (ysize, xsize)
@@ -114,14 +105,14 @@ class AngularIntegrator(object) :
         x = np.arange(self.xsize) - self.xc
         y = np.arange(self.ysize) - self.yc
         xgrid, ygrid = np.meshgrid(x,y)
- 
+
         half_bin = 0.5*(self.rmax-self.rmin)/self.nbins
         self.bincent = np.linspace(self.rmin+half_bin, self.rmax-half_bin, self.nbins)
 
         self.rpixind  = np.sqrt(xgrid**2 + ygrid**2)
         self.rbinind  = valueToIndexProtected(self.rpixind, self.rrange)
 
-        if not self.mask is None : 
+        if not self.mask is None :
             self.binstat = np.bincount(self.rbinind.flatten(), weights=self.mask.flatten(), minlength=self.rrange[2])
             #print 'self.binstat   = ', self.binstat
 
@@ -133,7 +124,7 @@ class AngularIntegrator(object) :
 
     def getRadialHistogramArrays(self, image):
         """Fills radial histogram with image intensities and do normalization on actual pixel number if the mask is provided
-           and returns two arrays with radial bin centers and integrated (normalized) intensities. 
+           and returns two arrays with radial bin centers and integrated (normalized) intensities.
         """
         w = image * self.mask
         bin_integral = np.bincount(self.rbinind.flatten(), weights=w.flatten(), minlength=self.nbins)
@@ -151,11 +142,8 @@ class AngularIntegrator(object) :
     def getRBinIndexMap(self) :
         return self.rbinind
 
-#------------------------------
-#------------------------------
+
 #-------- FOR TEST ONLY -------
-#------------------------------
-#------------------------------
 
 def drawImage(arr, img_range=None, zrange=None, figsize=(10,10)) :    # range = (left, right, low, high), zrange=(zmin,zmax)
     fig = plt.figure(figsize=figsize, dpi=80, facecolor='w', edgecolor='w', frameon=True)
@@ -166,16 +154,14 @@ def drawImage(arr, img_range=None, zrange=None, figsize=(10,10)) :    # range = 
     if zrange != None : imAxes.set_clim(zrange[0],zrange[1])
     colbar = fig.colorbar(imAxes, pad=0.03, fraction=0.04, shrink=1.0, aspect=40, orientation='horizontal')
 
-#------------------------------
 
-def drawGraph(x,y) : 
+def drawGraph(x,y) :
     fig = plt.figure(figsize=(6,4), dpi=80, facecolor='w', edgecolor='w', frameon=True)
     #fig.subplots_adjust(left=0.05, bottom=0.03, right=0.98, top=0.98, wspace=0.2, hspace=0.1)
     #figAxes = fig.add_subplot(111)
     ax = fig.add_axes([0.15, 0.10, 0.78, 0.86])
     ax.plot(x,y,'b-')
 
-#------------------------------
 
 def MakeImage(shape=(1024,1024)) :
     # Create test image - a sinc function, centered in the middle of
@@ -199,12 +185,11 @@ def MakeImage(shape=(1024,1024)) :
     image = np.abs(np.sinc(rgrid))
     return image
 
-#------------------------------
 
 def mainTest() :
 
     image = MakeImage(shape=(2000,1000))
-    mask  = np.ones_like(image, dtype=np.int)
+    mask  = np.ones_like(image, dtype=np.int32)
 
     ysize, xsize = image.shape
 
@@ -226,11 +211,10 @@ def mainTest() :
     drawGraph(bincent, integral)
 
     plt.show()
- 
-#------------------------------
+
 
 if __name__ == "__main__" :
 
     mainTest()
 
-#------------------------------
+# EOF

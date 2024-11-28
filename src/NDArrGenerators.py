@@ -11,7 +11,7 @@ Usage::
 
     # Methods
 
-    v = ag.prod_of_elements(arr, dtype=np.int)
+    v = ag.prod_of_elements(arr, dtype=np.int32)
     size = ag.size_from_shape() # use nda.size()
 
     shape = ag.shape_as_2d(sh)
@@ -48,7 +48,7 @@ import math
 
 #-----------------------------
 
-def prod_of_elements(arr, dtype=np.int) :
+def prod_of_elements(arr, dtype=np.int32) :
     """Returns product of sequence elements
     """
     return np.prod(arr,axis=None,dtype=dtype)
@@ -56,7 +56,7 @@ def prod_of_elements(arr, dtype=np.int) :
 #-----------------------------
 
 def size_from_shape(shape) :
-    """Returns size from the shape sequence 
+    """Returns size from the shape sequence
     """
     return prod_of_elements(shape)
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import os
 import sys
 from time import time
@@ -8,7 +7,6 @@ from time import time
 import numpy as np
 import pyimgalgos.GlobalUtils as gu
 from pyimgalgos.HBins import HBins
-#------------------------------
 
 shape = (1024,1024)
 
@@ -21,7 +19,7 @@ gu.print_ndarr(arr, 'np.random.standard_normal')
 t0_sec = time()
 arr_exp = 100*np.random.standard_exponential(size=shape).flatten()
 arr_i16 = np.require(arr_exp, dtype=np.int16)
-arr_int = np.require(arr_exp, dtype=np.int)
+arr_int = np.require(arr_exp, dtype=np.int32)
 arr_f32 = np.require(arr_exp, dtype=np.float32)
 arr_f64 = np.require(arr_exp, dtype=np.float64)
 print('\n np.random.standard_exponential time %.6f sec' % (time()-t0_sec)) # 0.052328 sec

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-#------------------------------
-#import sys
-from __future__ import print_function
 from time import time, sleep
 import psana
 import numpy as np
@@ -37,7 +34,7 @@ if DO_PLOT :
     figim = gr.figure(figsize=(13,12), title='Image')
     axim  = gr.add_axes(figim, axwin=(0.05, 0.03, 0.87, 0.93))
     gr.move_fig(figim, x0=0, y0=0)
- 
+
 arr_dt = []
 
 for i,evt in enumerate(ds.events()) :
@@ -46,7 +43,7 @@ for i,evt in enumerate(ds.events()) :
     t0_sec = time()
     raw = det.raw(evt) # dtype:int16
     # print_ndarr(raw, 'raw')
-    nda = np.array(raw, dtype=np.float)
+    nda = np.array(raw, dtype=np.float32)
     if nda is None : continue
     nda -= peds
     det.common_mode_apply(runnum, nda)

@@ -1,24 +1,15 @@
 #!/usr/bin/env python
-#------------------------------
 
-from __future__ import print_function
-from __future__ import division
 import os
 import sys
 import math
 import numpy as np
-#from time import time
-#from math import fabs, sqrt
-
-#------------------------------
 
 class Store(object) :
     """Store of shared parameters.
     """
     def __init__(self) :
         print('In Store')
-
-#------------------------------
 
 sp = Store()
 
@@ -69,15 +60,15 @@ def image_rotation(arr, phi_deg, center=None, oshape=(3000,3000)) :
 
     orows, orows1 = oshape[0], oshape[0] - 1
     ocols, ocols1 = oshape[1], oshape[1] - 1
-    
-    icols = np.array(xrot + math.ceil(ocols/2), dtype=np.int)
-    irows = np.array(yrot + math.ceil(orows/2), dtype=np.int)
+
+    icols = np.array(xrot + math.ceil(ocols/2), dtype=np.int32)
+    irows = np.array(yrot + math.ceil(orows/2), dtype=np.int32)
 
     irows = np.select([irows<0, irows>orows1], [0,orows1], default=irows)
     icols = np.select([icols<0, icols>ocols1], [0,ocols1], default=icols)
 
     sp.image = np.zeros(oshape, dtype=arr.dtype)
-    sp.count = np.zeros(oshape, dtype=np.int)
+    sp.count = np.zeros(oshape, dtype=np.int32)
 
     unused_lst = list(map(_fillimg, irows, icols, arr))
 

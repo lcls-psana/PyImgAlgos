@@ -20,17 +20,17 @@ import numpy as np
 class cspad_arr_producer (object) :
     """Produces from CSPAD data numpy array of shape=(4, 8, 185, 388) or (185, 388, 2) and specified data type."""
 
-    dic_dtypes = { 'int'    : np.int, \
+    dic_dtypes = { 'int'    : np.int32, \
                    'int8'   : np.int8, \
                    'int16'  : np.int16, \
                    'int32'  : np.int32, \
-                   'uint'   : np.uint, \
+                   'uint'   : np.uint32, \
                    'uint8'  : np.uint8, \
                    'uint16' : np.uint16, \
                    'uint32' : np.uint32, \
                    'float'  : np.float32, \
                    'float32': np.float32, \
-                   'double' : np.double \
+                   'double' : np.float64 \
                   }
 
     def __init__ ( self ) :
@@ -69,7 +69,7 @@ class cspad_arr_producer (object) :
             self.print_dtypes()
             self.m_dtype = np.int16
 
-        #if   self.m_dtype_str == 'int'    : self.m_dtype = np.int
+        #if   self.m_dtype_str == 'int'    : self.m_dtype = np.int32
         #elif self.m_dtype_str == 'int8'   : self.m_dtype = np.int8
         #elif self.m_dtype_str == 'int16'  : self.m_dtype = np.int16
         #elif self.m_dtype_str == 'int32'  : self.m_dtype = np.int32
@@ -77,7 +77,7 @@ class cspad_arr_producer (object) :
         #elif self.m_dtype_str == 'uint16' : self.m_dtype = np.uint16
         #elif self.m_dtype_str == 'uint32' : self.m_dtype = np.uint32
         #elif self.m_dtype_str == 'float'  : self.m_dtype = np.float32
-        #elif self.m_dtype_str == 'double' : self.m_dtype = np.double
+        #elif self.m_dtype_str == 'double' : self.m_dtype = np.float64
         #else                              : self.m_dtype = np.int16
 
 

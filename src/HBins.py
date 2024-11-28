@@ -365,8 +365,8 @@ def test(o, cmt=''):
 def test_bin_data(o, cmt=''):
     print('%s\n%s' % (80*'_', cmt))
     data = np.arange(o.nbins())
-    o.set_bin_data(data, dtype=np.int)
-    data_ret = o.bin_data(dtype=np.int)
+    o.set_bin_data(data, dtype=np.int32)
+    data_ret = o.bin_data(dtype=np.int32)
     print('data saved   :', data)
     print('data retrieved:', data_ret)
 

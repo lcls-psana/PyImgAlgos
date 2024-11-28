@@ -170,15 +170,15 @@ def fraser(arr, beta_deg, z, center=None, oshape=(1500,1500)) :
 
     orows, orows1 = oshape[0], oshape[0] - 1
     ocols, ocols1 = oshape[1], oshape[1] - 1
-    
-    icols = np.array(s12rot + math.ceil(ocols/2), dtype=np.int)
-    irows = np.array(s3rot  + math.ceil(orows/2), dtype=np.int)
+
+    icols = np.array(s12rot + math.ceil(ocols/2), dtype=np.int32)
+    irows = np.array(s3rot  + math.ceil(orows/2), dtype=np.int32)
 
     irows = np.select([irows<0, irows>orows1], [0,orows1], default=irows)
     icols = np.select([icols<0, icols>ocols1], [0,ocols1], default=icols)
 
     sp.image = np.zeros(oshape, dtype=arr.dtype)
-    sp.count = np.zeros(oshape, dtype=np.int)
+    sp.count = np.zeros(oshape, dtype=np.int32)
 
     unused_lst = list(map(_fillimg, irows, icols, arr))
 
@@ -186,7 +186,7 @@ def fraser(arr, beta_deg, z, center=None, oshape=(1500,1500)) :
     #print 's3rot.shape: ', s3rot.shape
     #print 's12rot.shape: ', s12rot.shape
     #print 'reciparr.shape: ', reciparr.shape
-    #print 'count min=%d, max=%d' % (sp.count.min(), sp.count.max())    
+    #print 'count min=%d, max=%d' % (sp.count.min(), sp.count.max())
 
     countpro = np.select([sp.count<1], [-1], default=sp.count)
     reciparr = np.select([countpro>0], [sp.image/countpro], default=0)
