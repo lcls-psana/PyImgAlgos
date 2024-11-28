@@ -10,6 +10,20 @@ Package author: Mikhail Dubrovin
 Please describe any modifications that you made to the package in the
 reverse time order.
 
+2024-11-27 Mikhail Dubrovin
+Tag: V02-00-09
+- replace deprecated np.int > np.int32, np.float > np.float32, code cleaning
+	modified:   examples/ex-NDArrGenerators.py
+	modified:   examples/ex-NDArrSpectrum.py
+	modified:   examples/ex-test-bincount.py
+	modified:   src/AngularIntegrator.py
+	modified:   src/FiberAngles.py
+	modified:   src/HBins.py
+	modified:   src/NDArrGenerators.py
+	modified:   src/TestImageGenerator.py
+	modified:   src/cspad_arr_producer.py
+	modified:   src/image_rotation.py
+
 2024-11-21 Mikhail Dubrovin
 Tag: V02-00-08
 - code cleaning for spaces annd comments, np.float > np.float32
